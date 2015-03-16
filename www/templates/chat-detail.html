@@ -1,0 +1,38 @@
+<!--
+  This template loads for the 'tab.friend-detail' state (app.js)
+  'friend' is a $scope variable created in the FriendsCtrl controller (controllers.js)
+  The FriendsCtrl pulls data from the Friends service (service.js)
+  The Friends service returns an array of friend data
+-->
+<ion-view view-title="{{chat.name}}">
+  <ion-nav-buttons side="primary">
+      <a class="button button-clear button-stable" ng-href="#/tab/chats">
+        End
+      </a>
+    </ion-nav-buttons>
+  <ion-content class="padding">
+    <ion-slide-box on-slide-changed="slideHasChanged($index)" show-pager="true">
+      <ion-slide>
+        <div class="box blue">
+          <p>
+            Bacon ipsum dolor amet bresaola pork belly meatball, hamburger ground round sausage shank venison pastrami frankfurter jowl. Brisket cupim salami bacon. Shankle cow salami ribeye cupim pork loin sausage tri-tip andouille meatball. Shank ribeye ground round, drumstick flank brisket beef ribs pork picanha pork belly. Boudin strip steak bacon alcatra rump, fatback kevin. Short loin jowl ham corned beef tri-tip bresaola fatback short ribs. Pork chop picanha shank bacon salami turkey drumstick cupim.
+          </p>
+        </div>
+      </ion-slide>
+      <ion-slide>
+        <div class="box yellow">
+          <p>
+            Bacon ipsum dolor amet bresaola pork belly meatball, hamburger ground round sausage shank venison pastrami frankfurter jowl. Brisket cupim salami bacon. Shankle cow salami ribeye cupim pork loin sausage tri-tip andouille meatball. Shank ribeye ground round, drumstick flank brisket beef ribs pork picanha pork belly. Boudin strip steak bacon alcatra rump, fatback kevin. Short loin jowl ham corned beef tri-tip bresaola fatback short ribs. Pork chop picanha shank bacon salami turkey drumstick cupim.
+          </p>
+        </div>
+      </ion-slide>
+      <ion-slide>
+        <div class="box pink">
+          <p>
+            Bacon ipsum dolor amet bresaola pork belly meatball, hamburger ground round sausage shank venison pastrami frankfurter jowl. Brisket cupim salami bacon. Shankle cow salami ribeye cupim pork loin sausage tri-tip andouille meatball. Shank ribeye ground round, drumstick flank brisket beef ribs pork picanha pork belly. Boudin strip steak bacon alcatra rump, fatback kevin. Short loin jowl ham corned beef tri-tip bresaola fatback short ribs. Pork chop picanha shank bacon salami turkey drumstick cupim.
+          </p>
+        </div>
+      </ion-slide>
+    </ion-slide-box>
+  </ion-content>
+</ion-view>

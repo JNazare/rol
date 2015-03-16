@@ -1,0 +1,50 @@
+/* Empty. Add your own CSS if you like */
+
+span.book-name {
+	font-size: 12px;
+}
+
+span.author-name {
+	font-size: 10px;
+	color: #666;
+}
+
+div.search-list {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+div.search-list-item {
+	border: none;
+}
+
+a.booktile {
+	text-decoration: none;
+	color: black;
+}
+
+button.button.button-large.button-clear.ion-ios-play.play-button{
+	font-size: 60px;
+	max-height: 100px;
+	margin-left: 45%;
+}
+
+button.button.button-large.button-clear.ion-ios-search-strong{
+	font-size: 25px;
+	max-height: 100px;
+	margin-right: 20px;
+}
+
+div.box{
+	/*border: 1px solid #999;*/
+	padding: 20px;
+	padding-top: 50px;
+}
+
+div.player-footer{
+	height: 100px;
+}
+
+div.slider-pager{
+	top: 20px;
+}

@@ -1,0 +1,28 @@
+<ion-view view-title="Library">
+  <ion-content>
+    <div class="list search-list">
+      <div class="item item-input-inset search-list-item">
+        <label class="item-input-wrapper">
+          <i class="icon ion-search placeholder-icon"></i>
+          <input type="text" placeholder="Search">
+        </label>
+      </div>
+    </div>
+    <div class="row" ng-repeat="libraryRow in chats">
+      <div class="col col-33" ng-repeat="book in libraryRow">
+        <a class="booktile" ng-href="#/player/chats/{{book.id}}">
+        <img ng-src="{{book.face}}" width="100%">
+        <p> 
+          <span class="book-name">
+            {{book.name}} 
+          </span>
+          <br> 
+          <span class="author-name">
+            {{book.lastText}}
+          </span>
+        </p>
+        </a>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>
