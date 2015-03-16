@@ -1,10 +1,10 @@
 angular.module('starter.services', [])
 
-.factory('Chats', function() {
+.factory('Books', function() {
   // Might use a resource here that returns a JSON array
 
   // Some fake testing data
-  var chats = [{
+  var books = [{
     id: 0,
     name: 'Corduroy',
     author: 'Don Freeman',
@@ -33,15 +33,15 @@ angular.module('starter.services', [])
 
   return {
     all: function() {
-      return chats;
+      return books;
     },
-    remove: function(chat) {
-      chats.splice(chats.indexOf(chat), 1);
+    remove: function(book) {
+      chats.splice(books.indexOf(book), 1);
     },
-    get: function(chatId) {
-      for (var i = 0; i < chats.length; i++) {
-        if (chats[i].id === parseInt(chatId)) {
-          return chats[i];
+    get: function(bookId) {
+      for (var i = 0; i < books.length; i++) {
+        if (books[i].id === parseInt(bookId)) {
+          return books[i];
         }
       }
       return null;

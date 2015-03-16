@@ -2,16 +2,21 @@ angular.module('starter.controllers', [])
 
 .controller('ReviewCtrl', function($scope) {})
 
-.controller('ReadCtrl', function($scope, Chats) {
-  $scope.chats = chunk(Chats.all(), 3);
-  $scope.remove = function(chat) {
-    Chats.remove(chat);
+.controller('ReadCtrl', function($scope, Books) {
+  $scope.books = chunk(Books.all(), 3);
+  $scope.remove = function(books) {
+    Books.remove(book);
   }
 })
 
-.controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
-	console.log("here");
-  $scope.chat = Chats.get($stateParams.chatId);
+.controller('PlayerCtrl', function($scope, $stateParams, Books) {
+  var u = new SpeechSynthesisUtterance();
+  $scope.book = Books.get($stateParams.bookId);
+  $scope.speak = function(text) {
+    u.text = text;
+    u.lang = "en-US";
+    speechSynthesis.speak(u);
+  }
 })
 
 .controller('EditCtrl', function($scope) {

@@ -4,14 +4,51 @@
   The FriendsCtrl pulls data from the Friends service (service.js)
   The Friends service returns an array of friend data
 -->
-<ion-view view-title="{{chat.name}}">
-  <ion-nav-buttons side="primary">
-      <a class="button button-clear button-stable" ng-href="#/tab/chats">
-        End
+<ion-view view-title="{{book.name}}">
+  <div class="bar bar-subheader thumbnail-bar">
+    <div class="button-bar">
+      <a class="button button-clear">
+        <span class="ion-ios-arrow-left"></span>
       </a>
-    </ion-nav-buttons>
-  <ion-content class="padding">
-    <ion-slide-box on-slide-changed="slideHasChanged($index)" show-pager="true">
+      <a class="button button-clear">
+        <img ng-src="http://placehold.it/30x30" height="100%">
+      </a>
+      <a class="button button-clear">
+        <img ng-src="http://placehold.it/30x30" height="100%">
+      </a>
+      <a class="button button-clear">
+        <img ng-src="http://placehold.it/30x30" height="100%">
+      </a>
+      <a class="button button-clear">
+        <img ng-src="http://placehold.it/30x30" height="100%">
+      </a>
+      <a class="button button-clear">
+        <img ng-src="http://placehold.it/30x30" height="100%">
+      </a>
+      <a class="button button-clear">
+        <img ng-src="http://placehold.it/30x30" height="100%">
+      </a>
+      <a class="button button-clear">
+        <img ng-src="http://placehold.it/30x30" height="100%">
+      </a>
+      <a class="button button-clear">
+        <img ng-src="http://placehold.it/30x30" height="100%">
+      </a>
+      <a class="button button-clear">
+        <img ng-src="http://placehold.it/30x30" height="100%">
+      </a>
+      <a class="button button-clear">
+        <span class="ion-ios-arrow-right"></span>
+      </a>
+    </div>
+  </div>
+  <ion-nav-buttons side="primary">
+    <a class="button button-clear button-stable" ng-href="#/tab/read">
+      End
+    </a>
+  </ion-nav-buttons>
+  <ion-content class="padding has-header has-subheader">
+    <ion-slide-box on-slide-changed="slideHasChanged($index)">
       <ion-slide>
         <div class="box blue">
           <p>
@@ -35,4 +72,8 @@
       </ion-slide>
     </ion-slide-box>
   </ion-content>
+  <div class="bar bar-footer bar-stable player-footer">
+    <button class="button button-large button-clear button-dark ion-ios-play play-button" ng-click='speak("you just clicked the play button")'></button>
+    <button class="button button-large button-clear button-dark ion-ios-search-strong" ng-click='speak("you just clicked the define button")'></button>
+  </div>
 </ion-view>

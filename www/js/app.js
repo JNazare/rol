@@ -75,12 +75,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
     }
   })
 
-  .state('player.chat-detail', {
-    url: '/chats/:chatId',
+  .state('player.read', {
+    url: '/read/:bookId',
     views: {
       'pages': {
-        templateUrl: 'templates/chat-detail.html',
-        controller: 'ChatDetailCtrl'
+        templateUrl: 'templates/player-read.html',
+        controller: 'PlayerCtrl'
       }
     }
   });
