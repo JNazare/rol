@@ -1,8 +1,8 @@
 angular.module('starter.controllers', [])
 
-.controller('DashCtrl', function($scope) {})
+.controller('ReviewCtrl', function($scope) {})
 
-.controller('ChatsCtrl', function($scope, Chats) {
+.controller('ReadCtrl', function($scope, Chats) {
   $scope.chats = chunk(Chats.all(), 3);
   $scope.remove = function(chat) {
     Chats.remove(chat);
@@ -14,7 +14,7 @@ angular.module('starter.controllers', [])
   $scope.chat = Chats.get($stateParams.chatId);
 })
 
-.controller('AccountCtrl', function($scope) {
+.controller('EditCtrl', function($scope) {
   $scope.settings = {
     enableFriends: true
   };
