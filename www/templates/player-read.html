@@ -43,8 +43,9 @@
     </div>
   </div>
   <ion-nav-buttons side="primary">
-    <a class="button button-clear button-stable" ng-href="#/tab/read">
-      End
+    <a class="button button-clear button-light button-icon icon ion-ios-information-outline help-button" ng-href="">
+    </a>
+    <a class="button button-clear button-light button-icon icon ion-ios-close-empty" ng-href="#/tab/read">
     </a>
   </ion-nav-buttons>
   <ion-content class="padding has-header has-subheader">
@@ -74,6 +75,6 @@
   </ion-content>
   <div class="bar bar-footer bar-stable player-footer">
     <button class="button button-large button-clear button-dark ion-ios-play play-button" ng-click='speak("you just clicked the play button")'></button>
-    <button class="button button-large button-clear button-dark ion-ios-search-strong" ng-click='speak("you just clicked the define button")'></button>
+    <button class="button button-large button-clear button-dark define-button button-icon icon ion-ios-search-strong" ng-click='speak("you just clicked the define button")'></button>
   </div>
 </ion-view>

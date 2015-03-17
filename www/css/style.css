@@ -23,17 +23,22 @@ a.booktile {
 	color: black;
 }
 
-button.button.button-large.button-clear.ion-ios-play.play-button{
+button.button.button-large.button-clear.play-button{
 	font-size: 60px;
 	max-height: 100px;
 	margin-left: 45%;
 }
 
-button.button.button-large.button-clear.ion-ios-search-strong{
+button.button.button-large.button-clear.define-button{
 	font-size: 25px;
 	max-height: 100px;
 	margin-right: 20px;
 }
+
+a.button.help-button {
+	margin-right: 5px;
+}
+
 
 div.box{
 	/*border: 1px solid #999;*/
