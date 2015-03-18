@@ -1,14 +1,17 @@
-# Ionic Starter App
+# Ionic App
 # angular.module is a global place for creating, registering and retrieving Angular modules
-# 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
+# 'app' is the name of this angular module example (also set in a <body> attribute in index.html)
 # the 2nd parameter is an array of 'requires'
-# 'starter.services' is found in services.js
-# 'starter.controllers' is found in controllers.js
-angular.module('starter', [
+# 'app.services' is found in services.js
+# 'app.controllers' is found in controllers.js
+
+app = angular.module('app', [
   'ionic'
-  'starter.controllers'
-  'starter.services'
-]).run(($ionicPlatform) ->
+  'kinvey'
+  'app.services'
+])
+
+app.run(($ionicPlatform) ->
   $ionicPlatform.ready ->
     # Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     # for form inputs)
@@ -19,7 +22,9 @@ angular.module('starter', [
       StatusBar.styleDefault()
     return
   return
-).config ($stateProvider, $urlRouterProvider) ->
+)
+
+app.config ($stateProvider, $urlRouterProvider) ->
   # Ionic uses AngularUI Router which uses the concept of states
   # Learn more here: https://github.com/angular-ui/ui-router
   # Set up the various states which the app can be in.
@@ -27,22 +32,29 @@ angular.module('starter', [
   $stateProvider.state('tab',
     url: '/tab'
     abstract: true
-    templateUrl: 'templates/tabs.html').state('player',
+    templateUrl: 'templates/tabs.html'
+    controller: 'AppCtrl')
+  $stateProvider.state('player',
     url: '/player'
     abstract: true
-    templateUrl: 'templates/player.html').state('tab.review',
+    templateUrl: 'templates/player.html'
+    controller: 'AppCtrl')
+  $stateProvider.state('tab.review',
     url: '/review'
     views: 'tab-review':
       templateUrl: 'templates/tab-review.html'
-      controller: 'ReviewCtrl').state('tab.read',
+      controller: 'ReviewCtrl')
+  $stateProvider.state('tab.read',
     url: '/read'
     views: 'tab-read':
       templateUrl: 'templates/tab-read.html'
-      controller: 'ReadCtrl').state('tab.edit',
+      controller: 'ReadCtrl')
+  $stateProvider.state('tab.edit',
     url: '/edit'
     views: 'tab-edit':
       templateUrl: 'templates/tab-edit.html'
-      controller: 'EditCtrl').state 'player.read',
+      controller: 'EditCtrl')
+  $stateProvider.state 'player.read',
     url: '/read/:bookId'
     views: 'pages':
       templateUrl: 'templates/player-read.html'

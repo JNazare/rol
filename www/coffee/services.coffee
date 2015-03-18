@@ -1,4 +1,6 @@
-angular.module('starter.services', []).factory 'Books', ->
+appServices = angular.module('app.services', [])
+
+appServices.factory 'Books', ->
   # Might use a resource here that returns a JSON array
   # Some fake testing data
   books = [
