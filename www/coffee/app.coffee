@@ -9,6 +9,7 @@ app = angular.module('app', [
   'ionic'
   'kinvey'
   'app.services'
+  'angularLoad'
 ])
 
 app.run(($ionicPlatform) ->

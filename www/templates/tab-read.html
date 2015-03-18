@@ -14,13 +14,13 @@
         </label>
       </div>
     </div>
-    <div class="row" ng-repeat="libraryRow in books">
+    <div class="row" ng-repeat="libraryRow in libraryLayout">
       <div class="col col-33" ng-repeat="book in libraryRow">
-        <a class="booktile" ng-href="#/player/read/{{book.id}}">
-        <img ng-src="{{book.cover}}" width="100%">
+        <a class="booktile" ng-href="#/player/read/{{book._id}}">
+        <img ng-src="{{book.coverImageUrl}}" width="100%">
         <p> 
           <span class="book-name">
-            {{book.name}} 
+            {{book.title}} 
           </span>
           <br> 
           <span class="author-name">

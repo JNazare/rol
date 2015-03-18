@@ -46,6 +46,7 @@ app.controller('AppCtrl', [
         promise = $kinvey.DataStore.find( "Books", query )
         promise.then (books) ->
           $rootScope.books = books
+          $rootScope.libraryLayout = chunk(books, 3)
 
       $scope.openLogin = ->
         $scope.loginmodal.show()
@@ -135,26 +136,44 @@ app.controller('AppCtrl', [
     return
 ])
 
-app.controller('ReadCtrl', ($scope, Books) ->
-  $scope.books = chunk(Books.all(), 3)
-  return
-)
+app.controller('ReadCtrl', [
+  "$rootScope"
+  "$scope"
+  "$kinvey"
+  "$stateParams"
+  "kinveyFactory"
+  ($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) ->
+    return
+])
 
 app.controller('ReviewCtrl', ($scope) ->
 )
 
-app.controller('PlayerCtrl', ($scope, $stateParams, Books) ->
-  u = new SpeechSynthesisUtterance
-  $scope.book = Books.get($stateParams.bookId)
+app.controller('PlayerCtrl', [
+  "$kinvey"
+  "$location"
+  "$scope"
+  "$stateParams"
+  "kinveyFactory"
+  ($kinvey, $location, $scope, $stateParams, kinveyFactory) ->
+    kinveyFactory.then () ->
+      pageQuery = new $kinvey.Query()    
+      pageQuery.equalTo('bookId', $stateParams.bookId)
+      promise = $kinvey.DataStore.find( "Pages", pageQuery )
+      promise.then (pages) ->
+        console.log pages
+      return
 
-  $scope.speak = (text) ->
-    u.text = text
-    u.lang = 'en-US'
-    speechSynthesis.speak u
+    u = new SpeechSynthesisUtterance
+
+    $scope.speak = (text) ->
+      u.text = text
+      u.lang = 'en-US'
+      speechSynthesis.speak u
+      return
+
     return
-
-  return
-)
+])
 
 app.controller 'EditCtrl', ($scope) ->
   $scope.settings = enableFriends: true

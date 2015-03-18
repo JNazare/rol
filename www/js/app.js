@@ -2,7 +2,7 @@
 (function() {
   var app;
 
-  app = angular.module('app', ['ionic', 'kinvey', 'app.services']);
+  app = angular.module('app', ['ionic', 'kinvey', 'app.services', 'angularLoad']);
 
   app.run(function($ionicPlatform) {
     $ionicPlatform.ready(function() {

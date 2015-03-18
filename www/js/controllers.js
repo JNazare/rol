@@ -46,7 +46,8 @@
           query.contains("sharedWith", [$rootScope.activeUser._id]);
           promise = $kinvey.DataStore.find("Books", query);
           return promise.then(function(books) {
-            return $rootScope.books = books;
+            $rootScope.books = books;
+            return $rootScope.libraryLayout = chunk(books, 3);
           });
         };
         $scope.openLogin = function() {
@@ -144,22 +145,30 @@
     }
   ]);
 
-  app.controller('ReadCtrl', function($scope, Books) {
-    $scope.books = chunk(Books.all(), 3);
-  });
+  app.controller('ReadCtrl', ["$rootScope", "$scope", "$kinvey", "$stateParams", "kinveyFactory", function($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) {}]);
 
   app.controller('ReviewCtrl', function($scope) {});
 
-  app.controller('PlayerCtrl', function($scope, $stateParams, Books) {
-    var u;
-    u = new SpeechSynthesisUtterance;
-    $scope.book = Books.get($stateParams.bookId);
-    $scope.speak = function(text) {
-      u.text = text;
-      u.lang = 'en-US';
-      speechSynthesis.speak(u);
-    };
-  });
+  app.controller('PlayerCtrl', [
+    "$kinvey", "$location", "$scope", "$stateParams", "kinveyFactory", function($kinvey, $location, $scope, $stateParams, kinveyFactory) {
+      var u;
+      kinveyFactory.then(function() {
+        var pageQuery, promise;
+        pageQuery = new $kinvey.Query();
+        pageQuery.equalTo('bookId', $stateParams.bookId);
+        promise = $kinvey.DataStore.find("Pages", pageQuery);
+        promise.then(function(pages) {
+          return console.log(pages);
+        });
+      });
+      u = new SpeechSynthesisUtterance;
+      $scope.speak = function(text) {
+        u.text = text;
+        u.lang = 'en-US';
+        speechSynthesis.speak(u);
+      };
+    }
+  ]);
 
   app.controller('EditCtrl', function($scope) {
     $scope.settings = {
