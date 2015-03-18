@@ -159,9 +159,14 @@ app.controller('PlayerCtrl', [
     kinveyFactory.then () ->
       pageQuery = new $kinvey.Query()    
       pageQuery.equalTo('bookId', $stateParams.bookId)
-      promise = $kinvey.DataStore.find( "Pages", pageQuery )
-      promise.then (pages) ->
-        console.log pages
+      bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
+      bookPromise.then (book) ->
+        $scope.book = book
+        console.log $scope.book
+        promise = $kinvey.DataStore.find( "Pages", pageQuery )
+        promise.then (pages) ->
+          $scope.pages = pages
+          console.log $scope.pages
       return
 
     u = new SpeechSynthesisUtterance

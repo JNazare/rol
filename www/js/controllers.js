@@ -153,12 +153,19 @@
     "$kinvey", "$location", "$scope", "$stateParams", "kinveyFactory", function($kinvey, $location, $scope, $stateParams, kinveyFactory) {
       var u;
       kinveyFactory.then(function() {
-        var pageQuery, promise;
+        var bookPromise, pageQuery;
         pageQuery = new $kinvey.Query();
         pageQuery.equalTo('bookId', $stateParams.bookId);
-        promise = $kinvey.DataStore.find("Pages", pageQuery);
-        promise.then(function(pages) {
-          return console.log(pages);
+        bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId);
+        bookPromise.then(function(book) {
+          var promise;
+          $scope.book = book;
+          console.log($scope.book);
+          promise = $kinvey.DataStore.find("Pages", pageQuery);
+          return promise.then(function(pages) {
+            $scope.pages = pages;
+            return console.log($scope.pages);
+          });
         });
       });
       u = new SpeechSynthesisUtterance;

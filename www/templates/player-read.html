@@ -10,31 +10,7 @@
       <a class="button button-clear">
         <span class="ion-ios-arrow-left"></span>
       </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
+      <a class="button button-clear" ng-repeat="page in pages">
         <img ng-src="http://placehold.it/30x30" height="100%">
       </a>
       <a class="button button-clear">
@@ -50,24 +26,10 @@
   </ion-nav-buttons>
   <ion-content class="padding has-header has-subheader">
     <ion-slide-box on-slide-changed="slideHasChanged($index)">
-      <ion-slide>
+      <ion-slide ng-repeat="page in pages">
         <div class="box blue">
           <p>
-            Bacon ipsum dolor amet bresaola pork belly meatball, hamburger ground round sausage shank venison pastrami frankfurter jowl. Brisket cupim salami bacon. Shankle cow salami ribeye cupim pork loin sausage tri-tip andouille meatball. Shank ribeye ground round, drumstick flank brisket beef ribs pork picanha pork belly. Boudin strip steak bacon alcatra rump, fatback kevin. Short loin jowl ham corned beef tri-tip bresaola fatback short ribs. Pork chop picanha shank bacon salami turkey drumstick cupim.
-          </p>
-        </div>
-      </ion-slide>
-      <ion-slide>
-        <div class="box yellow">
-          <p>
-            Bacon ipsum dolor amet bresaola pork belly meatball, hamburger ground round sausage shank venison pastrami frankfurter jowl. Brisket cupim salami bacon. Shankle cow salami ribeye cupim pork loin sausage tri-tip andouille meatball. Shank ribeye ground round, drumstick flank brisket beef ribs pork picanha pork belly. Boudin strip steak bacon alcatra rump, fatback kevin. Short loin jowl ham corned beef tri-tip bresaola fatback short ribs. Pork chop picanha shank bacon salami turkey drumstick cupim.
-          </p>
-        </div>
-      </ion-slide>
-      <ion-slide>
-        <div class="box pink">
-          <p>
-            Bacon ipsum dolor amet bresaola pork belly meatball, hamburger ground round sausage shank venison pastrami frankfurter jowl. Brisket cupim salami bacon. Shankle cow salami ribeye cupim pork loin sausage tri-tip andouille meatball. Shank ribeye ground round, drumstick flank brisket beef ribs pork picanha pork belly. Boudin strip steak bacon alcatra rump, fatback kevin. Short loin jowl ham corned beef tri-tip bresaola fatback short ribs. Pork chop picanha shank bacon salami turkey drumstick cupim.
+            {{page.text}}
           </p>
         </div>
       </ion-slide>
