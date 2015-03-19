@@ -30,36 +30,36 @@ app.config ($stateProvider, $urlRouterProvider) ->
   # Learn more here: https://github.com/angular-ui/ui-router
   # Set up the various states which the app can be in.
   # Each state's controller can be found in controllers.js
-  $stateProvider.state('tab',
-    url: '/tab'
-    abstract: true
-    templateUrl: 'templates/tabs.html'
-    controller: 'AppCtrl')
   $stateProvider.state('player',
-    url: '/player'
-    abstract: true
-    templateUrl: 'templates/player.html'
-    controller: 'AppCtrl')
-  $stateProvider.state('tab.review',
-    url: '/review'
-    views: 'tab-review':
-      templateUrl: 'templates/tab-review.html'
-      controller: 'ReviewCtrl')
-  $stateProvider.state('tab.read',
-    url: '/read'
-    views: 'tab-read':
-      templateUrl: 'templates/tab-read.html'
-      controller: 'ReadCtrl')
-  $stateProvider.state('tab.edit',
-    url: '/edit'
-    views: 'tab-edit':
-      templateUrl: 'templates/tab-edit.html'
-      controller: 'EditCtrl')
-  $stateProvider.state 'player.read',
-    url: '/read/:bookId'
-    views: 'pages':
-      templateUrl: 'templates/player-read.html'
-      controller: 'PlayerCtrl'
+      url: '/player'
+      abstract: true
+      templateUrl: 'templates/player.html'
+      controller: 'AppCtrl'
+    ).state('tab',
+      url: '/tab'
+      abstract: true
+      templateUrl: 'templates/tabs.html'
+      controller: 'AppCtrl'
+    ).state('tab.review',
+      url: '/review'
+      views: 'tab-review':
+        templateUrl: 'templates/tab-review.html'
+        controller: 'ReviewCtrl'
+    ).state('tab.read',
+      url: '/read'
+      views: 'tab-read':
+        templateUrl: 'templates/tab-read.html'
+        controller: 'ReadCtrl'
+    ).state('tab.edit',
+      url: '/edit'
+      views: 'tab-edit':
+        templateUrl: 'templates/tab-edit.html'
+        controller: 'EditCtrl'
+    ).state('player.read',
+      url: '/read/:bookId'
+      views: 'pages':
+        templateUrl: 'templates/player-read.html'
+        controller: 'PlayerCtrl')
   # if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise '/tab/read'
   return

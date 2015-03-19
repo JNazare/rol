@@ -98,6 +98,9 @@
             return promise.then(function(activeUser) {
               $rootScope.activeUser = activeUser;
               getUserBooks().then(function() {
+                var loginEvent;
+                loginEvent = 'loginEvent';
+                $scope.$broadcast(loginEvent);
                 return $scope.closeLogin();
               });
             });
@@ -126,6 +129,9 @@
             return signup_promise.then(function(activeUser) {
               $rootScope.activeUser = activeUser;
               return getUserBooks().then(function() {
+                var loginEvent;
+                loginEvent = 'loginEvent';
+                $scope.$broadcast(loginEvent);
                 return $scope.closeSignup();
               });
             });
@@ -133,27 +139,38 @@
         };
         if (kinveyUser) {
           if (kinveyUser.username === "user") {
-            return $scope.openLogin();
+            $scope.openLogin();
           } else {
             $rootScope.activeUser = kinveyUser;
-            return getUserBooks().then(function() {});
+            return getUserBooks().then(function() {
+              var loginEvent;
+              loginEvent = 'loginEvent';
+              $scope.$broadcast(loginEvent);
+            });
           }
         } else {
-          return $scope.openLogin();
+          $scope.openLogin();
         }
       });
     }
   ]);
 
-  app.controller('ReadCtrl', ["$rootScope", "$scope", "$kinvey", "$stateParams", "kinveyFactory", function($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) {}]);
+  app.controller('ReadCtrl', [
+    "$rootScope", "$scope", "$kinvey", "$stateParams", "kinveyFactory", function($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) {
+      $scope.$on('loginEvent', function() {
+        console.log('logged in');
+      });
+    }
+  ]);
 
   app.controller('ReviewCtrl', function($scope) {});
 
   app.controller('PlayerCtrl', [
     "$kinvey", "$location", "$scope", "$stateParams", "kinveyFactory", function($kinvey, $location, $scope, $stateParams, kinveyFactory) {
       var u;
-      kinveyFactory.then(function() {
+      $scope.$on('loginEvent', function() {
         var bookPromise, pageQuery;
+        console.log('page logged in');
         pageQuery = new $kinvey.Query();
         pageQuery.equalTo('bookId', $stateParams.bookId);
         bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId);
@@ -168,6 +185,7 @@
           });
         });
       });
+      return;
       u = new SpeechSynthesisUtterance;
       $scope.speak = function(text) {
         u.text = text;

@@ -16,19 +16,17 @@
   });
 
   app.config(function($stateProvider, $urlRouterProvider) {
-    $stateProvider.state('tab', {
-      url: '/tab',
-      abstract: true,
-      templateUrl: 'templates/tabs.html',
-      controller: 'AppCtrl'
-    });
     $stateProvider.state('player', {
       url: '/player',
       abstract: true,
       templateUrl: 'templates/player.html',
       controller: 'AppCtrl'
-    });
-    $stateProvider.state('tab.review', {
+    }).state('tab', {
+      url: '/tab',
+      abstract: true,
+      templateUrl: 'templates/tabs.html',
+      controller: 'AppCtrl'
+    }).state('tab.review', {
       url: '/review',
       views: {
         'tab-review': {
@@ -36,8 +34,7 @@
           controller: 'ReviewCtrl'
         }
       }
-    });
-    $stateProvider.state('tab.read', {
+    }).state('tab.read', {
       url: '/read',
       views: {
         'tab-read': {
@@ -45,8 +42,7 @@
           controller: 'ReadCtrl'
         }
       }
-    });
-    $stateProvider.state('tab.edit', {
+    }).state('tab.edit', {
       url: '/edit',
       views: {
         'tab-edit': {
@@ -54,8 +50,7 @@
           controller: 'EditCtrl'
         }
       }
-    });
-    $stateProvider.state('player.read', {
+    }).state('player.read', {
       url: '/read/:bookId',
       views: {
         'pages': {

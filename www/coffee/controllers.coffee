@@ -97,6 +97,8 @@ app.controller('AppCtrl', [
           promise.then (activeUser) ->
             $rootScope.activeUser = activeUser
             getUserBooks().then () ->
+              loginEvent = 'loginEvent'
+              $scope.$broadcast(loginEvent)
               $scope.closeLogin()
             return
 
@@ -121,17 +123,23 @@ app.controller('AppCtrl', [
           signup_promise.then (activeUser) ->
             $rootScope.activeUser = activeUser
             getUserBooks().then () ->
+              loginEvent = 'loginEvent'
+              $scope.$broadcast(loginEvent)
               $scope.closeSignup()
 
       if kinveyUser
         if kinveyUser.username == "user"
           $scope.openLogin()
+          return
         else 
           $rootScope.activeUser = kinveyUser
           getUserBooks().then () ->
+            loginEvent = 'loginEvent'
+            $scope.$broadcast(loginEvent)
             return
       else
         $scope.openLogin()
+        return
 
     return
 ])
@@ -143,6 +151,9 @@ app.controller('ReadCtrl', [
   "$stateParams"
   "kinveyFactory"
   ($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) ->
+    $scope.$on 'loginEvent', () ->
+      console.log 'logged in'
+      return
     return
 ])
 
@@ -156,7 +167,8 @@ app.controller('PlayerCtrl', [
   "$stateParams"
   "kinveyFactory"
   ($kinvey, $location, $scope, $stateParams, kinveyFactory) ->
-    kinveyFactory.then () ->
+    $scope.$on 'loginEvent', () ->
+      console.log 'page logged in'
       pageQuery = new $kinvey.Query()    
       pageQuery.equalTo('bookId', $stateParams.bookId)
       bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
@@ -168,6 +180,19 @@ app.controller('PlayerCtrl', [
           $scope.pages = pages
           console.log $scope.pages
       return
+    return
+    # kinveyFactory.then () ->
+    #   pageQuery = new $kinvey.Query()    
+    #   pageQuery.equalTo('bookId', $stateParams.bookId)
+    #   bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
+    #   bookPromise.then (book) ->
+    #     $scope.book = book
+    #     console.log $scope.book
+    #     promise = $kinvey.DataStore.find( "Pages", pageQuery )
+    #     promise.then (pages) ->
+    #       $scope.pages = pages
+    #       console.log $scope.pages
+    #   return
 
     u = new SpeechSynthesisUtterance
 
