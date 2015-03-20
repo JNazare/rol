@@ -1,0 +1,47 @@
+<ion-view view-title="Settings">
+	<ion-nav-buttons>
+		<a class="button button-clear" ng-click="goBack()" class="pull-left">
+    		<i class="ion-android-arrow-back"></i>
+  		</a>
+	</ion-nav-buttons>
+	<ion-content class="has-header">
+		<div class="list">
+		  	<div class="item item-divider">
+    			Email
+  			</div>
+  			<label class="item item-input">
+    			<input type="email" ng-model="activeUser.username">
+  			</label>
+  			<div class="item item-divider">
+    			Password
+  			</div>
+  			<a class="button button-full button-clear button-positive reset-password">
+  				Reset Password
+			</a>
+  			<div class="item item-divider">
+    			Native Language
+  			</div>
+  			<label class="item item-input item-select">
+			    <div class="input-label">
+			      	&nbsp;
+			    </div>
+			    <select 
+					class="settings-select"
+					ng-model="activeUser.language" 
+					ng-options="language._id as language.name for language in listOfLanguages">
+				</select>
+			</label>
+			<div class="item item-divider">
+    			Voice Speed
+  			</div>
+  			<div class="range">
+			  	<i class="icon ion-ios-speedometer-outline"></i>
+			  	<input type="range" name="volume" ng-model="activeUser.speed" min="0" max="10" step="1" value="activeUser.speed">
+			  	<i class="icon ion-ios-speedometer"></i>
+			</div>
+			<a class="button button-full button-positive" ng-click="updateUser()">
+  				Save
+			</a>
+		</div>
+	</ion-content>
+</ion-view>

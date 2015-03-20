@@ -39,6 +39,10 @@ a.button.help-button {
 	margin-right: 5px;
 }
 
+.show-back-button{
+	display: block !important;
+}
+
 
 div.box{
 	/*border: 1px solid #999;*/
@@ -52,4 +56,23 @@ div.player-footer{
 
 div.slider-pager{
 	top: 20px;
+}
+
+div.slider-slides{
+	width: 100% !important;
+}
+
+img.selected{
+	border: 2px solid #111;
+}
+
+select.settings-select{
+	left: 0;
+	padding-left: 0;
+	margin-left: -5px;
+}
+
+a.button.button-full.reset-password{
+	margin-top: 0px !important;
+	margin-bottom: 0px !important;
 }

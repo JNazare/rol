@@ -15,6 +15,18 @@
 
   app = angular.module('app');
 
+  app.filter('splitParagraphs', function() {
+    return function(text) {
+      return text.split('\n');
+    };
+  });
+
+  app.filter('splitWords', function() {
+    return function(text) {
+      return text.split(' ');
+    };
+  });
+
   app.controller('AppCtrl', [
     "$scope", "$ionicModal", "$rootScope", "$timeout", "$kinvey", function($scope, $ionicModal, $rootScope, $timeout, $kinvey) {
       var promise;
@@ -157,9 +169,7 @@
 
   app.controller('ReadCtrl', [
     "$rootScope", "$scope", "$kinvey", "$stateParams", "kinveyFactory", function($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) {
-      $scope.$on('loginEvent', function() {
-        console.log('logged in');
-      });
+      $scope.$on('loginEvent', function() {});
     }
   ]);
 
@@ -170,28 +180,49 @@
       var u;
       $scope.$on('loginEvent', function() {
         var bookPromise, pageQuery;
-        console.log('page logged in');
         pageQuery = new $kinvey.Query();
         pageQuery.equalTo('bookId', $stateParams.bookId);
         bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId);
         bookPromise.then(function(book) {
           var promise;
           $scope.book = book;
-          console.log($scope.book);
           promise = $kinvey.DataStore.find("Pages", pageQuery);
           return promise.then(function(pages) {
-            $scope.pages = pages;
-            return console.log($scope.pages);
+            return $scope.pages = pages;
           });
         });
       });
-      return;
+      $scope.currentSlide = 0;
       u = new SpeechSynthesisUtterance;
-      $scope.speak = function(text) {
+      $scope.speak = function(text, lang) {
         u.text = text;
-        u.lang = 'en-US';
+        u.lang = lang;
         speechSynthesis.speak(u);
       };
+    }
+  ]);
+
+  app.controller('SettingsCtrl', [
+    "$ionicHistory", "$scope", "$kinvey", "$rootScope", "$ionicPopup", function($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup) {
+      $scope.$on('loginEvent', function() {
+        var promise;
+        promise = $kinvey.DataStore.find('Languages');
+        promise.then(function(listOfLanguages) {
+          $scope.listOfLanguages = listOfLanguages;
+        });
+        $scope.goBack = function() {
+          $ionicHistory.goBack();
+        };
+        $scope.updateUser = function() {
+          promise = $kinvey.User.update($rootScope.activeUser);
+          return promise.then(function() {
+            var alertPopup;
+            alertPopup = $ionicPopup.alert({
+              title: 'SAVED'
+            });
+          });
+        };
+      });
     }
   ]);
 

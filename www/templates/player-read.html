@@ -11,7 +11,7 @@
         <span class="ion-ios-arrow-left"></span>
       </a>
       <a class="button button-clear" ng-repeat="page in pages">
-        <img ng-src="http://placehold.it/30x30" height="100%">
+        <img ng-src="{{page.image._downloadURL}}" height="30px" ng-class="{selected: $index==currentSlide}">
       </a>
       <a class="button button-clear">
         <span class="ion-ios-arrow-right"></span>
@@ -25,18 +25,20 @@
     </a>
   </ion-nav-buttons>
   <ion-content class="padding has-header has-subheader">
-    <ion-slide-box on-slide-changed="slideHasChanged($index)">
+    <ion-slide-box on-slide-changed="slideHasChanged($index)" active-slide="currentSlide">
       <ion-slide ng-repeat="page in pages">
-        <div class="box blue">
-          <p>
-            {{page.text}}
+        <div class="box">
+          <p ng-repeat="paragraph in page.text|splitParagraphs track by $index">
+            <span class="word" ng-repeat="word in paragraph|splitWords track by $index">
+              {{word}}
+            </span>
           </p>
         </div>
       </ion-slide>
     </ion-slide-box>
   </ion-content>
   <div class="bar bar-footer bar-stable player-footer">
-    <button class="button button-large button-clear button-dark ion-ios-play play-button" ng-click='speak("you just clicked the play button")'></button>
+    <button class="button button-large button-clear button-dark ion-ios-play play-button" ng-click='speak(pages[currentSlide].text, "en-US")'></button>
     <button class="button button-large button-clear button-dark define-button button-icon icon ion-ios-search-strong" ng-click='speak("you just clicked the define button")'></button>
   </div>
 </ion-view>

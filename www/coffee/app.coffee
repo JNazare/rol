@@ -40,6 +40,11 @@ app.config ($stateProvider, $urlRouterProvider) ->
       abstract: true
       templateUrl: 'templates/tabs.html'
       controller: 'AppCtrl'
+    ).state('wrapper',
+      url: '/wrapper'
+      abstract: true
+      templateUrl: 'templates/wrapper.html'
+      controller: 'AppCtrl'
     ).state('tab.review',
       url: '/review'
       views: 'tab-review':
@@ -59,7 +64,13 @@ app.config ($stateProvider, $urlRouterProvider) ->
       url: '/read/:bookId'
       views: 'pages':
         templateUrl: 'templates/player-read.html'
-        controller: 'PlayerCtrl')
+        controller: 'PlayerCtrl'
+    ).state('wrapper.read',
+    url: '/settings'
+    views: 'wrapper':
+      templateUrl: 'templates/settings.html'
+      controller: 'SettingsCtrl'
+    )
   # if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise '/tab/read'
   return

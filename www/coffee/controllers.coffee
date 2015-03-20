@@ -8,6 +8,14 @@ chunk = (arr, size) ->
 
 app = angular.module('app')
 
+app.filter 'splitParagraphs', ->
+  (text) ->
+    text.split '\n'
+
+app.filter 'splitWords', ->
+  (text) ->
+    text.split ' '
+
 app.controller('AppCtrl', [
   "$scope"
   "$ionicModal"
@@ -152,7 +160,6 @@ app.controller('ReadCtrl', [
   "kinveyFactory"
   ($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) ->
     $scope.$on 'loginEvent', () ->
-      console.log 'logged in'
       return
     return
 ])
@@ -168,40 +175,50 @@ app.controller('PlayerCtrl', [
   "kinveyFactory"
   ($kinvey, $location, $scope, $stateParams, kinveyFactory) ->
     $scope.$on 'loginEvent', () ->
-      console.log 'page logged in'
       pageQuery = new $kinvey.Query()    
       pageQuery.equalTo('bookId', $stateParams.bookId)
       bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
       bookPromise.then (book) ->
         $scope.book = book
-        console.log $scope.book
         promise = $kinvey.DataStore.find( "Pages", pageQuery )
         promise.then (pages) ->
           $scope.pages = pages
-          console.log $scope.pages
       return
-    return
-    # kinveyFactory.then () ->
-    #   pageQuery = new $kinvey.Query()    
-    #   pageQuery.equalTo('bookId', $stateParams.bookId)
-    #   bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
-    #   bookPromise.then (book) ->
-    #     $scope.book = book
-    #     console.log $scope.book
-    #     promise = $kinvey.DataStore.find( "Pages", pageQuery )
-    #     promise.then (pages) ->
-    #       $scope.pages = pages
-    #       console.log $scope.pages
-    #   return
 
+    $scope.currentSlide = 0
     u = new SpeechSynthesisUtterance
 
-    $scope.speak = (text) ->
+    $scope.speak = (text, lang) ->
       u.text = text
-      u.lang = 'en-US'
+      u.lang = lang
       speechSynthesis.speak u
       return
 
+    return
+])
+
+app.controller('SettingsCtrl', [
+  "$ionicHistory"
+  "$scope"
+  "$kinvey"
+  "$rootScope"
+  "$ionicPopup"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup) ->
+    $scope.$on 'loginEvent', () ->
+      promise = $kinvey.DataStore.find('Languages')
+      promise.then ( listOfLanguages ) ->
+        $scope.listOfLanguages = listOfLanguages
+        return
+      $scope.goBack = ->
+        $ionicHistory.goBack()
+        return
+      $scope.updateUser = ->
+        promise = $kinvey.User.update($rootScope.activeUser)
+        promise.then () ->
+          alertPopup = $ionicPopup.alert(
+            title: 'SAVED')
+          return
+      return
     return
 ])
 

@@ -26,6 +26,11 @@
       abstract: true,
       templateUrl: 'templates/tabs.html',
       controller: 'AppCtrl'
+    }).state('wrapper', {
+      url: '/wrapper',
+      abstract: true,
+      templateUrl: 'templates/wrapper.html',
+      controller: 'AppCtrl'
     }).state('tab.review', {
       url: '/review',
       views: {
@@ -56,6 +61,14 @@
         'pages': {
           templateUrl: 'templates/player-read.html',
           controller: 'PlayerCtrl'
+        }
+      }
+    }).state('wrapper.read', {
+      url: '/settings',
+      views: {
+        'wrapper': {
+          templateUrl: 'templates/settings.html',
+          controller: 'SettingsCtrl'
         }
       }
     });
