@@ -7,13 +7,13 @@
 <ion-view view-title="{{book.title}}">
   <div class="bar bar-subheader thumbnail-bar">
     <div class="button-bar">
-      <a class="button button-clear">
+      <a class="button button-clear" ng-click="slidePrevious()" ng-class="{'button-dark': currentSlide>0}">
         <span class="ion-ios-arrow-left"></span>
       </a>
-      <a class="button button-clear" ng-repeat="page in pages">
+      <a class="button button-clear" ng-repeat="page in pages track by $index" ng-click="slideTo($index)">
         <img ng-src="{{page.image._downloadURL}}" height="30px" ng-class="{selected: $index==currentSlide}">
       </a>
-      <a class="button button-clear">
+      <a class="button button-clear" ng-click="slideNext()" ng-class="{'button-dark': currentSlide<pages.length-1}">
         <span class="ion-ios-arrow-right"></span>
       </a>
     </div>
@@ -21,7 +21,7 @@
   <ion-nav-buttons side="primary">
     <a class="button button-clear button-light button-icon icon ion-ios-information-outline help-button" ng-href="">
     </a>
-    <a class="button button-clear button-light button-icon icon ion-ios-close-empty" ng-href="#/tab/read">
+    <a class="button button-clear button-light button-icon icon ion-ios-close-empty" ng-href="#/tab/read" ng-click="endBook()">
     </a>
   </ion-nav-buttons>
   <ion-content class="padding has-header has-subheader">
@@ -38,7 +38,16 @@
     </ion-slide-box>
   </ion-content>
   <div class="bar bar-footer bar-stable player-footer">
-    <button class="button button-large button-clear button-dark ion-ios-play play-button" ng-click='speak(pages[currentSlide].text, "en-US")'></button>
-    <button class="button button-large button-clear button-dark define-button button-icon icon ion-ios-search-strong" ng-click='speak("you just clicked the define button")'></button>
+    <button class="button button-large button-clear button-dark play-button" ng-click='speak(pages[currentSlide].text, "en-US")' ng-class="{'show-button': playing==false, 'hide-button': playing==true}">
+      <span class="ion-ios-play"></span>
+    </button>
+    <button class="button button-large button-clear button-dark play-button" ng-click='pause()' ng-class="{'show-button': playing==true, 'hide-button': playing==false}">
+      <span class="pause-icon-hide ion-ios-pause"></span>
+    </button>
+    <button class="button button-large button-clear button-dark define-button button-icon icon ion-android-globe" ng-click='speak("you just clicked the define button", "en-US")'>
+      <span class="small-text">
+        {{translationLanguage.name}}
+      </span>
+    </button>
   </div>
 </ion-view>

@@ -176,7 +176,7 @@
   app.controller('ReviewCtrl', function($scope) {});
 
   app.controller('PlayerCtrl', [
-    "$kinvey", "$location", "$scope", "$stateParams", "kinveyFactory", function($kinvey, $location, $scope, $stateParams, kinveyFactory) {
+    "$kinvey", "$location", "$scope", "$stateParams", "kinveyFactory", "$rootScope", "$ionicSlideBoxDelegate", function($kinvey, $location, $scope, $stateParams, kinveyFactory, $rootScope, $ionicSlideBoxDelegate) {
       var u;
       $scope.$on('loginEvent', function() {
         var bookPromise, pageQuery;
@@ -188,16 +188,61 @@
           $scope.book = book;
           promise = $kinvey.DataStore.find("Pages", pageQuery);
           return promise.then(function(pages) {
-            return $scope.pages = pages;
+            var book_display_data;
+            book_display_data = {
+              image: {
+                _downloadURL: book.coverImageUrl
+              },
+              text: book.title + " by " + book.author
+            };
+            pages.unshift(book_display_data);
+            $scope.pages = pages;
+            $ionicSlideBoxDelegate.update();
+            promise = $kinvey.DataStore.get('Languages', $rootScope.activeUser.language);
+            return promise.then(function(translationLanguage) {
+              return $scope.translationLanguage = translationLanguage;
+            });
           });
         });
       });
       $scope.currentSlide = 0;
+      $scope.playing = false;
       u = new SpeechSynthesisUtterance;
+      u.onend = function() {
+        $scope.$apply(function() {
+          $scope.playing = false;
+        });
+      };
+      u.onpause = function() {};
+      $scope.slideHasChanged = function(newSlide) {
+        speechSynthesis.cancel();
+        $scope.currentSlide = newSlide;
+      };
+      $scope.slideTo = function(slideNum) {
+        return $ionicSlideBoxDelegate.slide(slideNum);
+      };
+      $scope.slidePrevious = function() {
+        $ionicSlideBoxDelegate.previous();
+      };
+      $scope.slideNext = function() {
+        $ionicSlideBoxDelegate.next();
+      };
       $scope.speak = function(text, lang) {
-        u.text = text;
-        u.lang = lang;
-        speechSynthesis.speak(u);
+        $scope.playing = true;
+        if (speechSynthesis.speaking === true) {
+          speechSynthesis.resume();
+        } else {
+          u.text = text;
+          u.lang = lang;
+          speechSynthesis.speak(u);
+        }
+      };
+      $scope.pause = function() {
+        $scope.playing = false;
+        speechSynthesis.pause(u);
+      };
+      $scope.endBook = function() {
+        speechSynthesis.cancel();
       };
     }
   ]);

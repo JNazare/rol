@@ -30,9 +30,11 @@ button.button.button-large.button-clear.play-button{
 }
 
 button.button.button-large.button-clear.define-button{
-	font-size: 25px;
+	font-size: 20px;
 	max-height: 100px;
 	margin-right: 20px;
+	max-width: 50px;
+	line-height: 50%;
 }
 
 a.button.help-button {
@@ -45,9 +47,7 @@ a.button.help-button {
 
 
 div.box{
-	/*border: 1px solid #999;*/
 	padding: 20px;
-	/*padding-top: 50px;*/
 }
 
 div.player-footer{
@@ -58,9 +58,9 @@ div.slider-pager{
 	top: 20px;
 }
 
-div.slider-slides{
+/*div.slider-slides{
 	width: 100% !important;
-}
+}*/
 
 img.selected{
 	border: 2px solid #111;
@@ -75,4 +75,16 @@ select.settings-select{
 a.button.button-full.reset-password{
 	margin-top: 0px !important;
 	margin-bottom: 0px !important;
+}
+
+span.small-text{
+	font-size: 12px;
+}
+
+.show-button{
+	display: block;
+}
+
+.hide-button{
+	display: none;
 }

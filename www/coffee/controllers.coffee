@@ -173,7 +173,9 @@ app.controller('PlayerCtrl', [
   "$scope"
   "$stateParams"
   "kinveyFactory"
-  ($kinvey, $location, $scope, $stateParams, kinveyFactory) ->
+  "$rootScope"
+  "$ionicSlideBoxDelegate"
+  ($kinvey, $location, $scope, $stateParams, kinveyFactory, $rootScope, $ionicSlideBoxDelegate) ->
     $scope.$on 'loginEvent', () ->
       pageQuery = new $kinvey.Query()    
       pageQuery.equalTo('bookId', $stateParams.bookId)
@@ -182,16 +184,66 @@ app.controller('PlayerCtrl', [
         $scope.book = book
         promise = $kinvey.DataStore.find( "Pages", pageQuery )
         promise.then (pages) ->
+          book_display_data = {
+            image : {
+              _downloadURL: book.coverImageUrl
+            }
+            text : book.title + " by " + book.author
+          }
+          pages.unshift(book_display_data)
           $scope.pages = pages
+          $ionicSlideBoxDelegate.update()
+          promise = $kinvey.DataStore.get('Languages', $rootScope.activeUser.language)
+          promise.then ( translationLanguage ) ->
+            $scope.translationLanguage = translationLanguage
       return
 
     $scope.currentSlide = 0
+    $scope.playing = false
     u = new SpeechSynthesisUtterance
+    
+    u.onend = ->
+      $scope.$apply ->
+        $scope.playing = false
+        return
+      return
+    
+    u.onpause = ->
+      return
+
+    $scope.slideHasChanged = (newSlide) ->
+      speechSynthesis.cancel()
+      $scope.currentSlide = newSlide
+      return
+
+    $scope.slideTo = (slideNum) ->
+      $ionicSlideBoxDelegate.slide(slideNum)
+
+    $scope.slidePrevious = ->
+      $ionicSlideBoxDelegate.previous()
+      return
+
+    $scope.slideNext = ->
+      $ionicSlideBoxDelegate.next()
+      return
 
     $scope.speak = (text, lang) ->
-      u.text = text
-      u.lang = lang
-      speechSynthesis.speak u
+      $scope.playing = true
+      if speechSynthesis.speaking == true
+        speechSynthesis.resume()
+      else
+        u.text = text
+        u.lang = lang
+        speechSynthesis.speak u
+      return
+
+    $scope.pause = ->
+      $scope.playing = false
+      speechSynthesis.pause u
+      return
+
+    $scope.endBook = ->
+      speechSynthesis.cancel()
       return
 
     return
