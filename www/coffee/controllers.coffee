@@ -270,11 +270,11 @@ app.controller('PlayerCtrl', [
         $scope.translated_word = translated_word
 
         defineUtterance1.text = $scope.selected_word
-        defineUtterance1.lang = "en-us"
+        defineUtterance1.lang = "en"
         defineUtterance1.localService = true
 
         defineUtterance2.text = $scope.translated_word
-        defineUtterance2.lang = $scope.translationLanguage.name
+        defineUtterance2.lang = $scope.translationLanguage._id
         defineUtterance2.localService = true
 
         speechSynthesis.speak defineUtterance1
