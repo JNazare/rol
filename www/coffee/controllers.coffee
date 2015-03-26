@@ -175,7 +175,8 @@ app.controller('PlayerCtrl', [
   "kinveyFactory"
   "$rootScope"
   "$ionicSlideBoxDelegate"
-  ($kinvey, $location, $scope, $stateParams, kinveyFactory, $rootScope, $ionicSlideBoxDelegate) ->
+  "$http"
+  ($kinvey, $location, $scope, $stateParams, kinveyFactory, $rootScope, $ionicSlideBoxDelegate, $http) ->
     $scope.$on 'loginEvent', () ->
       pageQuery = new $kinvey.Query()    
       pageQuery.equalTo('bookId', $stateParams.bookId)
@@ -200,30 +201,42 @@ app.controller('PlayerCtrl', [
 
     $scope.currentSlide = 0
     $scope.playing = false
-    u = new SpeechSynthesisUtterance
+
+    playUtterance = new SpeechSynthesisUtterance
+    defineUtterance1 = new SpeechSynthesisUtterance
+    defineUtterance2 = new SpeechSynthesisUtterance
     
-    u.onend = ->
+    playUtterance.onend = ->
       $scope.$apply ->
         $scope.playing = false
         return
       return
     
-    u.onpause = ->
+    playUtterance.onpause = ->
+      return
+
+    defineUtterance1.onend = ->
+      speechSynthesis.speak defineUtterance2
       return
 
     $scope.slideHasChanged = (newSlide) ->
-      speechSynthesis.cancel()
       $scope.currentSlide = newSlide
       return
 
     $scope.slideTo = (slideNum) ->
+      speechSynthesis.cancel()
+      $scope.playing = false
       $ionicSlideBoxDelegate.slide(slideNum)
 
     $scope.slidePrevious = ->
+      speechSynthesis.cancel()
+      $scope.playing = false
       $ionicSlideBoxDelegate.previous()
       return
 
     $scope.slideNext = ->
+      speechSynthesis.cancel()
+      $scope.playing = false
       $ionicSlideBoxDelegate.next()
       return
 
@@ -232,18 +245,43 @@ app.controller('PlayerCtrl', [
       if speechSynthesis.speaking == true
         speechSynthesis.resume()
       else
-        u.text = text
-        u.lang = lang
-        speechSynthesis.speak u
+        playUtterance.text = text
+        playUtterance.lang = lang
+        playUtterance.localService = true
+        speechSynthesis.speak playUtterance
       return
 
     $scope.pause = ->
+      speechSynthesis.cancel()
       $scope.playing = false
-      speechSynthesis.pause u
       return
 
     $scope.endBook = ->
       speechSynthesis.cancel()
+      $scope.playing = false
+      return
+
+    $scope.define = (word) ->
+      selected_word = word.trim().replace(/["\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+      link = "https://translation-app.herokuapp.com/api/en/" + $scope.translationLanguage._id + "/" + selected_word
+      $http.get(link).success((translated_word, status, headers, config) ->
+        
+        $scope.selected_word = selected_word
+        $scope.translated_word = translated_word
+
+        defineUtterance1.text = $scope.selected_word
+        defineUtterance1.lang = "en-us"
+        defineUtterance1.localService = true
+
+        defineUtterance2.text = $scope.translated_word
+        defineUtterance2.lang = $scope.translationLanguage.name
+        defineUtterance2.localService = true
+
+        speechSynthesis.speak defineUtterance1
+
+        return
+      ).error (data, status, headers, config) ->
+        'error'
       return
 
     return

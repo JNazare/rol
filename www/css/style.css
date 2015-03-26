@@ -24,9 +24,17 @@ a.booktile {
 }
 
 button.button.button-large.button-clear.play-button{
+	position: relative;
 	font-size: 60px;
 	max-height: 100px;
-	margin-left: 45%;
+	margin-left: 47%;
+}
+
+button.button.button-large.button-clear.pause-button{
+	position: relative;
+	font-size: 50px;
+	max-height: 100px;
+	margin-left: 43%;
 }
 
 button.button.button-large.button-clear.define-button{
@@ -78,7 +86,7 @@ a.button.button-full.reset-password{
 }
 
 span.small-text{
-	font-size: 12px;
+	font-size: 20px;
 }
 
 .show-button{
@@ -87,4 +95,29 @@ span.small-text{
 
 .hide-button{
 	display: none;
+}
+
+div.define-subfooter{
+	bottom: 100px;
+	height: 70px;
+	border-top: 1px solid #ddd;
+	border-color: #ddd !important;
+}
+
+.col-30.define-icon-row.ng-binding {
+  border-right: 1px solid #ddd;
+  padding-right: 10px;
+  padding-top: 10px;
+  margin-top: -10px;
+  padding-bottom: 20px;
+}
+
+div.translation-text{
+	font-size: 22px;
+	padding-top: 10px;
+}
+
+span.word{
+	font-size: 22px;
+	line-height: 170%;
 }

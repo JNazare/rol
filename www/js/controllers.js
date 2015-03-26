@@ -176,8 +176,8 @@
   app.controller('ReviewCtrl', function($scope) {});
 
   app.controller('PlayerCtrl', [
-    "$kinvey", "$location", "$scope", "$stateParams", "kinveyFactory", "$rootScope", "$ionicSlideBoxDelegate", function($kinvey, $location, $scope, $stateParams, kinveyFactory, $rootScope, $ionicSlideBoxDelegate) {
-      var u;
+    "$kinvey", "$location", "$scope", "$stateParams", "kinveyFactory", "$rootScope", "$ionicSlideBoxDelegate", "$http", function($kinvey, $location, $scope, $stateParams, kinveyFactory, $rootScope, $ionicSlideBoxDelegate, $http) {
+      var defineUtterance1, defineUtterance2, playUtterance;
       $scope.$on('loginEvent', function() {
         var bookPromise, pageQuery;
         pageQuery = new $kinvey.Query();
@@ -207,24 +207,34 @@
       });
       $scope.currentSlide = 0;
       $scope.playing = false;
-      u = new SpeechSynthesisUtterance;
-      u.onend = function() {
+      playUtterance = new SpeechSynthesisUtterance;
+      defineUtterance1 = new SpeechSynthesisUtterance;
+      defineUtterance2 = new SpeechSynthesisUtterance;
+      playUtterance.onend = function() {
         $scope.$apply(function() {
           $scope.playing = false;
         });
       };
-      u.onpause = function() {};
+      playUtterance.onpause = function() {};
+      defineUtterance1.onend = function() {
+        speechSynthesis.speak(defineUtterance2);
+      };
       $scope.slideHasChanged = function(newSlide) {
-        speechSynthesis.cancel();
         $scope.currentSlide = newSlide;
       };
       $scope.slideTo = function(slideNum) {
+        speechSynthesis.cancel();
+        $scope.playing = false;
         return $ionicSlideBoxDelegate.slide(slideNum);
       };
       $scope.slidePrevious = function() {
+        speechSynthesis.cancel();
+        $scope.playing = false;
         $ionicSlideBoxDelegate.previous();
       };
       $scope.slideNext = function() {
+        speechSynthesis.cancel();
+        $scope.playing = false;
         $ionicSlideBoxDelegate.next();
       };
       $scope.speak = function(text, lang) {
@@ -232,17 +242,37 @@
         if (speechSynthesis.speaking === true) {
           speechSynthesis.resume();
         } else {
-          u.text = text;
-          u.lang = lang;
-          speechSynthesis.speak(u);
+          playUtterance.text = text;
+          playUtterance.lang = lang;
+          playUtterance.localService = true;
+          speechSynthesis.speak(playUtterance);
         }
       };
       $scope.pause = function() {
+        speechSynthesis.cancel();
         $scope.playing = false;
-        speechSynthesis.pause(u);
       };
       $scope.endBook = function() {
         speechSynthesis.cancel();
+        $scope.playing = false;
+      };
+      $scope.define = function(word) {
+        var link, selected_word;
+        selected_word = word.trim().replace(/["\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+        link = "https://translation-app.herokuapp.com/api/en/" + $scope.translationLanguage._id + "/" + selected_word;
+        $http.get(link).success(function(translated_word, status, headers, config) {
+          $scope.selected_word = selected_word;
+          $scope.translated_word = translated_word;
+          defineUtterance1.text = $scope.selected_word;
+          defineUtterance1.lang = "en-us";
+          defineUtterance1.localService = true;
+          defineUtterance2.text = $scope.translated_word;
+          defineUtterance2.lang = $scope.translationLanguage.name;
+          defineUtterance2.localService = true;
+          speechSynthesis.speak(defineUtterance1);
+        }).error(function(data, status, headers, config) {
+          return 'error';
+        });
       };
     }
   ]);
