@@ -63,12 +63,20 @@
           controller: 'PlayerCtrl'
         }
       }
-    }).state('wrapper.read', {
+    }).state('wrapper.settings', {
       url: '/settings',
       views: {
         'wrapper': {
           templateUrl: 'templates/settings.html',
           controller: 'SettingsCtrl'
+        }
+      }
+    }).state('wrapper.practice', {
+      url: '/practice',
+      views: {
+        'wrapper': {
+          templateUrl: 'templates/practice.html',
+          controller: 'PracticeCtrl'
         }
       }
     });

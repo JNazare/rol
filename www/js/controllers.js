@@ -58,8 +58,7 @@
           query.contains("sharedWith", [$rootScope.activeUser._id]);
           promise = $kinvey.DataStore.find("Books", query);
           return promise.then(function(books) {
-            $rootScope.books = books;
-            return $rootScope.libraryLayout = chunk(books, 3);
+            return $rootScope.books = books;
           });
         };
         $scope.openLogin = function() {
@@ -169,7 +168,16 @@
 
   app.controller('ReadCtrl', [
     "$rootScope", "$scope", "$kinvey", "$stateParams", "kinveyFactory", function($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) {
-      $scope.$on('loginEvent', function() {});
+      $scope.$on('loginEvent', function() {
+        var add_book, books_to_chunk;
+        add_book = {
+          coverImageUrl: "img/add_book_icon.jpg",
+          add_url: "tab/edit"
+        };
+        books_to_chunk = $scope.books;
+        books_to_chunk.unshift(add_book);
+        $rootScope.libraryLayout = chunk(books_to_chunk, 3);
+      });
     }
   ]);
 
@@ -264,7 +272,7 @@
           $scope.selected_word = selected_word;
           $scope.translated_word = translated_word;
           defineUtterance1.text = $scope.selected_word;
-          defineUtterance1.lang = "en-us";
+          defineUtterance1.lang = "en";
           defineUtterance1.localService = true;
           defineUtterance2.text = $scope.translated_word;
           defineUtterance2.lang = $scope.translationLanguage._id;
@@ -296,6 +304,16 @@
               title: 'SAVED'
             });
           });
+        };
+      });
+    }
+  ]);
+
+  app.controller('PracticeCtrl', [
+    "$ionicHistory", "$scope", "$kinvey", "$rootScope", "$ionicPopup", function($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup) {
+      return $scope.$on('loginEvent', function() {
+        return $scope.goBack = function() {
+          $ionicHistory.goBack();
         };
       });
     }

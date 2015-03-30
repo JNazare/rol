@@ -65,12 +65,18 @@ app.config ($stateProvider, $urlRouterProvider) ->
       views: 'pages':
         templateUrl: 'templates/player-read.html'
         controller: 'PlayerCtrl'
-    ).state('wrapper.read',
+    ).state('wrapper.settings',
     url: '/settings'
     views: 'wrapper':
       templateUrl: 'templates/settings.html'
       controller: 'SettingsCtrl'
+    ).state('wrapper.practice',
+    url: '/practice'
+    views: 'wrapper':
+      templateUrl: 'templates/practice.html'
+      controller: 'PracticeCtrl'
     )
+  
   # if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise '/tab/read'
   return

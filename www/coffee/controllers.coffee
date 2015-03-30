@@ -54,7 +54,6 @@ app.controller('AppCtrl', [
         promise = $kinvey.DataStore.find( "Books", query )
         promise.then (books) ->
           $rootScope.books = books
-          $rootScope.libraryLayout = chunk(books, 3)
 
       $scope.openLogin = ->
         $scope.loginmodal.show()
@@ -160,6 +159,14 @@ app.controller('ReadCtrl', [
   "kinveyFactory"
   ($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) ->
     $scope.$on 'loginEvent', () ->
+      add_book = {
+        coverImageUrl: "img/add_book_icon.jpg"
+        add_url: "tab/edit"
+      }
+      books_to_chunk = $scope.books
+      books_to_chunk.unshift(add_book)
+      $rootScope.libraryLayout = chunk(books_to_chunk, 3)
+      # $rootScope.libraryLayout.unshift(add_book)
       return
     return
 ])
@@ -310,6 +317,21 @@ app.controller('SettingsCtrl', [
           return
       return
     return
+])
+
+
+app.controller('PracticeCtrl', [
+  "$ionicHistory"
+  "$scope"
+  "$kinvey"
+  "$rootScope"
+  "$ionicPopup"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup) ->
+    $scope.$on 'loginEvent', () ->
+      $scope.goBack = ->
+        $ionicHistory.goBack()
+        return
+      # Add stuff here
 ])
 
 app.controller 'EditCtrl', ($scope) ->
