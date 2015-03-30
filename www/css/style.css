@@ -23,22 +23,39 @@ a.booktile {
 	color: black;
 }
 
-button.button.button-large.button-clear.ion-ios-play.play-button{
+button.button.button-large.button-clear.play-button{
+	position: relative;
 	font-size: 60px;
 	max-height: 100px;
-	margin-left: 45%;
+	margin-left: 47%;
 }
 
-button.button.button-large.button-clear.ion-ios-search-strong{
-	font-size: 25px;
+button.button.button-large.button-clear.pause-button{
+	position: relative;
+	font-size: 50px;
+	max-height: 100px;
+	margin-left: 43%;
+}
+
+button.button.button-large.button-clear.define-button{
+	font-size: 20px;
 	max-height: 100px;
 	margin-right: 20px;
+	max-width: 50px;
+	line-height: 50%;
 }
 
+a.button.help-button {
+	margin-right: 5px;
+}
+
+.show-back-button{
+	display: block !important;
+}
+
+
 div.box{
-	/*border: 1px solid #999;*/
 	padding: 20px;
-	/*padding-top: 50px;*/
 }
 
 div.player-footer{
@@ -47,4 +64,60 @@ div.player-footer{
 
 div.slider-pager{
 	top: 20px;
+}
+
+/*div.slider-slides{
+	width: 100% !important;
+}*/
+
+img.selected{
+	border: 2px solid #111;
+}
+
+select.settings-select{
+	left: 0;
+	padding-left: 0;
+	margin-left: -5px;
+}
+
+a.button.button-full.reset-password{
+	margin-top: 0px !important;
+	margin-bottom: 0px !important;
+}
+
+span.small-text{
+	font-size: 20px;
+}
+
+.show-button{
+	display: block;
+}
+
+.hide-button{
+	display: none;
+}
+
+div.define-subfooter{
+	bottom: 100px;
+	height: 70px;
+	border-top: 1px solid #ddd;
+	border-color: #ddd !important;
+}
+
+.col-30.define-icon-row.ng-binding {
+  border-right: 1px solid #ddd;
+  padding-right: 10px;
+  padding-top: 10px;
+  margin-top: -10px;
+  padding-bottom: 20px;
+}
+
+div.translation-text{
+	font-size: 22px;
+	padding-top: 10px;
+}
+
+span.word{
+	font-size: 22px;
+	line-height: 170%;
 }

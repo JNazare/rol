@@ -4,76 +4,56 @@
   The FriendsCtrl pulls data from the Friends service (service.js)
   The Friends service returns an array of friend data
 -->
-<ion-view view-title="{{book.name}}">
+<ion-view view-title="{{book.title}}">
   <div class="bar bar-subheader thumbnail-bar">
     <div class="button-bar">
-      <a class="button button-clear">
+      <a class="button button-clear" ng-click="slidePrevious()" ng-class="{'button-dark': currentSlide>0}">
         <span class="ion-ios-arrow-left"></span>
       </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
+      <a class="button button-clear" ng-repeat="page in pages track by $index" ng-click="slideTo($index)">
+        <img ng-src="{{page.image._downloadURL}}" height="30px" ng-class="{selected: $index==currentSlide}">
       </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
-        <img ng-src="http://placehold.it/30x30" height="100%">
-      </a>
-      <a class="button button-clear">
+      <a class="button button-clear" ng-click="slideNext()" ng-class="{'button-dark': currentSlide<pages.length-1}">
         <span class="ion-ios-arrow-right"></span>
       </a>
     </div>
   </div>
   <ion-nav-buttons side="primary">
-    <a class="button button-clear button-stable" ng-href="#/tab/read">
-      End
+    <a class="button button-clear button-light button-icon icon ion-ios-information-outline help-button" ng-href="">
+    </a>
+    <a class="button button-clear button-light button-icon icon ion-ios-close-empty" ng-href="#/tab/read" ng-click="endBook()">
     </a>
   </ion-nav-buttons>
-  <ion-content class="padding has-header has-subheader">
-    <ion-slide-box on-slide-changed="slideHasChanged($index)">
-      <ion-slide>
-        <div class="box blue">
-          <p>
-            Bacon ipsum dolor amet bresaola pork belly meatball, hamburger ground round sausage shank venison pastrami frankfurter jowl. Brisket cupim salami bacon. Shankle cow salami ribeye cupim pork loin sausage tri-tip andouille meatball. Shank ribeye ground round, drumstick flank brisket beef ribs pork picanha pork belly. Boudin strip steak bacon alcatra rump, fatback kevin. Short loin jowl ham corned beef tri-tip bresaola fatback short ribs. Pork chop picanha shank bacon salami turkey drumstick cupim.
-          </p>
-        </div>
-      </ion-slide>
-      <ion-slide>
-        <div class="box yellow">
-          <p>
-            Bacon ipsum dolor amet bresaola pork belly meatball, hamburger ground round sausage shank venison pastrami frankfurter jowl. Brisket cupim salami bacon. Shankle cow salami ribeye cupim pork loin sausage tri-tip andouille meatball. Shank ribeye ground round, drumstick flank brisket beef ribs pork picanha pork belly. Boudin strip steak bacon alcatra rump, fatback kevin. Short loin jowl ham corned beef tri-tip bresaola fatback short ribs. Pork chop picanha shank bacon salami turkey drumstick cupim.
-          </p>
-        </div>
-      </ion-slide>
-      <ion-slide>
-        <div class="box pink">
-          <p>
-            Bacon ipsum dolor amet bresaola pork belly meatball, hamburger ground round sausage shank venison pastrami frankfurter jowl. Brisket cupim salami bacon. Shankle cow salami ribeye cupim pork loin sausage tri-tip andouille meatball. Shank ribeye ground round, drumstick flank brisket beef ribs pork picanha pork belly. Boudin strip steak bacon alcatra rump, fatback kevin. Short loin jowl ham corned beef tri-tip bresaola fatback short ribs. Pork chop picanha shank bacon salami turkey drumstick cupim.
+  <ion-content class="padding has-header has-subheader has-footer has-subfooter">
+    <ion-slide-box on-slide-changed="slideHasChanged($index)" active-slide="currentSlide">
+      <ion-slide ng-repeat="page in pages">
+        <div class="box">
+          <p ng-repeat="paragraph in page.text|splitParagraphs track by $index">
+            <span class="word" ng-repeat="word in paragraph|splitWords track by $index" ng-click="define(word)">
+              {{word}}
+            </span>
           </p>
         </div>
       </ion-slide>
     </ion-slide-box>
   </ion-content>
-  <div class="bar bar-footer bar-stable player-footer">
-    <button class="button button-large button-clear button-dark ion-ios-play play-button" ng-click='speak("you just clicked the play button")'></button>
-    <button class="button button-large button-clear button-dark ion-ios-search-strong" ng-click='speak("you just clicked the define button")'></button>
+  <div class="bar bar-subfooter bar-stable define-subfooter">
+    <div class="row">
+      <div class="col-30 define-icon-row">
+        <center><span class="icon define-icon ion-android-globe"></span></center>
+        {{translationLanguage.name}}
+      </div>
+      <div class="col-70 col-offset-10 translation-text">
+        {{selected_word}} <i ng-if="selected_word" class="icon ion-arrow-swap"></i> {{translated_word}}
+      </div>
+   </div>
+  </div>
+  <div class="bar bar-footer bar-dark player-footer">
+    <button class="button button-large button-clear pause-button" ng-click='pause()' ng-class="{'show-button': playing==true, 'hide-button': playing==false}">
+      <span class="ion-stop"></span>
+    </button>
+    <button class="button button-large button-clear play-button" ng-click='speak(pages[currentSlide].text, "en-US")' ng-class="{'show-button': playing==false, 'hide-button': playing==true}">
+      <span class="ion-ios-play"></span>
+    </button>
   </div>
 </ion-view>
