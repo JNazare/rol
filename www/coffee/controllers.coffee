@@ -24,6 +24,8 @@ app.controller('AppCtrl', [
   "$kinvey"
   ($scope, $ionicModal, $rootScope, $timeout, $kinvey) ->
     
+    console.log 'in app ctrl'
+
     $scope.loginData = {}
     $scope.signupData = {}
 
@@ -158,6 +160,8 @@ app.controller('ReadCtrl', [
   "$stateParams"
   "kinveyFactory"
   ($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) ->
+    console.log 'in read ctrl'
+
     $scope.$on 'loginEvent', () ->
       add_book = {
         coverImageUrl: "img/add_book_icon.jpg"
@@ -172,6 +176,7 @@ app.controller('ReadCtrl', [
 ])
 
 app.controller('ReviewCtrl', ($scope) ->
+  console.log 'in review ctrl'
 )
 
 app.controller('PlayerCtrl', [
@@ -184,27 +189,25 @@ app.controller('PlayerCtrl', [
   "$ionicSlideBoxDelegate"
   "$http"
   ($kinvey, $location, $scope, $stateParams, kinveyFactory, $rootScope, $ionicSlideBoxDelegate, $http) ->
-    $scope.$on 'loginEvent', () ->
-      pageQuery = new $kinvey.Query()    
-      pageQuery.equalTo('bookId', $stateParams.bookId)
-      bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
-      bookPromise.then (book) ->
-        $scope.book = book
-        promise = $kinvey.DataStore.find( "Pages", pageQuery )
-        promise.then (pages) ->
-          book_display_data = {
-            image : {
-              _downloadURL: book.coverImageUrl
-            }
-            text : book.title + " by " + book.author
+    pageQuery = new $kinvey.Query()    
+    pageQuery.equalTo('bookId', $stateParams.bookId)
+    bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
+    bookPromise.then (book) ->
+      $scope.book = book
+      promise = $kinvey.DataStore.find( "Pages", pageQuery )
+      promise.then (pages) ->
+        book_display_data = {
+          image : {
+            _downloadURL: book.coverImageUrl
           }
-          pages.unshift(book_display_data)
-          $scope.pages = pages
-          $ionicSlideBoxDelegate.update()
-          promise = $kinvey.DataStore.get('Languages', $rootScope.activeUser.language)
-          promise.then ( translationLanguage ) ->
-            $scope.translationLanguage = translationLanguage
-      return
+          text : book.title + " by " + book.author
+        }
+        pages.unshift(book_display_data)
+        $scope.pages = pages
+        $ionicSlideBoxDelegate.update()
+        promise = $kinvey.DataStore.get('Languages', $rootScope.activeUser.language)
+        promise.then ( translationLanguage ) ->
+          $scope.translationLanguage = translationLanguage
 
     $scope.currentSlide = 0
     $scope.playing = false
@@ -301,21 +304,19 @@ app.controller('SettingsCtrl', [
   "$rootScope"
   "$ionicPopup"
   ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup) ->
-    $scope.$on 'loginEvent', () ->
-      promise = $kinvey.DataStore.find('Languages')
-      promise.then ( listOfLanguages ) ->
-        $scope.listOfLanguages = listOfLanguages
-        return
-      $scope.goBack = ->
-        $ionicHistory.goBack()
-        return
-      $scope.updateUser = ->
-        promise = $kinvey.User.update($rootScope.activeUser)
-        promise.then () ->
-          alertPopup = $ionicPopup.alert(
-            title: 'SAVED')
-          return
+    promise = $kinvey.DataStore.find('Languages')
+    promise.then ( listOfLanguages ) ->
+      $scope.listOfLanguages = listOfLanguages
       return
+    $scope.goBack = ->
+      $ionicHistory.goBack()
+      return
+    $scope.updateUser = ->
+      promise = $kinvey.User.update($rootScope.activeUser)
+      promise.then () ->
+        alertPopup = $ionicPopup.alert(
+          title: 'SAVED')
+        return
     return
 ])
 
@@ -327,10 +328,9 @@ app.controller('PracticeCtrl', [
   "$rootScope"
   "$ionicPopup"
   ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup) ->
-    $scope.$on 'loginEvent', () ->
-      $scope.goBack = ->
-        $ionicHistory.goBack()
-        return
+    $scope.goBack = ->
+      $ionicHistory.goBack()
+      return
       # Add stuff here
 ])
 
