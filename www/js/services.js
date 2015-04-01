@@ -4,20 +4,19 @@
 
   appServices = angular.module('app.services', []);
 
-  appServices.factory('kinveyFactory', [
+  appServices.factory('privateFactory', [
     "$kinvey", function($kinvey) {
-      var promise;
-      promise = $kinvey.init({
-        appKey: "kid_bkOlUtsa2",
-        appSecret: "3e534d0a09d6494d916a07c9e6afe54a",
-        sync: {
-          enable: true
+      var appKey, appSecret;
+      appKey = "kid_bkOlUtsa2";
+      appSecret = "3e534d0a09d6494d916a07c9e6afe54a";
+      return {
+        kinveyKey: function() {
+          return appKey;
+        },
+        kinveySecret: function() {
+          return appSecret;
         }
-      });
-      promise.then(function(kinveyUser) {
-        return kinveyUser;
-      });
-      return promise;
+      };
     }
   ]);
 

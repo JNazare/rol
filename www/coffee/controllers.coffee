@@ -22,7 +22,8 @@ app.controller('AppCtrl', [
   "$rootScope"
   "$timeout"
   "$kinvey"
-  ($scope, $ionicModal, $rootScope, $timeout, $kinvey) ->
+  "privateFactory"
+  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, privateFactory) ->
     
     console.log 'in app ctrl'
 
@@ -42,8 +43,8 @@ app.controller('AppCtrl', [
       return
 
     promise = $kinvey.init(
-          appKey: "kid_bkOlUtsa2"
-          appSecret: "3e534d0a09d6494d916a07c9e6afe54a"
+          appKey: privateFactory.kinveyKey()
+          appSecret: privateFactory.kinveySecret()
           sync:
               enable: true
       )
@@ -158,8 +159,8 @@ app.controller('ReadCtrl', [
   "$scope"
   "$kinvey"
   "$stateParams"
-  "kinveyFactory"
-  ($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) ->
+  "privateFactory"
+  ($rootScope, $scope, $kinvey, $stateParams, privateFactory) ->
     console.log 'in read ctrl'
 
     $scope.$on 'loginEvent', () ->
@@ -184,11 +185,10 @@ app.controller('PlayerCtrl', [
   "$location"
   "$scope"
   "$stateParams"
-  "kinveyFactory"
   "$rootScope"
   "$ionicSlideBoxDelegate"
   "$http"
-  ($kinvey, $location, $scope, $stateParams, kinveyFactory, $rootScope, $ionicSlideBoxDelegate, $http) ->
+  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http) ->
     pageQuery = new $kinvey.Query()    
     pageQuery.equalTo('bookId', $stateParams.bookId)
     bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)

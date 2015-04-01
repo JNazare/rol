@@ -28,7 +28,7 @@
   });
 
   app.controller('AppCtrl', [
-    "$scope", "$ionicModal", "$rootScope", "$timeout", "$kinvey", function($scope, $ionicModal, $rootScope, $timeout, $kinvey) {
+    "$scope", "$ionicModal", "$rootScope", "$timeout", "$kinvey", "privateFactory", function($scope, $ionicModal, $rootScope, $timeout, $kinvey, privateFactory) {
       var promise;
       console.log('in app ctrl');
       $scope.loginData = {};
@@ -44,8 +44,8 @@
         $scope.signupmodal = signupmodal;
       });
       promise = $kinvey.init({
-        appKey: "kid_bkOlUtsa2",
-        appSecret: "3e534d0a09d6494d916a07c9e6afe54a",
+        appKey: privateFactory.kinveyKey(),
+        appSecret: privateFactory.kinveySecret(),
         sync: {
           enable: true
         }
@@ -168,7 +168,7 @@
   ]);
 
   app.controller('ReadCtrl', [
-    "$rootScope", "$scope", "$kinvey", "$stateParams", "kinveyFactory", function($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) {
+    "$rootScope", "$scope", "$kinvey", "$stateParams", "privateFactory", function($rootScope, $scope, $kinvey, $stateParams, privateFactory) {
       console.log('in read ctrl');
       $scope.$on('loginEvent', function() {
         var add_book, books_to_chunk;
@@ -188,7 +188,7 @@
   });
 
   app.controller('PlayerCtrl', [
-    "$kinvey", "$location", "$scope", "$stateParams", "kinveyFactory", "$rootScope", "$ionicSlideBoxDelegate", "$http", function($kinvey, $location, $scope, $stateParams, kinveyFactory, $rootScope, $ionicSlideBoxDelegate, $http) {
+    "$kinvey", "$location", "$scope", "$stateParams", "$rootScope", "$ionicSlideBoxDelegate", "$http", function($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http) {
       var bookPromise, defineUtterance1, defineUtterance2, pageQuery, playUtterance;
       pageQuery = new $kinvey.Query();
       pageQuery.equalTo('bookId', $stateParams.bookId);
