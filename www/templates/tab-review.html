@@ -1,50 +1,62 @@
-<ion-view view-title="Review">
-  <ion-nav-buttons side="primary">
-    <a class="button button-clear button-light button-icon icon ion-ios-information-outline help-button" ng-href="">
-    </a>
-    <a class="button button-clear button-icon icon ion-ios-gear-outline" ng-href="#/wrapper/settings">
-    </a>
-  </ion-nav-buttons>
-  <ion-content class="padding">
-    <div class="list card">
-      <div class="item item-divider">Question 1</div>
-      <div class="item item-body">
-        <div> <!-- Edits made to this div: Question, answers, bottom buttons -->
-          <p>Charlie drank his _____ and ate his cookies.</p>
-          <center><a class="button button-icon icon ion-help-circled"></a></center>
-          
-          <div class="list card">
-            <a href="#" class="item ">
-              <center>napkin</center>
-            </a>
-            <a href="#" class="item ">
-              <center>lose</center>
-            </a>
-            <a href="#" class="item ">
-              <center>milk</center>
-            </a>
-            <a href="#" class="item ">
-              <center>place</center>
-            </a>
-            <a href="#" class="item ">
-              <center>outside</center>
-            </a>
-          </div>
+<!-- MY WORDS page -->
 
-          <div class="row">
-            <div class="col">
-              <a class="button icon-left ion-arrow-left-a button-clear button-dark" style="float: left;">Back</a>
-            </div>
-            <div class="col">
-              <center>Page 1/10</center>
-            </div>
-            <div class="col">
-              <a class="button icon-right ion-arrow-right-a button-clear button-dark" style="float: right;">Next</a>
-            </div>
-          </div>
+<ion-view view-title="My Words">
+    
 
-        </div>
+    <ion-content>
+
+      <!-- BUTTON BAR -->
+      <div class="button-bar">
+        <a class="button">ALL</a>
+        <a class="button">BY BOOK</a>
       </div>
-    </div>
-  </ion-content>
+
+      <div class="item item-body">         
+                <!-- ALL -->
+                <div class="list card">
+                  <a href="#" class="item "> 
+                    <center>ROAD - camino</center>
+                  </a>
+                  <a href="#" class="item ">
+                    <center>LOSE - perder</center>
+                  </a>
+                  <a href="#" class="item ">
+                    <center>PLACE - lugar</center>
+                  </a>
+                  <a href="#" class="item ">
+                    <center>OUTSIDE - afuera</center>
+                  </a>
+                  <a href="#" class="item ">
+                    <center>PANTS - pantalones</center>
+                  </a>
+                  <a href="#" class="item ">
+                    <center>RUN - correr</center>
+                  </a>
+                </div>
+
+                <!-- BY BOOK: (1) Hansel & Gretel; (2) The Gingerbread Man -->
+                <div class="list card">
+                  <a class="icon-left ion-image">Hansel and Gretel</a>
+                    <a href="#" class="item ">
+                      <center>LOSE - perder</center>
+                    </a>
+                    <a href="#" class="item ">
+                      <center>OUTSIDE - afuera</center>
+                    </a>
+                </div>
+
+                <div class="list card">
+                  <a class="icon-left ion-ios-body">The Gingerbread Man</a>
+                    <a href="#" class="item ">
+                      <center>ROAD - camino</center>
+                    </a>
+                    <a href="#" class="item ">
+                      <center>RUN - correr</center>
+                    </a>
+                </div>
+
+      </div>
+
+    </ion-content>
+    
 </ion-view>
