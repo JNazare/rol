@@ -1,66 +1,51 @@
-<ion-view view-title="My Words">
-    
+<ion-view view-title="My Words" ng-controller="ReviewCtrl">
 
-    <ion-content>
+  <ion-content>
 
-      <!-- BUTTON BAR -->
-      <div class="button-bar">
-        <a class="button">ALL</a>
-        <a class="button">BY BOOK</a>
-      </div>
+    <!-- BUTTON BAR -->
+    <div class="button-bar">
+      <a class="button" ng-click="displayAll = true">ALL</a>
+      <a class="button" ng-click="displayAll = false">BY BOOK</a>
+      <!-- NEXT: use ng-if to display which set of contents is shown -->
+    </div>
 
-      <!-- temporary button to go to PRACTICE -->
-      <div>
-        <a class="button icon icon-right ion-chevron-right" href="#/practice">
-          PRACTICE!
-        </a>
-      </div>
+    <!-- temporary button to go to PRACTICE -->
+    <div>
+      <a class="button" href="#/practice">
+        <center>PRACTICE</center>
+      </a>
+    </div>
 
-      <div class="item item-body">         
-                <!-- ALL -->
-                <div class="list card">
-                  <a href="#" class="item "> 
-                    <center>ROAD - camino</center>
-                  </a>
-                  <a href="#" class="item ">
-                    <center>LOSE - perder</center>
-                  </a>
-                  <a href="#" class="item ">
-                    <center>PLACE - lugar</center>
-                  </a>
-                  <a href="#" class="item ">
-                    <center>OUTSIDE - afuera</center>
-                  </a>
-                  <a href="#" class="item ">
-                    <center>PANTS - pantalones</center>
-                  </a>
-                  <a href="#" class="item ">
-                    <center>RUN - correr</center>
-                  </a>
-                </div>
-
-                <!-- BY BOOK: (1) Hansel & Gretel; (2) The Gingerbread Man -->
-                <div class="list card">
-                  <a class="icon-left ion-image">Hansel and Gretel</a>
-                    <a href="#" class="item ">
-                      <center>LOSE - perder</center>
-                    </a>
-                    <a href="#" class="item ">
-                      <center>OUTSIDE - afuera</center>
-                    </a>
-                </div>
-
-                <div class="list card">
-                  <a class="icon-left ion-ios-body">The Gingerbread Man</a>
-                    <a href="#" class="item ">
-                      <center>ROAD - camino</center>
-                    </a>
-                    <a href="#" class="item ">
-                      <center>RUN - correr</center>
-                    </a>
-                </div>
+    <div class="item item-body" ng-init="displayAll = true">         
+      <!-- Display ALL words (default view) -->
+      <div class="list card" ng-if="displayAll">
+        <ul>
+          <div class="item" ng-repeat="vocab in vocablist" ng-click="showPopup(vocab)">
+            <center>{{vocab.english}} - {{vocab.defn}}</center>
+          </div>
+        </ul>
 
       </div>
 
-    </ion-content>
+      <!-- Display BY BOOK: (1) Hansel & Gretel; (2) The Gingerbread Man -->
+      <div ng-if="!displayAll">
+        <div class="list card">
+          <a class="icon-left ion-image">Hansel and Gretel</a>
+          <div class="item" ng-repeat="vocab in hanselList" ng-click="showPopup(vocab)">
+            <center>{{vocab.english}} - {{vocab.defn}}</center>
+          </div>
+        </div>
+
+        <div class="list card">
+          <a class="icon-left ion-ios-body">The Gingerbread Man</a>
+          <div class="item" ng-repeat="vocab in gingerList" ng-click="showPopup(vocab)">
+            <center>{{vocab.english}} - {{vocab.defn}}</center>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- closes item-body -->
+
+  </ion-content>
 </ion-view>
+

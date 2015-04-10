@@ -175,10 +175,6 @@ app.controller('ReadCtrl', [
     return
 ])
 
-app.controller('ReviewCtrl', ($scope) ->
-  console.log 'in review ctrl'
-)
-
 app.controller('PlayerCtrl', [
   "$kinvey"
   "$location"
@@ -320,6 +316,67 @@ app.controller('SettingsCtrl', [
     return
 ])
 
+app.controller 'EditCtrl', ($scope) ->
+  $scope.settings = enableFriends: true
+  return
+
+
+# ReviewCtrl & PracticeCtrl - edits by Emily
+
+app.controller('ReviewCtrl', [
+  "$scope"
+  "$ionicPopup"
+  ($scope, $ionicPopup) ->
+    console.log 'in review ctrl'
+    
+    $scope.vocablist = [
+      {
+        english: 'ROAD'
+        defn: 'camino'
+        book: 'ginger'
+      },
+      {
+        english: 'LOSE'
+        defn: 'perder'
+        book: 'hansel'
+      },
+      {
+        english: 'PLACE'
+        defn: 'lugar'
+        book: 'hansel'
+      },
+      {
+        english: 'OUTSIDE'
+        defn: 'afuera'
+        book: 'hansel'
+      },
+      {
+        english: 'RUN'
+        defn: 'correr'
+        book: 'ginger'
+      }
+    ]
+    
+    # 'creates specific list according to book (potentially not a scope variable)'
+    $scope.bookList = (title, biglist) ->
+      thisList = []
+      for word in biglist
+        if (title is word.book)
+          thisList.push word
+      return thisList
+
+    $scope.hanselList = $scope.bookList("hansel", $scope.vocablist)
+    $scope.gingerList = $scope.bookList("ginger", $scope.vocablist)
+
+    $scope.showPopup = (vocab) ->
+      console.log 'in showPopup function' + vocab
+      alertPopup = $ionicPopup.alert (
+        title: vocab.english
+        subTitle: vocab.defn
+        template: '(sentence in context)')
+      return
+  ]
+)
 
 app.controller('PracticeCtrl', [
   "$ionicHistory"
@@ -331,9 +388,64 @@ app.controller('PracticeCtrl', [
     $scope.goBack = ->
       $ionicHistory.goBack()
       return
-      # Add stuff here
-])
+      
+    $scope.answer = {
+      eng: 'milk'
+      correct: true
+      defn: 'leche'
+    }
+    
+    wrongAnswers = [
+      {
+        eng: 'napkin'
+        correct: false
+        defn: 'servilleta'
+      },
+      {
+        eng: 'lose'
+        correct: false
+        defn: 'perder'
+      },
+      {
+        eng: 'place'
+        correct: false
+        defn: 'lugar'
+      },
+      {
+        eng: 'outside'
+        correct: false
+        defn: 'afuera'
+      }
+    ]
 
-app.controller 'EditCtrl', ($scope) ->
-  $scope.settings = enableFriends: true
-  return
+    # 'shuffle alogithm taken from CoffeeScript Cookbook'
+    shuffle = (a) ->
+      i = a.length
+      while --i > 0
+        j = ~~(Math.random() * (i + 1)) # ~~ is a common optimization for Math.floor
+        t = a[j]
+        a[j] = a[i]
+        a[i] = t
+      a
+    
+    joinAnswers = (wrongList, rightAnswer) ->
+      wrongList.push rightAnswer
+      shuffle(wrongList)
+      return wrongList
+
+    $scope.possibleAnswers = joinAnswers(wrongAnswers, $scope.answer)
+
+    # 'Popup to say whether selected word is correct or not'
+    $scope.showResult = (word) ->
+      console.log 'in showResult function'
+      if word.correct
+        alertPopup = $ionicPopup.alert (
+          title: "Good Job!"
+          template: word.eng + ' = ' + word.defn)
+      else
+        alertPopup = $ionicPopup.alert (
+          title: "Try again!"
+          template: word.eng + ' = ' + word.defn)
+      
+  ]
+)
