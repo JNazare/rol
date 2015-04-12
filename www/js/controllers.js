@@ -27,8 +27,12 @@
     };
   });
 
+  app.config(function($compileProvider) {
+    $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|tel):/);
+  });
+
   app.controller('AppCtrl', [
-    "$scope", "$ionicModal", "$rootScope", "$timeout", "$kinvey", "privateFactory", function($scope, $ionicModal, $rootScope, $timeout, $kinvey, privateFactory) {
+    "$scope", "$ionicModal", "$rootScope", "$timeout", "$kinvey", "kinveyKey", "kinveySecret", function($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret) {
       var promise;
       console.log('in app ctrl');
       $scope.loginData = {};
@@ -44,8 +48,8 @@
         $scope.signupmodal = signupmodal;
       });
       promise = $kinvey.init({
-        appKey: privateFactory.kinveyKey(),
-        appSecret: privateFactory.kinveySecret(),
+        appKey: kinveyKey,
+        appSecret: kinveySecret,
         sync: {
           enable: true
         }
@@ -168,13 +172,13 @@
   ]);
 
   app.controller('ReadCtrl', [
-    "$rootScope", "$scope", "$kinvey", "$stateParams", "privateFactory", function($rootScope, $scope, $kinvey, $stateParams, privateFactory) {
+    "$rootScope", "$scope", "$kinvey", "$stateParams", function($rootScope, $scope, $kinvey, $stateParams) {
       console.log('in read ctrl');
       $scope.$on('loginEvent', function() {
         var add_book, books_to_chunk;
         add_book = {
           coverImageUrl: "img/add_book_icon.jpg",
-          add_url: "tab/edit"
+          add_url: "add"
         };
         books_to_chunk = $scope.books;
         books_to_chunk.unshift(add_book);
@@ -316,10 +320,23 @@
     }
   ]);
 
-  app.controller('EditCtrl', function($scope) {
-    $scope.settings = {
-      enableFriends: true
-    };
-  });
+  app.controller('AddCtrl', [
+    "$rootScope", "$scope", function($rootScope, $scope) {
+      $scope.book = {};
+      $scope.getPhoto = function() {
+        navigator.camera.getPicture((function(imageURI) {
+          $scope.$apply(function() {
+            $scope.book.image = imageURI;
+          });
+        }), (function(err) {}), {
+          quality: 50,
+          destinationType: Camera.DestinationType.DATA_URL
+        });
+      };
+      return $scope.addBook = function() {
+        return console.log($scope.book);
+      };
+    }
+  ]);
 
 }).call(this);

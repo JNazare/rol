@@ -16,14 +16,19 @@ app.filter 'splitWords', ->
   (text) ->
     text.split ' '
 
+app.config ($compileProvider) ->
+  $compileProvider.imgSrcSanitizationWhitelist /^\s*(https?|ftp|mailto|file|tel):/
+  return
+
 app.controller('AppCtrl', [
   "$scope"
   "$ionicModal"
   "$rootScope"
   "$timeout"
   "$kinvey"
-  "privateFactory"
-  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, privateFactory) ->
+  "kinveyKey"
+  "kinveySecret"
+  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret) ->
     
     console.log 'in app ctrl'
 
@@ -43,8 +48,8 @@ app.controller('AppCtrl', [
       return
 
     promise = $kinvey.init(
-          appKey: privateFactory.kinveyKey()
-          appSecret: privateFactory.kinveySecret()
+          appKey: kinveyKey
+          appSecret: kinveySecret
           sync:
               enable: true
       )
@@ -159,14 +164,13 @@ app.controller('ReadCtrl', [
   "$scope"
   "$kinvey"
   "$stateParams"
-  "privateFactory"
-  ($rootScope, $scope, $kinvey, $stateParams, privateFactory) ->
+  ($rootScope, $scope, $kinvey, $stateParams) ->
     console.log 'in read ctrl'
 
     $scope.$on 'loginEvent', () ->
       add_book = {
         coverImageUrl: "img/add_book_icon.jpg"
-        add_url: "tab/edit"
+        add_url: "add"
       }
       books_to_chunk = $scope.books
       books_to_chunk.unshift(add_book)
@@ -334,6 +338,23 @@ app.controller('PracticeCtrl', [
       # Add stuff here
 ])
 
-app.controller 'EditCtrl', ($scope) ->
-  $scope.settings = enableFriends: true
-  return
+app.controller('AddCtrl', [
+  "$rootScope"
+  "$scope"
+  ($rootScope, $scope) ->
+    $scope.book = {}
+    $scope.getPhoto = ->
+      navigator.camera.getPicture ((imageURI) ->
+        $scope.$apply ->
+          $scope.book.image = imageURI
+          return
+        return
+      ), ((err) ->
+      ),
+        quality: 50
+        destinationType: Camera.DestinationType.DATA_URL
+      return
+
+    $scope.addBook = ->
+      console.log $scope.book
+])

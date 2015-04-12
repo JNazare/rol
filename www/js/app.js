@@ -69,6 +69,14 @@
           controller: 'PracticeCtrl'
         }
       }
+    }).state('app.add', {
+      url: '/add',
+      views: {
+        'wrapper': {
+          templateUrl: 'templates/add.html',
+          controller: 'AddCtrl'
+        }
+      }
     });
     $urlRouterProvider.otherwise('/library');
   });

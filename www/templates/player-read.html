@@ -41,7 +41,7 @@
     <div class="row">
       <div class="col-30 define-icon-row">
         <center><span class="icon define-icon ion-android-globe"></span></center>
-        {{translationLanguage.name}}
+        {{translationLanguage._id | uppercase}}
       </div>
       <div class="col-70 col-offset-10 translation-text">
         {{selected_word}} <i ng-if="selected_word" class="icon ion-arrow-swap"></i> {{translated_word}}

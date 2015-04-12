@@ -6,25 +6,18 @@
     </a>
   </ion-nav-buttons>
   <ion-content>
-    <div class="list search-list">
-      <div class="item item-input-inset search-list-item">
-        <label class="item-input-wrapper">
-          <i class="icon ion-search placeholder-icon"></i>
-          <input type="text" placeholder="Search">
-        </label>
-      </div>
-    </div>
     <div class="row" ng-repeat="libraryRow in libraryLayout">
       <div class="col col-33" ng-repeat="book in libraryRow">
         <a class="booktile" ng-if="!book.add_url" ng-href="#/read/{{book._id}}">
-          <img ng-src="{{book.coverImageUrl}}" width="100%">
+          <div class="container">
+            <button class="button button-clear edit-button">
+                <span class="icon ion-ios-compose edit-icon"></span>
+            </button>
+            <img ng-src="{{book.coverImageUrl}}" width="100%">
+          </div>
           <p> 
             <span class="book-name">
               {{book.title}} 
-            </span>
-            <br> 
-            <span class="author-name">
-              {{book.author}}
             </span>
           </p>
         </a>
@@ -33,10 +26,6 @@
           <p> 
             <span class="book-name">
               {{book.title}} 
-            </span>
-            <br> 
-            <span class="author-name">
-              {{book.author}}
             </span>
           </p>
         </a>
