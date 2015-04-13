@@ -27,10 +27,6 @@
     };
   });
 
-  app.config(function($compileProvider) {
-    $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|tel):/);
-  });
-
   app.controller('AppCtrl', [
     "$scope", "$ionicModal", "$rootScope", "$timeout", "$kinvey", "kinveyKey", "kinveySecret", function($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret) {
       var promise;
@@ -321,16 +317,19 @@
   ]);
 
   app.controller('AddCtrl', [
-    "$rootScope", "$scope", function($rootScope, $scope) {
+    "$rootScope", "$scope", "Camera", function($rootScope, $scope, Camera) {
       $scope.book = {};
       $scope.getPhoto = function() {
-        navigator.camera.getPicture((function(imageURI) {
-          $scope.$apply(function() {
-            $scope.book.image = imageURI;
-          });
-        }), (function(err) {}), {
-          quality: 50,
-          destinationType: Camera.DestinationType.DATA_URL
+        Camera.getPicture().then((function(imageURI) {
+          console.log(imageURI);
+          $scope.book.image = imageURI;
+        }), (function(err) {
+          console.err(err);
+        }), {
+          quality: 75,
+          targetWidth: 320,
+          targetHeight: 320,
+          saveToPhotoAlbum: false
         });
       };
       return $scope.addBook = function() {

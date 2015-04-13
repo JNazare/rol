@@ -2,7 +2,7 @@
 (function() {
   var app;
 
-  app = angular.module('app', ['ionic', 'kinvey', 'app.services', 'angularLoad']);
+  app = angular.module('app', ['ionic', 'kinvey', 'angularLoad']);
 
   app.run(function($ionicPlatform) {
     $ionicPlatform.ready(function() {
@@ -80,5 +80,11 @@
     });
     $urlRouterProvider.otherwise('/library');
   });
+
+  app.config([
+    '$compileProvider', function($compileProvider) {
+      $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|tel):/);
+    }
+  ]);
 
 }).call(this);

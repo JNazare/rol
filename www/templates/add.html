@@ -24,7 +24,8 @@
   			<div class="item camera-div" ng-click="getPhoto()">
   				<center>
   					<span class="icon ion-ios-camera take-photo"></span>
-  					<img ng-src="{{book.image}}" width="50%">
+  					<br>
+  					<img ng-show="book.image !== undefined" ng-src="{{book.image}}" width="30%">
   				</center>
   			</div>
 			<a class="button button-full button-positive" ng-click="addBook()">

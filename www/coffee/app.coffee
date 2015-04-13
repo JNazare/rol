@@ -8,7 +8,6 @@
 app = angular.module('app', [
   'ionic'
   'kinvey'
-  'app.services'
   'angularLoad'
 ])
 
@@ -76,3 +75,11 @@ app.config ($stateProvider, $urlRouterProvider) ->
   # if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise '/library'
   return
+
+
+app.config [
+  '$compileProvider'
+  ($compileProvider) ->
+    $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|tel):/)
+    return
+]

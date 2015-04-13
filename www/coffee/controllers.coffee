@@ -16,9 +16,9 @@ app.filter 'splitWords', ->
   (text) ->
     text.split ' '
 
-app.config ($compileProvider) ->
-  $compileProvider.imgSrcSanitizationWhitelist /^\s*(https?|ftp|mailto|file|tel):/
-  return
+# app.config ($compileProvider) ->
+#   $compileProvider.imgSrcSanitizationWhitelist /^\s*(https?|ftp|mailto|file|tel):/
+#   return
 
 app.controller('AppCtrl', [
   "$scope"
@@ -341,18 +341,23 @@ app.controller('PracticeCtrl', [
 app.controller('AddCtrl', [
   "$rootScope"
   "$scope"
-  ($rootScope, $scope) ->
+  "Camera"
+  ($rootScope, $scope, Camera) ->
     $scope.book = {}
+
     $scope.getPhoto = ->
-      navigator.camera.getPicture ((imageURI) ->
-        $scope.$apply ->
-          $scope.book.image = imageURI
-          return
+      Camera.getPicture().then ((imageURI) ->
+        console.log imageURI
+        $scope.book.image = imageURI
         return
       ), ((err) ->
+        console.err err
+        return
       ),
-        quality: 50
-        destinationType: Camera.DestinationType.DATA_URL
+        quality: 75
+        targetWidth: 320
+        targetHeight: 320
+        saveToPhotoAlbum: false
       return
 
     $scope.addBook = ->
