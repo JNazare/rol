@@ -6,6 +6,14 @@ chunk = (arr, size) ->
     i += size
   newArr
 
+dataURItoBlob = (dataURI) ->
+  binary = atob(dataURI.split(',')[1])
+  array = []
+  i = 0
+  while i < binary.length
+    array.push binary.charCodeAt(i)
+    i++
+  new Blob([ new Uint8Array(array) ], type: 'image/jpeg')
 
 app = angular.module('app')
 
@@ -358,9 +366,11 @@ app.controller('AddCtrl', [
         encodingType: navigator.camera.EncodingType.JPEG
       }
 
-      Camera.getPicture(options).then ((result) ->
-        imageStr = result
+      Camera.getPicture(options).then ((imageStr) ->
         $scope.book.image = "data:image/jpeg;base64," + imageStr
+        $scope.book.imageBlob = dataURItoBlob($scope.book.image)
+        console.log $scope.book.image
+
         return
       ), ((err) ->
         console.err err
@@ -370,10 +380,7 @@ app.controller('AddCtrl', [
 
     $scope.addBook = ->
 
-      imgBlob = new Blob([window.atob(imageStr)],  {type: 'image/jpeg'})
-      console.log imgBlob.type
-      console.log imgBlob.size
-
+      imgBlob = $scope.book.imageBlob
 
       uploadContent.uploadFile({"image": imgBlob, "size": imgBlob.size}).then ((fileInfo) ->
         data = {
