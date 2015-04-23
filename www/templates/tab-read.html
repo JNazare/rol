@@ -13,7 +13,8 @@
             <button class="button button-clear edit-button">
                 <span class="icon ion-ios-compose edit-icon"></span>
             </button>
-            <img ng-src="{{book.coverImageUrl}}" width="100%">
+            <img ng-show="book.coverImageUrl !== undefined" ng-src="{{book.coverImageUrl}}" width="100%">
+            <img ng-show="book.coverImageFile !== undefined" ng-src="{{book.coverImageFile._downloadURL}}" width="100%">
           </div>
           <p> 
             <span class="book-name">

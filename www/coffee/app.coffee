@@ -80,6 +80,6 @@ app.config ($stateProvider, $urlRouterProvider) ->
 app.config [
   '$compileProvider'
   ($compileProvider) ->
-    $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|tel):/)
+    $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:image\//);
     return
 ]

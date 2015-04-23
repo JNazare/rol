@@ -6,6 +6,7 @@ chunk = (arr, size) ->
     i += size
   newArr
 
+
 app = angular.module('app')
 
 app.filter 'splitParagraphs', ->
@@ -15,10 +16,6 @@ app.filter 'splitParagraphs', ->
 app.filter 'splitWords', ->
   (text) ->
     text.split ' '
-
-# app.config ($compileProvider) ->
-#   $compileProvider.imgSrcSanitizationWhitelist /^\s*(https?|ftp|mailto|file|tel):/
-#   return
 
 app.controller('AppCtrl', [
   "$scope"
@@ -172,6 +169,7 @@ app.controller('ReadCtrl', [
         coverImageUrl: "img/add_book_icon.jpg"
         add_url: "add"
       }
+      console.log $scope.books
       books_to_chunk = $scope.books
       books_to_chunk.unshift(add_book)
       $rootScope.libraryLayout = chunk(books_to_chunk, 3)
@@ -342,24 +340,53 @@ app.controller('AddCtrl', [
   "$rootScope"
   "$scope"
   "Camera"
-  ($rootScope, $scope, Camera) ->
+  "uploadContent"
+  "$ionicHistory"
+  ($rootScope, $scope, Camera, uploadContent, $ionicHistory) ->
     $scope.book = {}
+    imageStr = ""
+
+    $scope.goBack = ->
+      $ionicHistory.goBack()
+      return
 
     $scope.getPhoto = ->
-      Camera.getPicture().then ((imageURI) ->
-        console.log imageURI
-        $scope.book.image = imageURI
+
+      options = {
+        quality: 50
+        destinationType: navigator.camera.DestinationType.DATA_URL
+        encodingType: navigator.camera.EncodingType.JPEG
+      }
+
+      Camera.getPicture(options).then ((result) ->
+        imageStr = result
+        $scope.book.image = "data:image/jpeg;base64," + imageStr
         return
       ), ((err) ->
         console.err err
         return
-      ),
-        quality: 75
-        targetWidth: 320
-        targetHeight: 320
-        saveToPhotoAlbum: false
+      )
       return
 
     $scope.addBook = ->
-      console.log $scope.book
+
+      imgBlob = new Blob([window.atob(imageStr)],  {type: 'image/jpeg'})
+      console.log imgBlob.type
+      console.log imgBlob.size
+
+
+      uploadContent.uploadFile({"image": imgBlob, "size": imgBlob.size}).then ((fileInfo) ->
+        data = {
+          title : $scope.book.title
+          author : $scope.book.author
+          coverImageFile : fileInfo
+          sharedWith: [$rootScope.activeUser._id]
+        }
+        uploadContent.uploadModel("Books", data).then (uploaded_file) ->
+          console.log uploaded_file
+      ), ((err) ->
+        console.log err
+      )
+      return
+
 ])

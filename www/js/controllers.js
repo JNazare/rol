@@ -176,6 +176,7 @@
           coverImageUrl: "img/add_book_icon.jpg",
           add_url: "add"
         };
+        console.log($scope.books);
         books_to_chunk = $scope.books;
         books_to_chunk.unshift(add_book);
         $rootScope.libraryLayout = chunk(books_to_chunk, 3);
@@ -317,23 +318,51 @@
   ]);
 
   app.controller('AddCtrl', [
-    "$rootScope", "$scope", "Camera", function($rootScope, $scope, Camera) {
+    "$rootScope", "$scope", "Camera", "uploadContent", "$ionicHistory", function($rootScope, $scope, Camera, uploadContent, $ionicHistory) {
+      var imageStr;
       $scope.book = {};
+      imageStr = "";
+      $scope.goBack = function() {
+        $ionicHistory.goBack();
+      };
       $scope.getPhoto = function() {
-        Camera.getPicture().then((function(imageURI) {
-          console.log(imageURI);
-          $scope.book.image = imageURI;
+        var options;
+        options = {
+          quality: 50,
+          destinationType: navigator.camera.DestinationType.DATA_URL,
+          encodingType: navigator.camera.EncodingType.JPEG
+        };
+        Camera.getPicture(options).then((function(result) {
+          imageStr = result;
+          $scope.book.image = "data:image/jpeg;base64," + imageStr;
         }), (function(err) {
           console.err(err);
-        }), {
-          quality: 75,
-          targetWidth: 320,
-          targetHeight: 320,
-          saveToPhotoAlbum: false
-        });
+        }));
       };
       return $scope.addBook = function() {
-        return console.log($scope.book);
+        var imgBlob;
+        imgBlob = new Blob([window.atob(imageStr)], {
+          type: 'image/jpeg'
+        });
+        console.log(imgBlob.type);
+        console.log(imgBlob.size);
+        uploadContent.uploadFile({
+          "image": imgBlob,
+          "size": imgBlob.size
+        }).then((function(fileInfo) {
+          var data;
+          data = {
+            title: $scope.book.title,
+            author: $scope.book.author,
+            coverImageFile: fileInfo,
+            sharedWith: [$rootScope.activeUser._id]
+          };
+          return uploadContent.uploadModel("Books", data).then(function(uploaded_file) {
+            return console.log(uploaded_file);
+          });
+        }), (function(err) {
+          return console.log(err);
+        }));
       };
     }
   ]);

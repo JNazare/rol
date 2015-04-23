@@ -21,11 +21,11 @@
   			<div class="item item-divider">
     			Cover Image
   			</div>
-  			<div class="item camera-div" ng-click="getPhoto()">
+  			<div class="item camera-div">
   				<center>
-  					<span class="icon ion-ios-camera take-photo"></span>
+  					<span class="icon ion-ios-camera take-photo" ng-click="getPhoto()"></span>
   					<br>
-  					<img ng-show="book.image !== undefined" ng-src="{{book.image}}" width="30%">
+  					<img ng-show="book.image != undefined" ng-class="imageToUpload" ng-src="{{book.image}}" width="30%">
   				</center>
   			</div>
 			<a class="button button-full button-positive" ng-click="addBook()">
