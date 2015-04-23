@@ -3,43 +3,38 @@
   <ion-content>
 
     <!-- BUTTON BAR -->
+    <!-- Question: change color/style? -->
     <div class="button-bar">
       <a class="button" ng-click="displayAll = true">ALL</a>
       <a class="button" ng-click="displayAll = false">BY BOOK</a>
-      <!-- NEXT: use ng-if to display which set of contents is shown -->
-    </div>
-
-    <!-- temporary button to go to PRACTICE -->
-    <div>
-      <a class="button" href="#/practice">
-        <center>PRACTICE</center>
-      </a>
     </div>
 
     <div class="item item-body" ng-init="displayAll = true">         
       <!-- Display ALL words (default view) -->
-      <div class="list card" ng-if="displayAll">
+      <div class="list card no-shadow" ng-if="displayAll">
         <ul>
-          <div class="item" ng-repeat="vocab in vocablist" ng-click="showPopup(vocab)">
-            <center>{{vocab.english}} - {{vocab.defn}}</center>
+          <div class="button button-block" ng-repeat="vocab in vocablist" ng-click="showPopup(vocab)">
+            <center><span class="english">{{vocab.english}}</span> - <span class="defn">{{vocab.defn}}</span></center>
           </div>
         </ul>
 
       </div>
 
       <!-- Display BY BOOK: (1) Hansel & Gretel; (2) The Gingerbread Man -->
+      <!-- Have yet to make edits to this div.
+      NEXT: Insert images for books, give more padding -->
       <div ng-if="!displayAll">
         <div class="list card">
           <a class="icon-left ion-image">Hansel and Gretel</a>
           <div class="item" ng-repeat="vocab in hanselList" ng-click="showPopup(vocab)">
-            <center>{{vocab.english}} - {{vocab.defn}}</center>
+            <center><span class="english">{{vocab.english}}</span> - <span class="defn">{{vocab.defn}}</span></center>
           </div>
         </div>
 
         <div class="list card">
-          <a class="icon-left ion-ios-body">The Gingerbread Man</a>
+          <a class="icon-left ion-image">The Gingerbread Man</a>
           <div class="item" ng-repeat="vocab in gingerList" ng-click="showPopup(vocab)">
-            <center>{{vocab.english}} - {{vocab.defn}}</center>
+            <center><span class="english">{{vocab.english}}</span> - <span class="defn">{{vocab.defn}}</span></center>
           </div>
         </div>
       </div>
@@ -47,5 +42,14 @@
     </div> <!-- closes item-body -->
 
   </ion-content>
-</ion-view>
 
+  <!-- SUB-FOOTER: go to Practice page -->
+  <!-- How to make button flow smoothly into background? "practice-button" class in CSS -->
+  <div class="bar bar-subfooter practice-button">
+    <a class="button button-block button-balanced" href="#/practice">
+      PRACTICE
+    </a>
+  </div>
+
+
+</ion-view>

@@ -447,5 +447,10 @@ app.controller('PracticeCtrl', [
           title: "Try again!"
           template: word.eng + ' = ' + word.defn)
       
+    # 'when clicked wrong answer, variable clickedWrong = true' 
+    # 'and ng-class uses class="wrong-answer" to make div opaque'
+    # $scope.makeOpaque = (word)->
+    #   newWord = word.concat clickedWrong:true
+    #   return newWord
   ]
 )

@@ -123,3 +123,34 @@ span.word{
 }
 
 /*Emily's CSS*/
+
+.no-shadow{
+	/*border: 1px solid;*/
+	box-shadow: none;
+}
+
+.practice-button{
+	padding: 0px 10px 60px 10px;
+}
+
+span.english{
+	/*font-variant: small-caps;*/
+	font-weight: bold;
+	color: #003399;
+}
+
+span.defn{
+	color: red;
+	font-style: italic;
+	font-weight: bold;
+}
+
+div.wrong-answer{
+	opacity: 0.5;
+	font: yellow;
+}
+
+span.wrong-answer{
+	text-decoration: line-through;
+	color: #FF0066;
+}
