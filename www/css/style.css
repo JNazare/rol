@@ -34,7 +34,7 @@ div.search-list-item {
 	border: none;
 }
 
-a.booktile {
+span.booktile {
 	text-decoration: none;
 	color: black;
 }
@@ -146,6 +146,19 @@ div.container{
 
 span.take-photo {
 	font-size: 50px;
+}
+
+div.item.camera-div{
+	border-bottom: none;
+}
+
+div.item.less-padding{
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+
+.tiny-text{
+	font-size: 12px;
 }
 
 /*Emily's CSS*/

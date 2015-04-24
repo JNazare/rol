@@ -65,8 +65,7 @@
         }
       });
       promise.then(function(kinveyUser) {
-        var getUserBooks;
-        getUserBooks = function() {
+        $rootScope.getUserBooks = function() {
           var query;
           $rootScope.books = [];
           query = new $kinvey.Query();
@@ -123,7 +122,7 @@
             });
             return promise.then(function(activeUser) {
               $rootScope.activeUser = activeUser;
-              getUserBooks().then(function() {
+              $rootScope.getUserBooks().then(function() {
                 var loginEvent;
                 loginEvent = 'loginEvent';
                 $scope.$broadcast(loginEvent);
@@ -154,7 +153,7 @@
             signup_promise = $kinvey.User.signup(formData);
             return signup_promise.then(function(activeUser) {
               $rootScope.activeUser = activeUser;
-              return getUserBooks().then(function() {
+              return $rootScope.getUserBooks().then(function() {
                 var loginEvent;
                 loginEvent = 'loginEvent';
                 $scope.$broadcast(loginEvent);
@@ -168,7 +167,7 @@
             $scope.openLogin();
           } else {
             $rootScope.activeUser = kinveyUser;
-            return getUserBooks().then(function() {
+            return $rootScope.getUserBooks().then(function() {
               var loginEvent;
               loginEvent = 'loginEvent';
               $scope.$broadcast(loginEvent);
@@ -182,15 +181,17 @@
   ]);
 
   app.controller('ReadCtrl', [
-    "$rootScope", "$scope", "$kinvey", "$stateParams", function($rootScope, $scope, $kinvey, $stateParams) {
+    "$rootScope", "$scope", "$kinvey", "$stateParams", "$location", function($rootScope, $scope, $kinvey, $stateParams, $location) {
       console.log('in read ctrl');
+      $scope.redirectToEdit = function(editUrl) {
+        return $location.path(editUrl);
+      };
       $scope.$on('loginEvent', function() {
         var add_book, books_to_chunk;
         add_book = {
           coverImageUrl: "img/add_book_icon.jpg",
           add_url: "add"
         };
-        console.log($scope.books);
         books_to_chunk = $scope.books;
         books_to_chunk.unshift(add_book);
         $rootScope.libraryLayout = chunk(books_to_chunk, 3);
@@ -332,12 +333,15 @@
   ]);
 
   app.controller('AddCtrl', [
-    "$rootScope", "$scope", "Camera", "uploadContent", "$ionicHistory", function($rootScope, $scope, Camera, uploadContent, $ionicHistory) {
+    "$rootScope", "$scope", "Camera", "uploadContent", "$ionicHistory", "Library", function($rootScope, $scope, Camera, uploadContent, $ionicHistory, Library) {
       var imageStr;
       $scope.book = {};
       imageStr = "";
       $scope.goBack = function() {
-        $ionicHistory.goBack();
+        return $rootScope.getUserBooks().then(function() {
+          $rootScope.libraryLayout = Library.getShelf($rootScope.books);
+          return $ionicHistory.goBack();
+        });
       };
       $scope.getPhoto = function() {
         var options;
@@ -349,7 +353,6 @@
         Camera.getPicture(options).then((function(imageStr) {
           $scope.book.image = "data:image/jpeg;base64," + imageStr;
           $scope.book.imageBlob = dataURItoBlob($scope.book.image);
-          console.log($scope.book.image);
         }), (function(err) {
           console.err(err);
         }));
@@ -368,12 +371,81 @@
             coverImageFile: fileInfo,
             sharedWith: [$rootScope.activeUser._id]
           };
-          return uploadContent.uploadModel("Books", data).then(function(uploaded_file) {
-            return console.log(uploaded_file);
-          });
+          return uploadContent.uploadModel("Books", data).then(function(uploaded_file) {});
         }), (function(err) {
           return console.log(err);
         }));
+      };
+    }
+  ]);
+
+  app.controller('EditBookCtrl', [
+    "$ionicHistory", "$scope", "$kinvey", "$rootScope", "$stateParams", "Camera", "uploadContent", "$location", "$state", "Library", function($ionicHistory, $scope, $kinvey, $rootScope, $stateParams, Camera, uploadContent, $location, $state, Library) {
+      var bookPromise, pageQuery;
+      console.log('in edit book ctrl');
+      pageQuery = new $kinvey.Query();
+      pageQuery.equalTo('bookId', $stateParams.bookId);
+      bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId);
+      bookPromise.then(function(book) {
+        var promise;
+        $scope.book = book;
+        pageQuery = new $kinvey.Query();
+        pageQuery.equalTo('bookId', $stateParams.bookId);
+        promise = $kinvey.DataStore.find("Pages", pageQuery);
+        return promise.then(function(pages) {
+          $scope.pages = pages;
+        });
+      });
+      $scope.getPhoto = function() {
+        var options;
+        options = {
+          quality: 50,
+          destinationType: navigator.camera.DestinationType.DATA_URL,
+          encodingType: navigator.camera.EncodingType.JPEG
+        };
+        Camera.getPicture(options).then((function(imageStr) {
+          $scope.book.image = "data:image/jpeg;base64," + imageStr;
+          $scope.book.imageBlob = dataURItoBlob($scope.book.image);
+        }), (function(err) {
+          console.err(err);
+        }));
+      };
+      $scope.goBack = function() {
+        return $rootScope.getUserBooks().then(function() {
+          $rootScope.libraryLayout = Library.getShelf($rootScope.books);
+          return $ionicHistory.goBack();
+        });
+      };
+      $scope.updateBook = function() {
+        var imgBlob;
+        if ($scope.book.imageBlob) {
+          imgBlob = $scope.book.imageBlob;
+        }
+        delete $scope.book.image;
+        delete $scope.book.imageBlob;
+        if (imgBlob) {
+          uploadContent.uploadFile({
+            "image": imgBlob,
+            "size": imgBlob.size
+          }).then((function(fileInfo) {
+            $scope.book.coverImageFile = fileInfo;
+            return uploadContent.updateModel("Books", $scope.book).then(function(uploaded_file) {
+              $scope.goBack();
+            });
+          }), (function(err) {
+            return console.log(err);
+          }));
+          return;
+        } else {
+          uploadContent.updateModel("Books", $scope.book).then(function(uploaded_file) {
+            $scope.goBack();
+          });
+        }
+      };
+      return $scope.deleteBook = function() {
+        uploadContent.deleteModel("Books", $scope.book._id).then(function() {
+          $scope.goBack();
+        });
       };
     }
   ]);

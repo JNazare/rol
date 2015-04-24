@@ -77,6 +77,14 @@
           controller: 'AddCtrl'
         }
       }
+    }).state('app.editbook', {
+      url: '/editbook/:bookId',
+      views: {
+        'wrapper': {
+          templateUrl: 'templates/editbook.html',
+          controller: 'EditBookCtrl'
+        }
+      }
     });
     $urlRouterProvider.otherwise('/library');
   });

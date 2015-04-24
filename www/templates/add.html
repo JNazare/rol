@@ -23,10 +23,9 @@
   			</div>
   			<div class="item camera-div">
   				<center>
+            <img ng-show="book.image != undefined" ng-class="imageToUpload" ng-src="{{book.image}}" width="30%">
+            <br>
   					<span class="icon ion-ios-camera take-photo" ng-click="getPhoto()"></span>
-  					<br>
-  					<img ng-show="book.image != undefined" ng-class="imageToUpload" ng-src="{{book.image}}" width="30%">
-            <!-- <canvas id="imgCanvas"></canvas> -->
   				</center>
   			</div>
 			<a class="button button-full button-positive" ng-click="addBook()">

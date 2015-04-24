@@ -60,7 +60,7 @@ app.controller('AppCtrl', [
       )
     promise.then (kinveyUser) ->
 
-      getUserBooks = ->
+      $rootScope.getUserBooks = ->
         $rootScope.books = []
         query = new $kinvey.Query()
         query.contains("sharedWith", [$rootScope.activeUser._id])
@@ -116,7 +116,7 @@ app.controller('AppCtrl', [
             })
           promise.then (activeUser) ->
             $rootScope.activeUser = activeUser
-            getUserBooks().then () ->
+            $rootScope.getUserBooks().then () ->
               loginEvent = 'loginEvent'
               $scope.$broadcast(loginEvent)
               $scope.closeLogin()
@@ -142,7 +142,7 @@ app.controller('AppCtrl', [
           signup_promise = $kinvey.User.signup(formData)
           signup_promise.then (activeUser) ->
             $rootScope.activeUser = activeUser
-            getUserBooks().then () ->
+            $rootScope.getUserBooks().then () ->
               loginEvent = 'loginEvent'
               $scope.$broadcast(loginEvent)
               $scope.closeSignup()
@@ -153,7 +153,7 @@ app.controller('AppCtrl', [
           return
         else 
           $rootScope.activeUser = kinveyUser
-          getUserBooks().then () ->
+          $rootScope.getUserBooks().then () ->
             loginEvent = 'loginEvent'
             $scope.$broadcast(loginEvent)
             return
@@ -169,15 +169,18 @@ app.controller('ReadCtrl', [
   "$scope"
   "$kinvey"
   "$stateParams"
-  ($rootScope, $scope, $kinvey, $stateParams) ->
+  "$location"
+  ($rootScope, $scope, $kinvey, $stateParams, $location) ->
     console.log 'in read ctrl'
+
+    $scope.redirectToEdit = (editUrl) ->
+      $location.path(editUrl)
 
     $scope.$on 'loginEvent', () ->
       add_book = {
         coverImageUrl: "img/add_book_icon.jpg"
         add_url: "add"
       }
-      console.log $scope.books
       books_to_chunk = $scope.books
       books_to_chunk.unshift(add_book)
       $rootScope.libraryLayout = chunk(books_to_chunk, 3)
@@ -350,13 +353,15 @@ app.controller('AddCtrl', [
   "Camera"
   "uploadContent"
   "$ionicHistory"
-  ($rootScope, $scope, Camera, uploadContent, $ionicHistory) ->
+  "Library"
+  ($rootScope, $scope, Camera, uploadContent, $ionicHistory, Library) ->
     $scope.book = {}
     imageStr = ""
 
     $scope.goBack = ->
-      $ionicHistory.goBack()
-      return
+      $rootScope.getUserBooks().then () ->
+        $rootScope.libraryLayout = Library.getShelf($rootScope.books)
+        $ionicHistory.goBack()
 
     $scope.getPhoto = ->
 
@@ -369,7 +374,6 @@ app.controller('AddCtrl', [
       Camera.getPicture(options).then ((imageStr) ->
         $scope.book.image = "data:image/jpeg;base64," + imageStr
         $scope.book.imageBlob = dataURItoBlob($scope.book.image)
-        console.log $scope.book.image
 
         return
       ), ((err) ->
@@ -390,10 +394,92 @@ app.controller('AddCtrl', [
           sharedWith: [$rootScope.activeUser._id]
         }
         uploadContent.uploadModel("Books", data).then (uploaded_file) ->
-          console.log uploaded_file
+          return
       ), ((err) ->
         console.log err
       )
+      return
+])
+
+app.controller('EditBookCtrl', [
+  "$ionicHistory"
+  "$scope"
+  "$kinvey"
+  "$rootScope"
+  "$stateParams"
+  "Camera"
+  "uploadContent"
+  "$location"
+  "$state"
+  "Library"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $stateParams, Camera, uploadContent, $location, $state, Library) ->
+    console.log 'in edit book ctrl'
+    pageQuery = new $kinvey.Query()    
+    pageQuery.equalTo('bookId', $stateParams.bookId)
+    bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
+    bookPromise.then (book) ->
+      $scope.book = book
+      pageQuery = new $kinvey.Query()    
+      pageQuery.equalTo('bookId', $stateParams.bookId)
+      promise = $kinvey.DataStore.find( "Pages", pageQuery )
+      promise.then (pages) ->
+        $scope.pages = pages
+        return
+
+    $scope.getPhoto = ->
+
+      options = {
+        quality: 50
+        destinationType: navigator.camera.DestinationType.DATA_URL
+        encodingType: navigator.camera.EncodingType.JPEG
+      }
+
+      Camera.getPicture(options).then ((imageStr) ->
+        $scope.book.image = "data:image/jpeg;base64," + imageStr
+        $scope.book.imageBlob = dataURItoBlob($scope.book.image)
+
+        return
+      ), ((err) ->
+        console.err err
+        return
+      )
+      return
+
+    $scope.goBack = ->
+      $rootScope.getUserBooks().then () ->
+        $rootScope.libraryLayout = Library.getShelf($rootScope.books)
+        $ionicHistory.goBack()
+
+    $scope.updateBook = ->
+
+      if $scope.book.imageBlob
+        imgBlob = $scope.book.imageBlob
+
+      delete $scope.book.image
+      delete $scope.book.imageBlob
+
+      if imgBlob
+        uploadContent.uploadFile({"image": imgBlob, "size": imgBlob.size}).then ((fileInfo) ->
+          $scope.book.coverImageFile = fileInfo
+          uploadContent.updateModel("Books", $scope.book).then (uploaded_file) ->
+            $scope.goBack()
+            return
+        ), ((err) ->
+          console.log err
+        )
+        return
+      
+      else
+        uploadContent.updateModel("Books", $scope.book).then (uploaded_file) ->
+          $scope.goBack()
+          return
+
+      return
+
+    $scope.deleteBook = ->
+      uploadContent.deleteModel("Books", $scope.book._id).then () ->
+        $scope.goBack()
+        return
       return
 
 ])

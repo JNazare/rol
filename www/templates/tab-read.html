@@ -8,20 +8,22 @@
   <ion-content>
     <div class="row" ng-repeat="libraryRow in libraryLayout">
       <div class="col col-33" ng-repeat="book in libraryRow">
-        <a class="booktile" ng-if="!book.add_url" ng-href="#/read/{{book._id}}">
+        <span class="booktile" ng-if="!book.add_url">
           <div class="container">
-            <button class="button button-clear edit-button">
+            <button class="button button-clear edit-button" ng-click='redirectToEdit("/editbook/{{book._id}}")'>
                 <span class="icon ion-ios-compose edit-icon"></span>
             </button>
-            <img ng-show="book.coverImageUrl !== undefined" ng-src="{{book.coverImageUrl}}" width="100%">
-            <img ng-show="book.coverImageFile !== undefined" ng-src="{{book.coverImageFile._downloadURL}}" width="100%">
+            <a ng-href="#/read/{{book._id}}">
+              <img ng-show="book.coverImageUrl !== undefined" ng-src="{{book.coverImageUrl}}" width="100%">
+              <img ng-show="book.coverImageFile !== undefined" ng-src="{{book.coverImageFile._downloadURL}}" width="100%">
+            </a>
           </div>
           <p> 
             <span class="book-name">
               {{book.title}} 
             </span>
           </p>
-        </a>
+        </span>
         <a class="booktile" ng-if="book.add_url" ng-href="#/{{book.add_url}}">
           <img ng-src="{{book.coverImageUrl}}" width="100%">
           <p> 
