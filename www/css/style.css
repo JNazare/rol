@@ -125,32 +125,57 @@ span.word{
 /*Emily's CSS*/
 
 .no-shadow{
-	/*border: 1px solid;*/
 	box-shadow: none;
 }
 
+/* sub-footer in practice.html */
 .practice-button{
 	padding: 0px 10px 60px 10px;
 }
 
+/* English font (blue) */
 span.english{
 	/*font-variant: small-caps;*/
 	font-weight: bold;
 	color: #003399;
 }
 
+/* L1 font */
 span.defn{
 	color: red;
 	font-style: italic;
 	font-weight: bold;
 }
 
-div.wrong-answer{
-	opacity: 0.5;
-	font: yellow;
+/* clicked div button turns opaque */
+div.clicked-answer{
+	opacity: 0.6;
 }
 
+/* red strike-through */
 span.wrong-answer{
 	text-decoration: line-through;
-	color: #FF0066;
+	color: #FF3300;
 }
+
+/* green */
+span.right-answer{
+	color: #009900;
+}
+
+/*gray block for incomplete questions */
+.progress-block{
+	background: #8EA3A3;
+	border: 1px solid
+}
+
+/*green block for completed questions */
+.done-progress-block{
+	background: #009900;
+	
+}
+
+/*yellow block for current question */
+.this-progress-block{
+	background: #FFCC00;
+	

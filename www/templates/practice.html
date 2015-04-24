@@ -1,5 +1,6 @@
 <ion-view view-title="Practice">
 	<ion-nav-buttons>
+		<!-- BUG: END does not go back -->
 		<a class="button button-clear" ng-click="goBack()" class="pull-left">
     		END
   		</a>
@@ -18,21 +19,18 @@
 
 		        <center><a class="button button-icon icon ion-help-circled" ng-click="hint=answer.defn" ng-init="hint='_____'"></a></center>
 
-		        <!-- When click any word, word crosses out and uses wrong-answer class' CSS.
-		        NEXT: make on-click of correct answer -> go to next question -->
 		        <div class="list card no-shadow">
 		        	<ul>
-		        		<div class="no-shadow button button-block" ng-repeat="word in possibleAnswers" ng-click="showResult(word); word.clicked = true" ng-class="{'wrong-answer': word.clicked}">
-		        			<center><span class="english" ng-class="{'wrong-answer': word.clicked}">{{word.eng}}</span></center>
+		        		<div class="no-shadow button button-block" ng-repeat="word in possibleAnswers" ng-click="showResult(word); word.clicked = true" ng-class="{'clicked-answer': word.clicked}">
+		        			<center><span class="english" ng-class="{'wrong-answer': word.clicked && !word.correct, 'right-answer': word.clicked && word.correct}">{{word.eng}}</span></center>
 		        		</div>
 		        	</ul>
 		        </div>
 	          
-		        <!-- bottom div with page #
-		        NEXT: make page # a progress bar (slider) -->
-		        <div >
-		              <center>Page 1/10</center>
-		        </div>
+		        <!-- bottom div with progress bar -->
+		        <div class="row">
+				  <div class="col progress-block" ng-class="{'done-progress-block': questionNum>i, 'this-progress-block': questionNum==i}" ng-repeat="i in blockList"></div>
+				</div>
 
 	        </div>
 	      </div>

@@ -362,7 +362,7 @@
   ]);
 
   app.controller('PracticeCtrl', [
-    "$ionicHistory", "$scope", "$kinvey", "$rootScope", "$ionicPopup", function($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup) {
+    "$ionicHistory", "$scope", "$kinvey", "$rootScope", "$ionicPopup", "$stateParams", "$location", function($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $stateParams, $location) {
       var joinAnswers, shuffle, wrongAnswers;
       $scope.goBack = function() {
         $ionicHistory.goBack();
@@ -408,14 +408,33 @@
         return wrongList;
       };
       $scope.possibleAnswers = joinAnswers(wrongAnswers, $scope.answer);
+      $scope.questionNum = $stateParams.practiceNum;
+      $scope.blockList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
       return $scope.showResult = function(word) {
-        var alertPopup;
+        var alertPopup, correctPopup, nextPageNum;
         console.log('in showResult function');
         if (word.correct) {
-          return alertPopup = $ionicPopup.alert({
-            title: "Good Job!",
-            template: word.eng + ' = ' + word.defn
-          });
+          nextPageNum = parseInt($stateParams.practiceNum);
+          nextPageNum += 1;
+          if (nextPageNum > 9) {
+            return alertPopup = $ionicPopup.alert({
+              title: "PRACTICE DONE!",
+              template: "Congratulations!"
+            });
+          } else {
+            return correctPopup = $ionicPopup.show({
+              title: "Good Job!",
+              template: word.eng + ' = ' + word.defn,
+              buttons: [
+                {
+                  text: 'Next',
+                  onTap: function() {
+                    return $location.path("/practice/" + nextPageNum.toString());
+                  }
+                }
+              ]
+            });
+          }
         } else {
           return alertPopup = $ionicPopup.alert({
             title: "Try again!",

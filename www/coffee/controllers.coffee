@@ -384,7 +384,9 @@ app.controller('PracticeCtrl', [
   "$kinvey"
   "$rootScope"
   "$ionicPopup"
-  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup) ->
+  "$stateParams"
+  "$location"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $stateParams, $location) ->
     $scope.goBack = ->
       $ionicHistory.goBack()
       return
@@ -435,22 +437,35 @@ app.controller('PracticeCtrl', [
 
     $scope.possibleAnswers = joinAnswers(wrongAnswers, $scope.answer)
 
-    # 'Popup to say whether selected word is correct or not'
+    # 'for interacting with progress bar (blocks)'
+    $scope.questionNum = $stateParams.practiceNum
+    $scope.blockList = [0,1,2,3,4,5,6,7,8,9]
+
+    # 'if select incorrect, popup says try again'
+    # 'if select correct, popup takes you to next question. Stop after 10 questions'
     $scope.showResult = (word) ->
       console.log 'in showResult function'
       if word.correct
-        alertPopup = $ionicPopup.alert (
-          title: "Good Job!"
-          template: word.eng + ' = ' + word.defn)
+        nextPageNum = parseInt($stateParams.practiceNum)
+        nextPageNum += 1
+
+        if nextPageNum > 9
+          alertPopup = $ionicPopup.alert (
+            title: "PRACTICE DONE!"
+            template: "Congratulations!")
+
+        else
+          correctPopup = $ionicPopup.show (
+            title: "Good Job!"
+            template: word.eng + ' = ' + word.defn
+            buttons: [{
+              text: 'Next'
+              onTap: () ->
+                $location.path("/practice/" + nextPageNum.toString())
+            }])
       else
         alertPopup = $ionicPopup.alert (
           title: "Try again!"
           template: word.eng + ' = ' + word.defn)
-      
-    # 'when clicked wrong answer, variable clickedWrong = true' 
-    # 'and ng-class uses class="wrong-answer" to make div opaque'
-    # $scope.makeOpaque = (word)->
-    #   newWord = word.concat clickedWrong:true
-    #   return newWord
   ]
 )
