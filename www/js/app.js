@@ -85,6 +85,14 @@
           controller: 'EditBookCtrl'
         }
       }
+    }).state('app.editpage', {
+      url: '/editpage/:bookId/:pageNum',
+      views: {
+        'wrapper': {
+          templateUrl: 'templates/editpage.html',
+          controller: 'EditPageCtrl'
+        }
+      }
     });
     $urlRouterProvider.otherwise('/library');
   });

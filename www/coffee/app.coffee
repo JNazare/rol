@@ -75,6 +75,11 @@ app.config ($stateProvider, $urlRouterProvider) ->
   views: 'wrapper':
     templateUrl: 'templates/editbook.html'
     controller: 'EditBookCtrl'
+  ).state('app.editpage',
+  url: '/editpage/:bookId/:pageNum'
+  views: 'wrapper':
+    templateUrl: 'templates/editpage.html'
+    controller: 'EditPageCtrl'
   )
   
   # if none of the above states are matched, use this as the fallback

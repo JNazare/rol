@@ -69,3 +69,16 @@ app.factory 'Library', [
         return chunk(books, 3)
     }
 ]
+
+app.factory 'Pages', [
+  "$kinvey"
+  ($kinvey) ->
+    {
+      getPages : (bookId) ->
+        pageQuery = new $kinvey.Query()   
+        pageQuery.equalTo('bookId', bookId)
+        promise = $kinvey.DataStore.find( "Pages", pageQuery )
+        promise.then (pages) ->
+          return pages
+    }
+]

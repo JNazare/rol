@@ -161,4 +161,12 @@ div.item.less-padding{
 	font-size: 12px;
 }
 
+
+.page-input-text{
+	font-size: 22px;
+	line-height: 170%;
+	padding: 20px;
+	width: 100%;
+	white-space: pre-line;
+}
 /*Emily's CSS*/

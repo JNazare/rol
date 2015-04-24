@@ -393,6 +393,14 @@
         pageQuery.equalTo('bookId', $stateParams.bookId);
         promise = $kinvey.DataStore.find("Pages", pageQuery);
         return promise.then(function(pages) {
+          var add_page_data;
+          add_page_data = {
+            image: {
+              _downloadURL: "img/add_book_icon.jpg"
+            },
+            text: ""
+          };
+          pages.push(add_page_data);
           $scope.pages = pages;
         });
       });
@@ -446,6 +454,66 @@
         uploadContent.deleteModel("Books", $scope.book._id).then(function() {
           $scope.goBack();
         });
+      };
+    }
+  ]);
+
+  app.controller('EditPageCtrl', [
+    "$ionicHistory", "$scope", "$kinvey", "$rootScope", "$stateParams", "$ionicSlideBoxDelegate", "uploadContent", "Pages", function($ionicHistory, $scope, $kinvey, $rootScope, $stateParams, $ionicSlideBoxDelegate, uploadContent, Pages) {
+      var bookPromise, pageQuery;
+      $scope.currentSlide = $stateParams.pageNum;
+      pageQuery = new $kinvey.Query();
+      pageQuery.equalTo('bookId', $stateParams.bookId);
+      bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId);
+      bookPromise.then(function(book) {
+        var promise;
+        $scope.book = book;
+        promise = $kinvey.DataStore.find("Pages", pageQuery);
+        return promise.then(function(pages) {
+          var add_page_data;
+          add_page_data = {
+            image: {
+              _downloadURL: "img/add_book_icon.jpg"
+            },
+            text: ""
+          };
+          pages.push(add_page_data);
+          $scope.pages = pages;
+          $ionicSlideBoxDelegate.update();
+          return $ionicSlideBoxDelegate.slide($stateParams.pageNum);
+        });
+      });
+      $scope.goBack = function() {
+        $scope.pages = Pages.getPages($scope.book._id);
+        $ionicHistory.goBack();
+      };
+      $scope.slideHasChanged = function(newSlide) {
+        $scope.currentSlide = newSlide;
+      };
+      $scope.slideTo = function(slideNum) {
+        return $ionicSlideBoxDelegate.slide(slideNum);
+      };
+      $scope.slidePrevious = function() {
+        $ionicSlideBoxDelegate.previous();
+      };
+      $scope.slideNext = function() {
+        $ionicSlideBoxDelegate.next();
+      };
+      return $scope.saveChanges = function(index) {
+        var newPage, updatedPage, updatedText;
+        updatedPage = $scope.pages[index];
+        console.log(updatedPage);
+        if (index === $scope.pages.length - 1) {
+          updatedText = updatedPage.text;
+          newPage = {
+            "bookId": $scope.book._id,
+            "text": updatedText,
+            "pageNumber": index
+          };
+          uploadContent.uploadModel("Pages", newPage).then(function(uploaded_page) {});
+        } else {
+          uploadContent.updateModel("Pages", updatedPage).then(function(uploaded_page) {});
+        }
       };
     }
   ]);

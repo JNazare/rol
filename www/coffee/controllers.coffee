@@ -423,6 +423,13 @@ app.controller('EditBookCtrl', [
       pageQuery.equalTo('bookId', $stateParams.bookId)
       promise = $kinvey.DataStore.find( "Pages", pageQuery )
       promise.then (pages) ->
+        add_page_data = {
+          image : {
+            _downloadURL: "img/add_book_icon.jpg"
+          }
+          text : ""
+        }
+        pages.push(add_page_data)
         $scope.pages = pages
         return
 
@@ -480,6 +487,77 @@ app.controller('EditBookCtrl', [
       uploadContent.deleteModel("Books", $scope.book._id).then () ->
         $scope.goBack()
         return
+      return
+
+])
+
+app.controller('EditPageCtrl', [
+  "$ionicHistory"
+  "$scope"
+  "$kinvey"
+  "$rootScope"
+  "$stateParams"
+  "$ionicSlideBoxDelegate"
+  "uploadContent"
+  "Pages"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $stateParams, $ionicSlideBoxDelegate, uploadContent, Pages) ->
+
+    $scope.currentSlide = $stateParams.pageNum
+    pageQuery = new $kinvey.Query()    
+    pageQuery.equalTo('bookId', $stateParams.bookId)
+    bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
+    bookPromise.then (book) ->
+      $scope.book = book
+      promise = $kinvey.DataStore.find( "Pages", pageQuery )
+      promise.then (pages) ->
+        add_page_data = {
+          image : {
+            _downloadURL: "img/add_book_icon.jpg"
+          }
+          text : ""
+        }
+        pages.push(add_page_data)
+        $scope.pages = pages
+        $ionicSlideBoxDelegate.update()
+        $ionicSlideBoxDelegate.slide($stateParams.pageNum)
+
+    $scope.goBack = ->
+      $scope.pages = Pages.getPages($scope.book._id)
+      $ionicHistory.goBack()
+      return
+
+    $scope.slideHasChanged = (newSlide) ->
+      $scope.currentSlide = newSlide
+      return
+
+    $scope.slideTo = (slideNum) ->
+      $ionicSlideBoxDelegate.slide(slideNum)
+
+    $scope.slidePrevious = ->
+      $ionicSlideBoxDelegate.previous()
+      return
+
+    $scope.slideNext = ->
+      $ionicSlideBoxDelegate.next()
+      return
+
+    $scope.saveChanges = (index) ->
+      updatedPage = $scope.pages[index]
+      console.log updatedPage
+      if index == $scope.pages.length - 1
+        updatedText = updatedPage.text
+        newPage = {
+          "bookId": $scope.book._id
+          "text": updatedText
+          "pageNumber": index
+        }
+        uploadContent.uploadModel("Pages", newPage).then (uploaded_page) ->
+          # this should probably show a "saved" alert
+          return
+      else
+        uploadContent.updateModel("Pages", updatedPage).then (uploaded_page) ->
+          # this should probably show a "saved" alert
+          return
       return
 
 ])
