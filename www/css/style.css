@@ -1,5 +1,21 @@
 /* Empty. Add your own CSS if you like */
 
+button.edit-button {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	padding: 0px;
+	margin-right: -15px;
+	margin-top: -12px;
+}
+
+span.edit-icon{
+	color: #fff;
+	background-color: #444;
+	padding: 3px;
+	padding-right: 1px;
+}
+
 span.book-name {
 	font-size: 12px;
 }
@@ -18,7 +34,7 @@ div.search-list-item {
 	border: none;
 }
 
-a.booktile {
+span.booktile {
 	text-decoration: none;
 	color: black;
 }
@@ -122,6 +138,38 @@ span.word{
 	line-height: 170%;
 }
 
+div.container{
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+span.take-photo {
+	font-size: 50px;
+}
+
+div.item.camera-div{
+	border-bottom: none;
+}
+
+div.item.less-padding{
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+
+.tiny-text{
+	font-size: 12px;
+}
+
+
+.page-input-text{
+	font-size: 22px;
+	line-height: 170%;
+	padding: 20px;
+	width: 100%;
+	white-space: pre-line;
+}
+
 /*Emily's CSS*/
 
 .no-shadow{
@@ -178,4 +226,4 @@ span.right-answer{
 /*yellow block for current question */
 .this-progress-block{
 	background: #FFCC00;
-	
+

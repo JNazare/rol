@@ -4,6 +4,6 @@
 node_modules/
 platforms/
 plugins/
+js/
 .DS_Store
-www/coffee/privateServices.coffee
-www/js/privateServices.js
+privateFactories.coffee

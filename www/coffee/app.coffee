@@ -8,7 +8,6 @@
 app = angular.module('app', [
   'ionic'
   'kinvey'
-  'app.services'
   'angularLoad'
 ])
 
@@ -61,60 +60,36 @@ app.config ($stateProvider, $urlRouterProvider) ->
     views: 'wrapper':
       templateUrl: 'templates/settings.html'
       controller: 'SettingsCtrl'
-    ).state('app.practice',
-    url: '/practice/:practiceNum'
-    views: 'wrapper':
-      templateUrl: 'templates/practice.html'
-      controller: 'PracticeCtrl'
-    )
-
-  # $stateProvider.state('player',
-  #     url: '/player'
-  #     abstract: true
-  #     templateUrl: 'templates/player.html'
-  #     controller: 'AppCtrl'
-  #   ).state('tab',
-  #     url: '/tab'
-  #     abstract: true
-  #     templateUrl: 'templates/tabs.html'
-  #     controller: 'AppCtrl'
-  #   ).state('wrapper',
-  #     url: '/wrapper'
-  #     abstract: true
-  #     templateUrl: 'templates/wrapper.html'
-  #     controller: 'AppCtrl'
-  #   ).state('tab.review',
-  #     url: '/review'
-  #     views: 'tab-review':
-  #       templateUrl: 'templates/tab-review.html'
-  #       controller: 'ReviewCtrl'
-  #   ).state('tab.read',
-  #     url: '/read'
-  #     views: 'tab-read':
-  #       templateUrl: 'templates/tab-read.html'
-  #       controller: 'ReadCtrl'
-  #   ).state('tab.edit',
-  #     url: '/edit'
-  #     views: 'tab-edit':
-  #       templateUrl: 'templates/tab-edit.html'
-  #       controller: 'EditCtrl'
-  #   ).state('player.read',
-  #     url: '/read/:bookId'
-  #     views: 'pages':
-  #       templateUrl: 'templates/player-read.html'
-  #       controller: 'PlayerCtrl'
-  #   ).state('wrapper.settings',
-  #   url: '/settings'
-  #   views: 'wrapper':
-  #     templateUrl: 'templates/settings.html'
-  #     controller: 'SettingsCtrl'
-  #   ).state('wrapper.practice',
-  #   url: '/practice'
-  #   views: 'wrapper':
-  #     templateUrl: 'templates/practice.html'
-  #     controller: 'PracticeCtrl'
-  #   )
+  ).state('app.practice',
+  url: '/practice/:practiceNum'
+  views: 'wrapper':
+    templateUrl: 'templates/practice.html'
+    controller: 'PracticeCtrl'
+  ).state('app.add',
+  url: '/add'
+  views: 'wrapper':
+    templateUrl: 'templates/add.html'
+    controller: 'AddCtrl'
+  ).state('app.editbook',
+  url: '/editbook/:bookId'
+  views: 'wrapper':
+    templateUrl: 'templates/editbook.html'
+    controller: 'EditBookCtrl'
+  ).state('app.editpage',
+  url: '/editpage/:bookId/:pageNum'
+  views: 'wrapper':
+    templateUrl: 'templates/editpage.html'
+    controller: 'EditPageCtrl'
+  )
   
   # if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise '/library'
   return
+
+
+app.config [
+  '$compileProvider'
+  ($compileProvider) ->
+    $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:image\//);
+    return
+]

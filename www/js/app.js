@@ -2,7 +2,7 @@
 (function() {
   var app;
 
-  app = angular.module('app', ['ionic', 'kinvey', 'app.services', 'angularLoad']);
+  app = angular.module('app', ['ionic', 'kinvey', 'angularLoad']);
 
   app.run(function($ionicPlatform) {
     $ionicPlatform.ready(function() {
@@ -69,8 +69,38 @@
           controller: 'PracticeCtrl'
         }
       }
+    }).state('app.add', {
+      url: '/add',
+      views: {
+        'wrapper': {
+          templateUrl: 'templates/add.html',
+          controller: 'AddCtrl'
+        }
+      }
+    }).state('app.editbook', {
+      url: '/editbook/:bookId',
+      views: {
+        'wrapper': {
+          templateUrl: 'templates/editbook.html',
+          controller: 'EditBookCtrl'
+        }
+      }
+    }).state('app.editpage', {
+      url: '/editpage/:bookId/:pageNum',
+      views: {
+        'wrapper': {
+          templateUrl: 'templates/editpage.html',
+          controller: 'EditPageCtrl'
+        }
+      }
     });
     $urlRouterProvider.otherwise('/library');
   });
+
+  app.config([
+    '$compileProvider', function($compileProvider) {
+      $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:image\//);
+    }
+  ]);
 
 }).call(this);
