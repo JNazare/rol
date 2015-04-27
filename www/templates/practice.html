@@ -8,21 +8,21 @@
 	<ion-content class="has-header">
 
 		<div class="list card no-shadow">
-	      <div class="item item-divider">Question 1</div>
+	      <div class="item item-divider">Question {{1 * questionNum + 1}}</div>
 	      <div class="item item-body">
 	        <div ng-controller="PracticeCtrl"> 
 	        	
 	        	<!-- NEXT: make the sentence a variable in controllers -->
 	          	<div>
-	          		<p>Charlie drank his <span class="defn">{{hint}}</span> and ate his cookies.</p>
+	          		<p>{{nextQuestion.splitQuestion[0]}}<span class="defn">{{hint}}</span>{{nextQuestion.splitQuestion[1]}}</p>
 				</div>
 
-		        <center><a class="button button-icon icon ion-help-circled" ng-click="hint=answer.defn" ng-init="hint='_____'"></a></center>
+		        <center><a class="button button-icon icon ion-help-circled" ng-click="hint=nextQuestion.hint" ng-init="hint='_____'"></a></center>
 
 		        <div class="list card no-shadow">
 		        	<ul>
 		        		<div class="no-shadow button button-block" ng-repeat="word in possibleAnswers" ng-click="showResult(word); word.clicked = true" ng-class="{'clicked-answer': word.clicked}">
-		        			<center><span class="english" ng-class="{'wrong-answer': word.clicked && !word.correct, 'right-answer': word.clicked && word.correct}">{{word.eng}}</span></center>
+		        			<center><span class="english" ng-class="{'wrong-answer': word.clicked && !word.correct, 'right-answer': word.clicked && word.correct}">{{word.answer}}</span></center>
 		        		</div>
 		        	</ul>
 		        </div>

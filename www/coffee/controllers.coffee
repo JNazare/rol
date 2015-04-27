@@ -231,7 +231,9 @@ app.controller('PlayerCtrl', [
   "$rootScope"
   "$ionicSlideBoxDelegate"
   "$http"
-  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http) ->
+  "askiiUrl"
+  "askiiKey"
+  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey) ->
     pageQuery = new $kinvey.Query()    
     pageQuery.equalTo('bookId', $stateParams.bookId)
     bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
@@ -316,7 +318,47 @@ app.controller('PlayerCtrl', [
       $scope.playing = false
       return
 
-    $scope.define = (word) ->
+    $scope.createReviewQuestion = (word, index) ->
+      $scope.savedWord = true # hacky, fix this
+
+      console.log word
+      console.log index
+      length_selected_word = $scope.selected_word.length
+      fill_in_text = Array(length_selected_word).join("_")
+      question_text = $scope.pages[index].text.replace($scope.selected_word, fill_in_text)
+      answer_text = $scope.selected_word
+      hint_text = $scope.translated_word
+
+      console.log $rootScope.activeUser.askiiUser
+
+      new_question = {
+        "question": question_text
+        "hint": hint_text
+        "answer": answer_text
+        "book": $scope.book.title
+        "bookImage": $scope.book.coverImageUrl
+        "difficulty": 0
+        "personalized": true
+        "creator": $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
+      }
+
+      $http.post( askiiUrl+'/questions?key='+askiiKey, new_question ).success((data, status, headers, config) ->
+              
+        console.log data
+        # this callback will be called asynchronously
+        # when the response is available
+
+        return
+      ).error (data, status, headers, config) ->
+        # called asynchronously if an error occurs
+        # or server returns response with an error status.
+        return
+      return
+
+    $scope.define = (word, index) ->
+      $scope.savedWord = false # hacky, fix this
+
+      $scope.pageIndex = index
       selected_word = word.trim().replace(/["\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
       link = "https://translation-app.herokuapp.com/api/en/" + $scope.translationLanguage._id + "/" + selected_word
       $http.get(link).success((translated_word, status, headers, config) ->
@@ -338,6 +380,7 @@ app.controller('PlayerCtrl', [
       ).error (data, status, headers, config) ->
         'error'
       return
+
 
     return
 ])
@@ -375,47 +418,33 @@ app.controller 'EditCtrl', ($scope) ->
 app.controller('ReviewCtrl', [
   "$scope"
   "$ionicPopup"
-  ($scope, $ionicPopup) ->
+  "askiiUrl"
+  "askiiKey"
+  "$http"
+  ($scope, $ionicPopup, askiiUrl, askiiKey, $http) ->
     console.log 'in review ctrl'
-    
-    $scope.vocablist = [
-      {
-        english: 'ROAD'
-        defn: 'camino'
-        book: 'ginger'
-      },
-      {
-        english: 'LOSE'
-        defn: 'perder'
-        book: 'hansel'
-      },
-      {
-        english: 'PLACE'
-        defn: 'lugar'
-        book: 'hansel'
-      },
-      {
-        english: 'OUTSIDE'
-        defn: 'afuera'
-        book: 'hansel'
-      },
-      {
-        english: 'RUN'
-        defn: 'correr'
-        book: 'ginger'
-      }
-    ]
-    
-    # 'creates specific list according to book (potentially not a scope variable)'
-    $scope.bookList = (title, biglist) ->
-      thisList = []
-      for word in biglist
-        if (title is word.book)
-          thisList.push word
-      return thisList
 
-    $scope.hanselList = $scope.bookList("hansel", $scope.vocablist)
-    $scope.gingerList = $scope.bookList("ginger", $scope.vocablist)
+    $http.get( askiiUrl+'/questions?key='+askiiKey ).success((data, status, headers, config) ->
+                
+      $scope.vocablist = data.questions
+
+      organizedBooks = (allQuestions) ->
+        organizedByBook = {}
+        for question in allQuestions
+          if question.book 
+            if question.book not in Object.keys(organizedByBook)
+              organizedByBook[question.book] = [question]
+            else
+              organizedByBook[question.book].push(question)
+        return organizedByBook
+
+      $scope.organizedByBook = organizedBooks( $scope.vocablist )
+
+      return
+    ).error (data, status, headers, config) ->
+      # called asynchronously if an error occurs
+      # or server returns response with an error status.
+      return
 
     $scope.showPopup = (vocab) ->
       console.log 'in showPopup function' + vocab
@@ -435,39 +464,20 @@ app.controller('PracticeCtrl', [
   "$ionicPopup"
   "$stateParams"
   "$location"
-  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $stateParams, $location) ->
-    $scope.goBack = ->
-      $ionicHistory.goBack()
-      return
-      
-    $scope.answer = {
-      eng: 'milk'
-      correct: true
-      defn: 'leche'
-    }
-    
-    wrongAnswers = [
-      {
-        eng: 'napkin'
-        correct: false
-        defn: 'servilleta'
-      },
-      {
-        eng: 'lose'
-        correct: false
-        defn: 'perder'
-      },
-      {
-        eng: 'place'
-        correct: false
-        defn: 'lugar'
-      },
-      {
-        eng: 'outside'
-        correct: false
-        defn: 'afuera'
-      }
-    ]
+  "askiiUrl"
+  "askiiKey"
+  "$http"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $stateParams, $location, askiiUrl, askiiKey, $http) ->
+
+    findQuestionIndex = (allQuestions, nextQuestion) ->
+      i = 0
+      len = allQuestions.length
+      while i < len
+        if allQuestions[i].uri == nextQuestion.uri
+          return i
+        # Return as soon as the object is found
+        i++
+      null
 
     # 'shuffle alogithm taken from CoffeeScript Cookbook'
     shuffle = (a) ->
@@ -477,24 +487,66 @@ app.controller('PracticeCtrl', [
         t = a[j]
         a[j] = a[i]
         a[i] = t
-      a
+      return a
     
     joinAnswers = (wrongList, rightAnswer) ->
+      if wrongList.length > 4
+        wrongList = shuffle(wrongList).splice(0,4)
+      for question in wrongList
+        question["correct"] = false
+      rightAnswer["correct"] = true
       wrongList.push rightAnswer
       shuffle(wrongList)
       return wrongList
 
-    $scope.possibleAnswers = joinAnswers(wrongAnswers, $scope.answer)
+    $scope.goBack = ->
+      $ionicHistory.goBack()
+      return
 
     # 'for interacting with progress bar (blocks)'
     $scope.questionNum = $stateParams.practiceNum
     $scope.blockList = [0,1,2,3,4,5,6,7,8,9]
 
+    $http.get( askiiUrl+'/questions?key='+askiiKey ).success((data, status, headers, config) ->
+      
+      # console.log data
+
+      $scope.allQuestions = data["questions"]
+      console.log $scope.allQuestions
+      userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
+      data = {"count": $stateParams.practiceNum.toString() }
+
+      $http.post( askiiUrl+'/next/'+userId+'?key='+askiiKey, data ).success((data, status, headers, config) ->
+        
+        $scope.nextQuestion = data
+        length_selected_word = $scope.nextQuestion.answer.length
+        fill_in_text = Array(length_selected_word).join("_")
+        $scope.nextQuestion["splitQuestion"] = $scope.nextQuestion.question.split(fill_in_text)
+        toRemove = findQuestionIndex($scope.allQuestions, $scope.nextQuestion)
+        $scope.allQuestions.splice(toRemove, 1)
+        
+        $scope.possibleAnswers = joinAnswers($scope.allQuestions, $scope.nextQuestion)
+        console.log $scope.possibleAnswers
+        
+        return
+        
+      ).error (data, status, headers, config) ->
+        # called asynchronously if an error occurs
+        # or server returns response with an error status.
+        return
+
+      return
+
+    ).error (data, status, headers, config) ->
+      # called asynchronously if an error occurs
+      # or server returns response with an error status.
+      return
+
     # 'if select incorrect, popup says try again'
     # 'if select correct, popup takes you to next question. Stop after 10 questions'
-    $scope.showResult = (word) ->
+    $scope.showResult = (question) ->
       console.log 'in showResult function'
-      if word.correct
+      if question.correct
         nextPageNum = parseInt($stateParams.practiceNum)
         nextPageNum += 1
 
@@ -506,7 +558,7 @@ app.controller('PracticeCtrl', [
         else
           correctPopup = $ionicPopup.show (
             title: "Good Job!"
-            template: word.eng + ' = ' + word.defn
+            template: question.answer + ' = ' + question.hint
             buttons: [{
               text: 'Next'
               onTap: () ->
@@ -515,7 +567,7 @@ app.controller('PracticeCtrl', [
       else
         alertPopup = $ionicPopup.alert (
           title: "Try again!"
-          template: word.eng + ' = ' + word.defn)
+          template: question.answer + ' = ' + question.hint)
   ]
 )
 app.controller('AddCtrl', [

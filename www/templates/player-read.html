@@ -29,7 +29,7 @@
       <ion-slide ng-repeat="page in pages">
         <div class="box">
           <p ng-repeat="paragraph in page.text|splitParagraphs track by $index">
-            <span class="word" ng-repeat="word in paragraph|splitWords track by $index" ng-click="define(word)">
+            <span class="word" ng-repeat="word in paragraph|splitWords track by $index" ng-click="define(word, $parent.$parent.$index)">
               {{word}}
             </span>
           </p>
@@ -43,8 +43,11 @@
         <center><span class="icon define-icon ion-android-globe"></span></center>
         {{translationLanguage._id | uppercase}}
       </div>
-      <div class="col-70 col-offset-10 translation-text">
+      <div class="col-60 col-offset-10 translation-text">
         {{selected_word}} <i ng-if="selected_word" class="icon ion-arrow-swap"></i> {{translated_word}}
+      </div>
+      <div class="col-10" ng-if="translated_word">
+        <button class="button button-clear button-energized save-word-button" ng-click="createReviewQuestion(selected_word, pageIndex)" ng-class="{'icon ion-ios-star': savedWord, 'icon ion-ios-star-outline': !savedWord}"></button>
       </div>
    </div>
   </div>

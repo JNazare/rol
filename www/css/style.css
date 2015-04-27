@@ -129,8 +129,13 @@ div.define-subfooter{
 }
 
 div.translation-text{
-	font-size: 22px;
+	font-size: 16px;
+  	font-weight: bold;
 	padding-top: 10px;
+}
+
+button.save-word-button{
+	font-size: 16px;
 }
 
 span.word{
