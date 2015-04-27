@@ -42,7 +42,7 @@
   });
 
   app.controller('AppCtrl', [
-    "$scope", "$ionicModal", "$rootScope", "$timeout", "$kinvey", "kinveyKey", "kinveySecret", function($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret) {
+    "$scope", "$ionicModal", "$rootScope", "$timeout", "$kinvey", "kinveyKey", "kinveySecret", "$http", "askiiKey", "askiiUrl", function($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl) {
       var promise;
       console.log('in app ctrl');
       $scope.loginData = {};
@@ -123,10 +123,14 @@
             return promise.then(function(activeUser) {
               $rootScope.activeUser = activeUser;
               $rootScope.getUserBooks().then(function() {
-                var loginEvent;
-                loginEvent = 'loginEvent';
-                $scope.$broadcast(loginEvent);
-                return $scope.closeLogin();
+                return $http.get(askiiUrl + '/users/username/' + $rootScope.activeUser.username + '?key=' + askiiKey).success(function(data, status, headers, config) {
+                  var loginEvent;
+                  console.log(data);
+                  $rootScope.activeUser.askiiUser = data;
+                  loginEvent = 'loginEvent';
+                  $scope.$broadcast(loginEvent);
+                  $scope.closeLogin();
+                }).error(function(data, status, headers, config) {});
               });
             });
           };
@@ -154,10 +158,18 @@
             return signup_promise.then(function(activeUser) {
               $rootScope.activeUser = activeUser;
               return $rootScope.getUserBooks().then(function() {
-                var loginEvent;
-                loginEvent = 'loginEvent';
-                $scope.$broadcast(loginEvent);
-                return $scope.closeSignup();
+                var data;
+                data = {
+                  "username": $rootScope.activeUser.email
+                };
+                return $http.post(askiiUrl + '/users?key=' + askiiKey, data).success(function(data, status, headers, config) {
+                  var loginEvent;
+                  console.log(data);
+                  $rootScope.activeUser.askiiUser = data;
+                  loginEvent = 'loginEvent';
+                  $scope.$broadcast(loginEvent);
+                  $scope.closeSignup();
+                }).error(function(data, status, headers, config) {});
               });
             });
           });

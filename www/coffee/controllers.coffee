@@ -33,7 +33,10 @@ app.controller('AppCtrl', [
   "$kinvey"
   "kinveyKey"
   "kinveySecret"
-  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret) ->
+  "$http"
+  "askiiKey"
+  "askiiUrl"
+  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl) ->
     
     console.log 'in app ctrl'
 
@@ -117,9 +120,25 @@ app.controller('AppCtrl', [
           promise.then (activeUser) ->
             $rootScope.activeUser = activeUser
             $rootScope.getUserBooks().then () ->
-              loginEvent = 'loginEvent'
-              $scope.$broadcast(loginEvent)
-              $scope.closeLogin()
+
+              $http.get( askiiUrl+'/users/username/'+$rootScope.activeUser.username+'?key='+askiiKey ).success((data, status, headers, config) ->
+                
+                console.log data
+                $rootScope.activeUser.askiiUser = data
+                # this callback will be called asynchronously
+                # when the response is available
+
+                loginEvent = 'loginEvent'
+                $scope.$broadcast(loginEvent)
+                $scope.closeLogin()
+
+                return
+              ).error (data, status, headers, config) ->
+                # called asynchronously if an error occurs
+                # or server returns response with an error status.
+                return
+
+
             return
 
         if $kinvey.getActiveUser()
@@ -143,9 +162,24 @@ app.controller('AppCtrl', [
           signup_promise.then (activeUser) ->
             $rootScope.activeUser = activeUser
             $rootScope.getUserBooks().then () ->
-              loginEvent = 'loginEvent'
-              $scope.$broadcast(loginEvent)
-              $scope.closeSignup()
+
+              data = {"username": $rootScope.activeUser.email}
+              $http.post( askiiUrl+'/users?key='+askiiKey, data ).success((data, status, headers, config) ->
+                
+                console.log data
+                $rootScope.activeUser.askiiUser = data
+                # this callback will be called asynchronously
+                # when the response is available
+
+                loginEvent = 'loginEvent'
+                $scope.$broadcast(loginEvent)
+                $scope.closeSignup()
+
+                return
+              ).error (data, status, headers, config) ->
+                # called asynchronously if an error occurs
+                # or server returns response with an error status.
+                return
 
       if kinveyUser
         if kinveyUser.username == "user"
