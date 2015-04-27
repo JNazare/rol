@@ -270,6 +270,8 @@
           playUtterance.text = text;
           playUtterance.lang = lang;
           playUtterance.localService = true;
+          console.log(speechSynthesis);
+          console.log(playUtterance);
           speechSynthesis.speak(playUtterance);
         }
       };
@@ -499,6 +501,7 @@
       $scope.slideNext = function() {
         $ionicSlideBoxDelegate.next();
       };
+      $scope.changeImage = function(index) {};
       return $scope.saveChanges = function(index) {
         var newPage, updatedPage, updatedText;
         updatedPage = $scope.pages[index];

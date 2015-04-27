@@ -271,6 +271,8 @@ app.controller('PlayerCtrl', [
         playUtterance.text = text
         playUtterance.lang = lang
         playUtterance.localService = true
+        console.log speechSynthesis
+        console.log playUtterance
         speechSynthesis.speak playUtterance
       return
 
@@ -539,6 +541,10 @@ app.controller('EditPageCtrl', [
 
     $scope.slideNext = ->
       $ionicSlideBoxDelegate.next()
+      return
+
+    $scope.changeImage = (index) ->
+      # lead to a popup that allows you to retake the photo - implement after refactoring
       return
 
     $scope.saveChanges = (index) ->
