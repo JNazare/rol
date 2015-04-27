@@ -2,7 +2,7 @@
 (function() {
   var app;
 
-  app = angular.module('app', ['ionic', 'kinvey', 'app.services', 'angularLoad']);
+  app = angular.module('app', ['ionic', 'kinvey', 'angularLoad']);
 
   app.run(function($ionicPlatform) {
     $ionicPlatform.ready(function() {
@@ -16,22 +16,28 @@
   });
 
   app.config(function($stateProvider, $urlRouterProvider) {
-    $stateProvider.state('player', {
-      url: '/player',
+    $stateProvider.state('app', {
+      url: '',
       abstract: true,
-      templateUrl: 'templates/player.html',
-      controller: 'AppCtrl'
-    }).state('tab', {
-      url: '/tab',
+      controller: 'AppCtrl',
+      templateUrl: 'templates/wrapper.html'
+    }).state('app.home', {
+      url: '',
       abstract: true,
-      templateUrl: 'templates/tabs.html',
-      controller: 'AppCtrl'
-    }).state('wrapper', {
-      url: '/wrapper',
-      abstract: true,
-      templateUrl: 'templates/wrapper.html',
-      controller: 'AppCtrl'
-    }).state('tab.review', {
+      views: {
+        'wrapper': {
+          templateUrl: 'templates/tabs.html'
+        }
+      }
+    }).state('app.home.read', {
+      url: '/library',
+      views: {
+        'tab-read': {
+          templateUrl: 'templates/tab-read.html',
+          controller: 'ReadCtrl'
+        }
+      }
+    }).state('app.home.review', {
       url: '/review',
       views: {
         'tab-review': {
@@ -39,31 +45,15 @@
           controller: 'ReviewCtrl'
         }
       }
-    }).state('tab.read', {
-      url: '/read',
-      views: {
-        'tab-read': {
-          templateUrl: 'templates/tab-read.html',
-          controller: 'ReadCtrl'
-        }
-      }
-    }).state('tab.edit', {
-      url: '/edit',
-      views: {
-        'tab-edit': {
-          templateUrl: 'templates/tab-edit.html',
-          controller: 'EditCtrl'
-        }
-      }
-    }).state('player.read', {
+    }).state('app.read', {
       url: '/read/:bookId',
       views: {
-        'pages': {
+        'wrapper': {
           templateUrl: 'templates/player-read.html',
           controller: 'PlayerCtrl'
         }
       }
-    }).state('wrapper.settings', {
+    }).state('app.settings', {
       url: '/settings',
       views: {
         'wrapper': {
@@ -71,7 +61,7 @@
           controller: 'SettingsCtrl'
         }
       }
-    }).state('wrapper.practice', {
+    }).state('app.practice', {
       url: '/practice',
       views: {
         'wrapper': {
@@ -79,8 +69,38 @@
           controller: 'PracticeCtrl'
         }
       }
+    }).state('app.add', {
+      url: '/add',
+      views: {
+        'wrapper': {
+          templateUrl: 'templates/add.html',
+          controller: 'AddCtrl'
+        }
+      }
+    }).state('app.editbook', {
+      url: '/editbook/:bookId',
+      views: {
+        'wrapper': {
+          templateUrl: 'templates/editbook.html',
+          controller: 'EditBookCtrl'
+        }
+      }
+    }).state('app.editpage', {
+      url: '/editpage/:bookId/:pageNum',
+      views: {
+        'wrapper': {
+          templateUrl: 'templates/editpage.html',
+          controller: 'EditPageCtrl'
+        }
+      }
     });
-    $urlRouterProvider.otherwise('/tab/read');
+    $urlRouterProvider.otherwise('/library');
   });
+
+  app.config([
+    '$compileProvider', function($compileProvider) {
+      $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:image\//);
+    }
+  ]);
 
 }).call(this);

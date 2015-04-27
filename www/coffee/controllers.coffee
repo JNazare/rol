@@ -6,6 +6,15 @@ chunk = (arr, size) ->
     i += size
   newArr
 
+dataURItoBlob = (dataURI) ->
+  binary = atob(dataURI.split(',')[1])
+  array = []
+  i = 0
+  while i < binary.length
+    array.push binary.charCodeAt(i)
+    i++
+  new Blob([ new Uint8Array(array) ], type: 'image/jpeg')
+
 app = angular.module('app')
 
 app.filter 'splitParagraphs', ->
@@ -22,8 +31,12 @@ app.controller('AppCtrl', [
   "$rootScope"
   "$timeout"
   "$kinvey"
-  ($scope, $ionicModal, $rootScope, $timeout, $kinvey) ->
+  "kinveyKey"
+  "kinveySecret"
+  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret) ->
     
+    console.log 'in app ctrl'
+
     $scope.loginData = {}
     $scope.signupData = {}
 
@@ -40,14 +53,14 @@ app.controller('AppCtrl', [
       return
 
     promise = $kinvey.init(
-          appKey: "kid_bkOlUtsa2"
-          appSecret: "3e534d0a09d6494d916a07c9e6afe54a"
+          appKey: kinveyKey
+          appSecret: kinveySecret
           sync:
               enable: true
       )
     promise.then (kinveyUser) ->
 
-      getUserBooks = ->
+      $rootScope.getUserBooks = ->
         $rootScope.books = []
         query = new $kinvey.Query()
         query.contains("sharedWith", [$rootScope.activeUser._id])
@@ -103,7 +116,7 @@ app.controller('AppCtrl', [
             })
           promise.then (activeUser) ->
             $rootScope.activeUser = activeUser
-            getUserBooks().then () ->
+            $rootScope.getUserBooks().then () ->
               loginEvent = 'loginEvent'
               $scope.$broadcast(loginEvent)
               $scope.closeLogin()
@@ -129,7 +142,7 @@ app.controller('AppCtrl', [
           signup_promise = $kinvey.User.signup(formData)
           signup_promise.then (activeUser) ->
             $rootScope.activeUser = activeUser
-            getUserBooks().then () ->
+            $rootScope.getUserBooks().then () ->
               loginEvent = 'loginEvent'
               $scope.$broadcast(loginEvent)
               $scope.closeSignup()
@@ -140,7 +153,7 @@ app.controller('AppCtrl', [
           return
         else 
           $rootScope.activeUser = kinveyUser
-          getUserBooks().then () ->
+          $rootScope.getUserBooks().then () ->
             loginEvent = 'loginEvent'
             $scope.$broadcast(loginEvent)
             return
@@ -156,12 +169,17 @@ app.controller('ReadCtrl', [
   "$scope"
   "$kinvey"
   "$stateParams"
-  "kinveyFactory"
-  ($rootScope, $scope, $kinvey, $stateParams, kinveyFactory) ->
+  "$location"
+  ($rootScope, $scope, $kinvey, $stateParams, $location) ->
+    console.log 'in read ctrl'
+
+    $scope.redirectToEdit = (editUrl) ->
+      $location.path(editUrl)
+
     $scope.$on 'loginEvent', () ->
       add_book = {
         coverImageUrl: "img/add_book_icon.jpg"
-        add_url: "tab/edit"
+        add_url: "add"
       }
       books_to_chunk = $scope.books
       books_to_chunk.unshift(add_book)
@@ -172,6 +190,7 @@ app.controller('ReadCtrl', [
 ])
 
 app.controller('ReviewCtrl', ($scope) ->
+  console.log 'in review ctrl'
 )
 
 app.controller('PlayerCtrl', [
@@ -179,32 +198,29 @@ app.controller('PlayerCtrl', [
   "$location"
   "$scope"
   "$stateParams"
-  "kinveyFactory"
   "$rootScope"
   "$ionicSlideBoxDelegate"
   "$http"
-  ($kinvey, $location, $scope, $stateParams, kinveyFactory, $rootScope, $ionicSlideBoxDelegate, $http) ->
-    $scope.$on 'loginEvent', () ->
-      pageQuery = new $kinvey.Query()    
-      pageQuery.equalTo('bookId', $stateParams.bookId)
-      bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
-      bookPromise.then (book) ->
-        $scope.book = book
-        promise = $kinvey.DataStore.find( "Pages", pageQuery )
-        promise.then (pages) ->
-          book_display_data = {
-            image : {
-              _downloadURL: book.coverImageUrl
-            }
-            text : book.title + " by " + book.author
+  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http) ->
+    pageQuery = new $kinvey.Query()    
+    pageQuery.equalTo('bookId', $stateParams.bookId)
+    bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
+    bookPromise.then (book) ->
+      $scope.book = book
+      promise = $kinvey.DataStore.find( "Pages", pageQuery )
+      promise.then (pages) ->
+        book_display_data = {
+          image : {
+            _downloadURL: book.coverImageUrl
           }
-          pages.unshift(book_display_data)
-          $scope.pages = pages
-          $ionicSlideBoxDelegate.update()
-          promise = $kinvey.DataStore.get('Languages', $rootScope.activeUser.language)
-          promise.then ( translationLanguage ) ->
-            $scope.translationLanguage = translationLanguage
-      return
+          text : book.title + " by " + book.author
+        }
+        pages.unshift(book_display_data)
+        $scope.pages = pages
+        $ionicSlideBoxDelegate.update()
+        promise = $kinvey.DataStore.get('Languages', $rootScope.activeUser.language)
+        promise.then ( translationLanguage ) ->
+          $scope.translationLanguage = translationLanguage
 
     $scope.currentSlide = 0
     $scope.playing = false
@@ -255,6 +271,8 @@ app.controller('PlayerCtrl', [
         playUtterance.text = text
         playUtterance.lang = lang
         playUtterance.localService = true
+        console.log speechSynthesis
+        console.log playUtterance
         speechSynthesis.speak playUtterance
       return
 
@@ -301,21 +319,19 @@ app.controller('SettingsCtrl', [
   "$rootScope"
   "$ionicPopup"
   ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup) ->
-    $scope.$on 'loginEvent', () ->
-      promise = $kinvey.DataStore.find('Languages')
-      promise.then ( listOfLanguages ) ->
-        $scope.listOfLanguages = listOfLanguages
-        return
-      $scope.goBack = ->
-        $ionicHistory.goBack()
-        return
-      $scope.updateUser = ->
-        promise = $kinvey.User.update($rootScope.activeUser)
-        promise.then () ->
-          alertPopup = $ionicPopup.alert(
-            title: 'SAVED')
-          return
+    promise = $kinvey.DataStore.find('Languages')
+    promise.then ( listOfLanguages ) ->
+      $scope.listOfLanguages = listOfLanguages
       return
+    $scope.goBack = ->
+      $ionicHistory.goBack()
+      return
+    $scope.updateUser = ->
+      promise = $kinvey.User.update($rootScope.activeUser)
+      promise.then () ->
+        alertPopup = $ionicPopup.alert(
+          title: 'SAVED')
+        return
     return
 ])
 
@@ -327,13 +343,227 @@ app.controller('PracticeCtrl', [
   "$rootScope"
   "$ionicPopup"
   ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup) ->
-    $scope.$on 'loginEvent', () ->
-      $scope.goBack = ->
-        $ionicHistory.goBack()
-        return
+    $scope.goBack = ->
+      $ionicHistory.goBack()
+      return
       # Add stuff here
 ])
 
-app.controller 'EditCtrl', ($scope) ->
-  $scope.settings = enableFriends: true
-  return
+app.controller('AddCtrl', [
+  "$rootScope"
+  "$scope"
+  "Camera"
+  "uploadContent"
+  "$ionicHistory"
+  "Library"
+  ($rootScope, $scope, Camera, uploadContent, $ionicHistory, Library) ->
+    $scope.book = {}
+    imageStr = ""
+
+    $scope.goBack = ->
+      $rootScope.getUserBooks().then () ->
+        $rootScope.libraryLayout = Library.getShelf($rootScope.books)
+        $ionicHistory.goBack()
+
+    $scope.getPhoto = ->
+
+      options = {
+        quality: 50
+        destinationType: navigator.camera.DestinationType.DATA_URL
+        encodingType: navigator.camera.EncodingType.JPEG
+      }
+
+      Camera.getPicture(options).then ((imageStr) ->
+        $scope.book.image = "data:image/jpeg;base64," + imageStr
+        $scope.book.imageBlob = dataURItoBlob($scope.book.image)
+
+        return
+      ), ((err) ->
+        console.err err
+        return
+      )
+      return
+
+    $scope.addBook = ->
+
+      imgBlob = $scope.book.imageBlob
+
+      uploadContent.uploadFile({"image": imgBlob, "size": imgBlob.size}).then ((fileInfo) ->
+        data = {
+          title : $scope.book.title
+          author : $scope.book.author
+          coverImageFile : fileInfo
+          sharedWith: [$rootScope.activeUser._id]
+        }
+        uploadContent.uploadModel("Books", data).then (uploaded_file) ->
+          return
+      ), ((err) ->
+        console.log err
+      )
+      return
+])
+
+app.controller('EditBookCtrl', [
+  "$ionicHistory"
+  "$scope"
+  "$kinvey"
+  "$rootScope"
+  "$stateParams"
+  "Camera"
+  "uploadContent"
+  "$location"
+  "$state"
+  "Library"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $stateParams, Camera, uploadContent, $location, $state, Library) ->
+    console.log 'in edit book ctrl'
+    pageQuery = new $kinvey.Query()    
+    pageQuery.equalTo('bookId', $stateParams.bookId)
+    bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
+    bookPromise.then (book) ->
+      $scope.book = book
+      pageQuery = new $kinvey.Query()    
+      pageQuery.equalTo('bookId', $stateParams.bookId)
+      promise = $kinvey.DataStore.find( "Pages", pageQuery )
+      promise.then (pages) ->
+        add_page_data = {
+          image : {
+            _downloadURL: "img/add_book_icon.jpg"
+          }
+          text : ""
+        }
+        pages.push(add_page_data)
+        $scope.pages = pages
+        return
+
+    $scope.getPhoto = ->
+
+      options = {
+        quality: 50
+        destinationType: navigator.camera.DestinationType.DATA_URL
+        encodingType: navigator.camera.EncodingType.JPEG
+      }
+
+      Camera.getPicture(options).then ((imageStr) ->
+        $scope.book.image = "data:image/jpeg;base64," + imageStr
+        $scope.book.imageBlob = dataURItoBlob($scope.book.image)
+
+        return
+      ), ((err) ->
+        console.err err
+        return
+      )
+      return
+
+    $scope.goBack = ->
+      $rootScope.getUserBooks().then () ->
+        $rootScope.libraryLayout = Library.getShelf($rootScope.books)
+        $ionicHistory.goBack()
+
+    $scope.updateBook = ->
+
+      if $scope.book.imageBlob
+        imgBlob = $scope.book.imageBlob
+
+      delete $scope.book.image
+      delete $scope.book.imageBlob
+
+      if imgBlob
+        uploadContent.uploadFile({"image": imgBlob, "size": imgBlob.size}).then ((fileInfo) ->
+          $scope.book.coverImageFile = fileInfo
+          uploadContent.updateModel("Books", $scope.book).then (uploaded_file) ->
+            $scope.goBack()
+            return
+        ), ((err) ->
+          console.log err
+        )
+        return
+      
+      else
+        uploadContent.updateModel("Books", $scope.book).then (uploaded_file) ->
+          $scope.goBack()
+          return
+
+      return
+
+    $scope.deleteBook = ->
+      uploadContent.deleteModel("Books", $scope.book._id).then () ->
+        $scope.goBack()
+        return
+      return
+
+])
+
+app.controller('EditPageCtrl', [
+  "$ionicHistory"
+  "$scope"
+  "$kinvey"
+  "$rootScope"
+  "$stateParams"
+  "$ionicSlideBoxDelegate"
+  "uploadContent"
+  "Pages"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $stateParams, $ionicSlideBoxDelegate, uploadContent, Pages) ->
+
+    $scope.currentSlide = $stateParams.pageNum
+    pageQuery = new $kinvey.Query()    
+    pageQuery.equalTo('bookId', $stateParams.bookId)
+    bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
+    bookPromise.then (book) ->
+      $scope.book = book
+      promise = $kinvey.DataStore.find( "Pages", pageQuery )
+      promise.then (pages) ->
+        add_page_data = {
+          image : {
+            _downloadURL: "img/add_book_icon.jpg"
+          }
+          text : ""
+        }
+        pages.push(add_page_data)
+        $scope.pages = pages
+        $ionicSlideBoxDelegate.update()
+        $ionicSlideBoxDelegate.slide($stateParams.pageNum)
+
+    $scope.goBack = ->
+      $scope.pages = Pages.getPages($scope.book._id)
+      $ionicHistory.goBack()
+      return
+
+    $scope.slideHasChanged = (newSlide) ->
+      $scope.currentSlide = newSlide
+      return
+
+    $scope.slideTo = (slideNum) ->
+      $ionicSlideBoxDelegate.slide(slideNum)
+
+    $scope.slidePrevious = ->
+      $ionicSlideBoxDelegate.previous()
+      return
+
+    $scope.slideNext = ->
+      $ionicSlideBoxDelegate.next()
+      return
+
+    $scope.changeImage = (index) ->
+      # lead to a popup that allows you to retake the photo - implement after refactoring
+      return
+
+    $scope.saveChanges = (index) ->
+      updatedPage = $scope.pages[index]
+      console.log updatedPage
+      if index == $scope.pages.length - 1
+        updatedText = updatedPage.text
+        newPage = {
+          "bookId": $scope.book._id
+          "text": updatedText
+          "pageNumber": index
+        }
+        uploadContent.uploadModel("Pages", newPage).then (uploaded_page) ->
+          # this should probably show a "saved" alert
+          return
+      else
+        uploadContent.updateModel("Pages", updatedPage).then (uploaded_page) ->
+          # this should probably show a "saved" alert
+          return
+      return
+
+])

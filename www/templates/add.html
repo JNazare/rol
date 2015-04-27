@@ -1,0 +1,36 @@
+<ion-view view-title="New Book">
+	<ion-nav-buttons>
+		<a class="button button-clear" ng-click="goBack()" class="pull-left">
+    		Cancel
+  		</a>
+	</ion-nav-buttons>
+	<ion-content class="has-header">
+		<div class="list">
+		  	<div class="item item-divider">
+    			Title
+  			</div>
+  			<label class="item item-input">
+    			<input type="text" ng-model="book.title">
+  			</label>
+  			<div class="item item-divider">
+    			Author
+  			</div>
+  			<label class="item item-input">
+    			<input type="text" ng-model="book.author">
+  			</label>
+  			<div class="item item-divider">
+    			Cover Image
+  			</div>
+  			<div class="item camera-div">
+  				<center>
+            <img ng-show="book.image != undefined" ng-class="imageToUpload" ng-src="{{book.image}}" width="30%">
+            <br>
+  					<span class="icon ion-ios-camera take-photo" ng-click="getPhoto()"></span>
+  				</center>
+  			</div>
+			<a class="button button-full button-positive" ng-click="addBook()">
+  				Save
+			</a>
+		</div>
+	</ion-content>
+</ion-view>

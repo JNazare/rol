@@ -1,0 +1,44 @@
+<ion-view view-title="{{book.title}}">
+  <div class="bar bar-subheader thumbnail-bar">
+    <div class="button-bar">
+      <a class="button button-clear" ng-click="slidePrevious()" ng-class="{'button-dark': currentSlide>0}">
+        <span class="ion-ios-arrow-left"></span>
+      </a>
+      <a class="button button-clear" ng-repeat="page in pages track by $index" ng-click="slideTo($index)">
+        <img ng-src="{{page.image._downloadURL}}" height="30px" ng-class="{selected: $index==currentSlide}">
+      </a>
+      <a class="button button-clear" ng-click="slideNext()" ng-class="{'button-dark': currentSlide<pages.length-1}">
+        <span class="ion-ios-arrow-right"></span>
+      </a>
+    </div>
+  </div>
+  <ion-nav-buttons side="primary">
+    <a class="button button-clear button-light button-icon icon ion-ios-information-outline help-button" ng-href="">
+    </a>
+    <a class="button button-clear button-light button-icon icon ion-ios-close-empty" ng-href="#/tab/read" ng-click="endBook()">
+    </a>
+  </ion-nav-buttons>
+  <ion-content class="padding has-header has-subheader has-footer has-subfooter">
+    <ion-slide-box on-slide-changed="slideHasChanged($index)" active-slide="currentSlide">
+      <ion-slide ng-repeat="page in pages track by $index">
+        <div class="row">
+          <div class="col col-10 col-offset-80">
+            <button class="button button-clear button-dark image-button" style="width:50px; height:50px; background: url({{page.image._downloadURL}}); background-size: contain; background-repeat: no-repeat; border: 2px solid #111; border-radius: 0px;" ng-click="changeImage($index)">
+              <!-- <span class="icon ion-ios-camera"></span> -->
+            </button>
+            <!-- <button class="button icon button-dark button-clear ion-ios-camera"></button> -->
+          </div>
+        </div>
+        <textarea ng-if="page.text.length > 0" class="page-input-text" rows="7" ng-model="pages[$index].text">
+          {{page.text}}
+        </textarea>
+        <textarea ng-if="page.text.length == 0" class="page-input-text" rows="7" ng-model="pages[$index].text" placeholder="Add text..."></textarea>
+        <center>
+          <button id="save{{$index}}" class="button button-clear button-balanced" ng-click="saveChanges($index)"> 
+            <strong> SAVE </strong>
+          </button>
+        </center>
+      </ion-slide>
+    </ion-slide-box>
+  </ion-content>
+</ion-view>
