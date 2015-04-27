@@ -199,10 +199,6 @@
     }
   ]);
 
-  app.controller('ReviewCtrl', function($scope) {
-    return console.log('in review ctrl');
-  });
-
   app.controller('PlayerCtrl', [
     "$kinvey", "$location", "$scope", "$stateParams", "$rootScope", "$ionicSlideBoxDelegate", "$http", function($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http) {
       var bookPromise, defineUtterance1, defineUtterance2, pageQuery, playUtterance;
@@ -326,10 +322,143 @@
     }
   ]);
 
+  app.controller('EditCtrl', function($scope) {
+    $scope.settings = {
+      enableFriends: true
+    };
+  });
+
+  app.controller('ReviewCtrl', [
+    "$scope", "$ionicPopup", function($scope, $ionicPopup) {
+      console.log('in review ctrl');
+      $scope.vocablist = [
+        {
+          english: 'ROAD',
+          defn: 'camino',
+          book: 'ginger'
+        }, {
+          english: 'LOSE',
+          defn: 'perder',
+          book: 'hansel'
+        }, {
+          english: 'PLACE',
+          defn: 'lugar',
+          book: 'hansel'
+        }, {
+          english: 'OUTSIDE',
+          defn: 'afuera',
+          book: 'hansel'
+        }, {
+          english: 'RUN',
+          defn: 'correr',
+          book: 'ginger'
+        }
+      ];
+      $scope.bookList = function(title, biglist) {
+        var k, len, thisList, word;
+        thisList = [];
+        for (k = 0, len = biglist.length; k < len; k++) {
+          word = biglist[k];
+          if (title === word.book) {
+            thisList.push(word);
+          }
+        }
+        return thisList;
+      };
+      $scope.hanselList = $scope.bookList("hansel", $scope.vocablist);
+      $scope.gingerList = $scope.bookList("ginger", $scope.vocablist);
+      return $scope.showPopup = function(vocab) {
+        var alertPopup;
+        console.log('in showPopup function' + vocab);
+        alertPopup = $ionicPopup.alert({
+          title: vocab.english,
+          subTitle: vocab.defn,
+          template: '(sentence in context)'
+        });
+      };
+    }
+  ]);
+
   app.controller('PracticeCtrl', [
-    "$ionicHistory", "$scope", "$kinvey", "$rootScope", "$ionicPopup", function($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup) {
-      return $scope.goBack = function() {
+    "$ionicHistory", "$scope", "$kinvey", "$rootScope", "$ionicPopup", "$stateParams", "$location", function($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $stateParams, $location) {
+      var joinAnswers, shuffle, wrongAnswers;
+      $scope.goBack = function() {
         $ionicHistory.goBack();
+      };
+      $scope.answer = {
+        eng: 'milk',
+        correct: true,
+        defn: 'leche'
+      };
+      wrongAnswers = [
+        {
+          eng: 'napkin',
+          correct: false,
+          defn: 'servilleta'
+        }, {
+          eng: 'lose',
+          correct: false,
+          defn: 'perder'
+        }, {
+          eng: 'place',
+          correct: false,
+          defn: 'lugar'
+        }, {
+          eng: 'outside',
+          correct: false,
+          defn: 'afuera'
+        }
+      ];
+      shuffle = function(a) {
+        var i, j, t;
+        i = a.length;
+        while (--i > 0) {
+          j = ~~(Math.random() * (i + 1));
+          t = a[j];
+          a[j] = a[i];
+          a[i] = t;
+        }
+        return a;
+      };
+      joinAnswers = function(wrongList, rightAnswer) {
+        wrongList.push(rightAnswer);
+        shuffle(wrongList);
+        return wrongList;
+      };
+      $scope.possibleAnswers = joinAnswers(wrongAnswers, $scope.answer);
+      $scope.questionNum = $stateParams.practiceNum;
+      $scope.blockList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+      return $scope.showResult = function(word) {
+        var alertPopup, correctPopup, nextPageNum;
+        console.log('in showResult function');
+        if (word.correct) {
+          nextPageNum = parseInt($stateParams.practiceNum);
+          nextPageNum += 1;
+          if (nextPageNum > 9) {
+            return alertPopup = $ionicPopup.alert({
+              title: "PRACTICE DONE!",
+              template: "Congratulations!"
+            });
+          } else {
+            return correctPopup = $ionicPopup.show({
+              title: "Good Job!",
+              template: word.eng + ' = ' + word.defn,
+              buttons: [
+                {
+                  text: 'Next',
+                  onTap: function() {
+                    return $location.path("/practice/" + nextPageNum.toString());
+                  }
+                }
+              ]
+            });
+          }
+        } else {
+          return alertPopup = $ionicPopup.alert({
+            title: "Try again!",
+            template: word.eng + ' = ' + word.defn
+          });
+        }
       };
     }
   ]);

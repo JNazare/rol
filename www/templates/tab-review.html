@@ -1,60 +1,55 @@
-<ion-view view-title="My Words">
-    <!-- STRIPED TABS: "ALL" & "BY BOOK" -->
-    <!-- Visible only on "serve", not on android -->
-    <div class="tabs-striped tabs-top tabs-background-stable">
-      <div class="tabs">
-        <a class="tab-item active" href="#">ALL</a>
-        <a class="tab-item" href="#">BY BOOK</a>          
-      </div>
+<ion-view view-title="My Words" ng-controller="ReviewCtrl">
+
+  <ion-content>
+
+    <!-- BUTTON BAR -->
+    <!-- Question: change color/style? -->
+    <div class="button-bar">
+      <a class="button" ng-click="displayAll = true">ALL</a>
+      <a class="button" ng-click="displayAll = false">BY BOOK</a>
     </div>
 
-    <ion-content>
-      <div class="item item-body">         
-                <!-- ALL -->
-                <div class="list card">
-                  <a href="#" class="item "> 
-                    <center>ROAD - camino</center>
-                  </a>
-                  <a href="#" class="item ">
-                    <center>LOSE - perder</center>
-                  </a>
-                  <a href="#" class="item ">
-                    <center>PLACE - lugar</center>
-                  </a>
-                  <a href="#" class="item ">
-                    <center>OUTSIDE - afuera</center>
-                  </a>
-                  <a href="#" class="item ">
-                    <center>PANTS - pantalones</center>
-                  </a>
-                  <a href="#" class="item ">
-                    <center>RUN - correr</center>
-                  </a>
-                </div>
-
-                <!-- BY BOOK: (1) Hansel & Gretel; (2) The Gingerbread Man -->
-                <div class="list card">
-                  <a class="icon-left ion-image">Hansel and Gretel</a>
-                    <a href="#" class="item ">
-                      <center>LOSE - perder</center>
-                    </a>
-                    <a href="#" class="item ">
-                      <center>OUTSIDE - afuera</center>
-                    </a>
-                </div>
-
-                <div class="list card">
-                  <a class="icon-left ion-ios-body">The Gingerbread Man</a>
-                    <a href="#" class="item ">
-                      <center>ROAD - camino</center>
-                    </a>
-                    <a href="#" class="item ">
-                      <center>RUN - correr</center>
-                    </a>
-                </div>
+    <div class="item item-body" ng-init="displayAll = true">         
+      <!-- Display ALL words (default view) -->
+      <div class="list card no-shadow" ng-if="displayAll">
+        <ul>
+          <div class="button button-block" ng-repeat="vocab in vocablist" ng-click="showPopup(vocab)">
+            <center><span class="english">{{vocab.english}}</span> - <span class="defn">{{vocab.defn}}</span></center>
+          </div>
+        </ul>
 
       </div>
 
-    </ion-content>
-    
+      <!-- Display BY BOOK: (1) Hansel & Gretel; (2) The Gingerbread Man -->
+      <!-- Have yet to make edits to this div.
+      NEXT: Insert images for books, give more padding -->
+      <div ng-if="!displayAll">
+        <div class="list card">
+          <a class="icon-left ion-image">Hansel and Gretel</a>
+          <div class="item" ng-repeat="vocab in hanselList" ng-click="showPopup(vocab)">
+            <center><span class="english">{{vocab.english}}</span> - <span class="defn">{{vocab.defn}}</span></center>
+          </div>
+        </div>
+
+        <div class="list card">
+          <a class="icon-left ion-image">The Gingerbread Man</a>
+          <div class="item" ng-repeat="vocab in gingerList" ng-click="showPopup(vocab)">
+            <center><span class="english">{{vocab.english}}</span> - <span class="defn">{{vocab.defn}}</span></center>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- closes item-body -->
+
+  </ion-content>
+
+  <!-- SUB-FOOTER: go to Practice page -->
+  <!-- How to make button flow smoothly into background? "practice-button" class in CSS -->
+  <div class="bar bar-subfooter practice-button">
+    <a class="button button-block button-balanced" ng-href="#/practice/0">
+      PRACTICE
+    </a>
+  </div>
+
+
 </ion-view>

@@ -61,7 +61,7 @@ app.config ($stateProvider, $urlRouterProvider) ->
       templateUrl: 'templates/settings.html'
       controller: 'SettingsCtrl'
   ).state('app.practice',
-  url: '/practice'
+  url: '/practice/:practiceNum'
   views: 'wrapper':
     templateUrl: 'templates/practice.html'
     controller: 'PracticeCtrl'
