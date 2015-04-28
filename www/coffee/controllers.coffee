@@ -479,6 +479,17 @@ app.controller('PracticeCtrl', [
         i++
       null
 
+    findAllRepeats = (allQuestions, nextQuestion) ->
+      ct = 0
+      toRemove = []
+      for question in allQuestions
+        if question.answer == nextQuestion.answer
+          toRemove.unshift(ct)
+        ct += 1
+      for index in toRemove
+        allQuestions.splice(index, 1)
+      return allQuestions
+
     # 'shuffle alogithm taken from CoffeeScript Cookbook'
     shuffle = (a) ->
       i = a.length
@@ -512,7 +523,7 @@ app.controller('PracticeCtrl', [
       # console.log data
 
       $scope.allQuestions = data["questions"]
-      console.log $scope.allQuestions
+      # console.log $scope.allQuestions
       userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
       data = {"count": $stateParams.practiceNum.toString() }
 
@@ -524,9 +535,11 @@ app.controller('PracticeCtrl', [
         $scope.nextQuestion["splitQuestion"] = $scope.nextQuestion.question.split(fill_in_text)
         toRemove = findQuestionIndex($scope.allQuestions, $scope.nextQuestion)
         $scope.allQuestions.splice(toRemove, 1)
-        
+        $scope.allQuestions = findAllRepeats($scope.allQuestions, $scope.nextQuestion)
+        # console.log $scope.allQuestions
+
         $scope.possibleAnswers = joinAnswers($scope.allQuestions, $scope.nextQuestion)
-        console.log $scope.possibleAnswers
+        # console.log $scope.possibleAnswers
         
         return
         
@@ -547,6 +560,18 @@ app.controller('PracticeCtrl', [
     $scope.showResult = (question) ->
       console.log 'in showResult function'
       if question.correct
+
+        #save question back to askii here
+        userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
+        questionId = $scope.nextQuestion.uri.split("/").slice(-1)[0]
+        data = {"answer": "1"}
+        $http.post( askiiUrl+'/users/'+userId+'/'+questionId+'?key='+askiiKey, data ).success((data, status, headers, config) ->
+          console.log data
+          return
+        ).error (data, status, headers, config) ->
+          return
+
+
         nextPageNum = parseInt($stateParams.practiceNum)
         nextPageNum += 1
 
@@ -565,6 +590,7 @@ app.controller('PracticeCtrl', [
                 $location.path("/practice/" + nextPageNum.toString())
             }])
       else
+        # need a listener here?
         alertPopup = $ionicPopup.alert (
           title: "Try again!"
           template: question.answer + ' = ' + question.hint)

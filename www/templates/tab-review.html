@@ -9,7 +9,7 @@
       <a class="button" ng-click="displayAll = false">BY BOOK</a>
     </div>
 
-    <div class="item item-body" ng-init="displayAll = true">         
+    <!-- <div class="item item-body" ng-init="displayAll = true">          -->
       <!-- Display ALL words (default view) -->
       <div class="list card no-shadow" ng-if="displayAll">
         <ul>
@@ -25,17 +25,18 @@
       NEXT: Insert images for books, give more padding -->
       <div ng-if="!displayAll">
         <div class="list card" ng-repeat="(bookTitle, book) in organizedByBook">
-          <div class="item item-divider">
-            <img ng-if="book[0].bookImage" ng-src="{{book[0].bookImage" with="30px">
-            {{bookTitle}}
+          <div class="item item-avatar book-title">
+            <img ng-if="book[0].bookImage" ng-src="{{book[0].bookImage}}">
+            <strong> {{bookTitle}} </strong>
           </div>
           <div class="item" ng-repeat="vocab in book" ng-click="showPopup(vocab)">
-            <center><span class="answer">{{vocab.answer}}</span> - <span class="hint">{{vocab.hint}}</span></center>
+            <center><span class="english">{{vocab.answer}}</span> - <span class="defn">{{vocab.hint}}</span></center>
           </div>
         </div>
       </div>
 
-    </div> <!-- closes item-body -->
+    <!-- </div>  -->
+    <!-- closes item-body -->
 
   </ion-content>
 

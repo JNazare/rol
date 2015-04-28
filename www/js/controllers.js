@@ -405,7 +405,7 @@
 
   app.controller('PracticeCtrl', [
     "$ionicHistory", "$scope", "$kinvey", "$rootScope", "$ionicPopup", "$stateParams", "$location", "askiiUrl", "askiiKey", "$http", function($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $stateParams, $location, askiiUrl, askiiKey, $http) {
-      var findQuestionIndex, joinAnswers, shuffle;
+      var findAllRepeats, findQuestionIndex, joinAnswers, shuffle;
       findQuestionIndex = function(allQuestions, nextQuestion) {
         var i, len;
         i = 0;
@@ -417,6 +417,23 @@
           i++;
         }
         return null;
+      };
+      findAllRepeats = function(allQuestions, nextQuestion) {
+        var ct, index, k, l, len1, len2, question, toRemove;
+        ct = 0;
+        toRemove = [];
+        for (k = 0, len1 = allQuestions.length; k < len1; k++) {
+          question = allQuestions[k];
+          if (question.answer === nextQuestion.answer) {
+            toRemove.unshift(ct);
+          }
+          ct += 1;
+        }
+        for (l = 0, len2 = toRemove.length; l < len2; l++) {
+          index = toRemove[l];
+          allQuestions.splice(index, 1);
+        }
+        return allQuestions;
       };
       shuffle = function(a) {
         var i, j, t;
@@ -431,7 +448,9 @@
       };
       joinAnswers = function(wrongList, rightAnswer) {
         var k, len1, question;
-        wrongList = shuffle(wrongList).splice(0, 4);
+        if (wrongList.length > 4) {
+          wrongList = shuffle(wrongList).splice(0, 4);
+        }
         for (k = 0, len1 = wrongList.length; k < len1; k++) {
           question = wrongList[k];
           question["correct"] = false;
@@ -462,14 +481,24 @@
           $scope.nextQuestion["splitQuestion"] = $scope.nextQuestion.question.split(fill_in_text);
           toRemove = findQuestionIndex($scope.allQuestions, $scope.nextQuestion);
           $scope.allQuestions.splice(toRemove, 1);
+          $scope.allQuestions = findAllRepeats($scope.allQuestions, $scope.nextQuestion);
+          console.log($scope.allQuestions);
           $scope.possibleAnswers = joinAnswers($scope.allQuestions, $scope.nextQuestion);
           console.log($scope.possibleAnswers);
         }).error(function(data, status, headers, config) {});
       }).error(function(data, status, headers, config) {});
       return $scope.showResult = function(question) {
-        var alertPopup, correctPopup, nextPageNum;
+        var alertPopup, correctPopup, data, nextPageNum, questionId, userId;
         console.log('in showResult function');
         if (question.correct) {
+          userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0];
+          questionId = $scope.nextQuestion.uri.split("/").slice(-1)[0];
+          data = {
+            "answer": "1"
+          };
+          $http.post(askiiUrl + '/users/' + userId + '/' + questionId + '?key=' + askiiKey, data).success(function(data, status, headers, config) {
+            console.log(data);
+          }).error(function(data, status, headers, config) {});
           nextPageNum = parseInt($stateParams.practiceNum);
           nextPageNum += 1;
           if (nextPageNum > 9) {
