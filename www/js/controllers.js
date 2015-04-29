@@ -468,7 +468,6 @@
       $http.get(askiiUrl + '/questions?key=' + askiiKey).success(function(data, status, headers, config) {
         var userId;
         $scope.allQuestions = data["questions"];
-        console.log($scope.allQuestions);
         userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0];
         data = {
           "count": $stateParams.practiceNum.toString()
@@ -482,9 +481,7 @@
           toRemove = findQuestionIndex($scope.allQuestions, $scope.nextQuestion);
           $scope.allQuestions.splice(toRemove, 1);
           $scope.allQuestions = findAllRepeats($scope.allQuestions, $scope.nextQuestion);
-          console.log($scope.allQuestions);
           $scope.possibleAnswers = joinAnswers($scope.allQuestions, $scope.nextQuestion);
-          console.log($scope.possibleAnswers);
         }).error(function(data, status, headers, config) {});
       }).error(function(data, status, headers, config) {});
       return $scope.showResult = function(question) {

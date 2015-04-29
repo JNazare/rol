@@ -2,7 +2,7 @@
 (function() {
   var app;
 
-  app = angular.module('app', ['ionic', 'kinvey', 'angularLoad']);
+  app = angular.module('app', ['ionic', 'kinvey', 'angularLoad', 'angulartics', 'angulartics.mixpanel']);
 
   app.run(function($ionicPlatform) {
     $ionicPlatform.ready(function() {
@@ -15,7 +15,7 @@
     });
   });
 
-  app.config(function($stateProvider, $urlRouterProvider) {
+  app.config(function($stateProvider, $urlRouterProvider, $analyticsProvider) {
     $stateProvider.state('app', {
       url: '',
       abstract: true,

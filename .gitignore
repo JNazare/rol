@@ -4,6 +4,9 @@
 node_modules/
 platforms/
 plugins/
-js/
+js/app.js
+js/controllers.js
+js/privateFactories.js
+js/publicFactories.js
 .DS_Store
 privateFactories.coffee

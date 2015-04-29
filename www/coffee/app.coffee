@@ -9,6 +9,8 @@ app = angular.module('app', [
   'ionic'
   'kinvey'
   'angularLoad'
+  'angulartics'
+  'angulartics.mixpanel'
 ])
 
 app.run(($ionicPlatform) ->
@@ -24,7 +26,7 @@ app.run(($ionicPlatform) ->
   return
 )
 
-app.config ($stateProvider, $urlRouterProvider) ->
+app.config ($stateProvider, $urlRouterProvider, $analyticsProvider) ->
   # Ionic uses AngularUI Router which uses the concept of states
   # Learn more here: https://github.com/angular-ui/ui-router
   # Set up the various states which the app can be in.
