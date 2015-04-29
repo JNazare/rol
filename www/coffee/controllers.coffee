@@ -578,7 +578,19 @@ app.controller('PracticeCtrl', [
         if nextPageNum > 9
           alertPopup = $ionicPopup.alert (
             title: "PRACTICE DONE!"
-            template: "Congratulations!")
+            template: "Congratulations!"
+            buttons: [
+              {
+                text: 'Continue'
+                onTap: () ->
+                  $location.path("/practice/0")
+              },
+              {
+                text: 'End'
+                onTap: () ->
+                  $location.path("/library")
+              }
+            ])
 
         else
           correctPopup = $ionicPopup.show (
@@ -587,6 +599,8 @@ app.controller('PracticeCtrl', [
             buttons: [{
               text: 'Next'
               onTap: () ->
+                for word in $scope.possibleAnswers
+                  delete word["clicked"]
                 $location.path("/practice/" + nextPageNum.toString())
             }])
       else

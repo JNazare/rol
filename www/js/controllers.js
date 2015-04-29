@@ -501,7 +501,20 @@
           if (nextPageNum > 9) {
             return alertPopup = $ionicPopup.alert({
               title: "PRACTICE DONE!",
-              template: "Congratulations!"
+              template: "Congratulations!",
+              buttons: [
+                {
+                  text: 'Continue',
+                  onTap: function() {
+                    return $location.path("/practice/0");
+                  }
+                }, {
+                  text: 'End',
+                  onTap: function() {
+                    return $location.path("/library");
+                  }
+                }
+              ]
             });
           } else {
             return correctPopup = $ionicPopup.show({
@@ -511,6 +524,12 @@
                 {
                   text: 'Next',
                   onTap: function() {
+                    var k, len1, ref, word;
+                    ref = $scope.possibleAnswers;
+                    for (k = 0, len1 = ref.length; k < len1; k++) {
+                      word = ref[k];
+                      delete word["clicked"];
+                    }
                     return $location.path("/practice/" + nextPageNum.toString());
                   }
                 }
