@@ -446,6 +446,7 @@
               buttons: [
                 {
                   text: 'Next',
+                  type: 'button-balanced',
                   onTap: function() {
                     return $location.path("/practice/" + nextPageNum.toString());
                   }

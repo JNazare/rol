@@ -475,6 +475,7 @@ app.controller('PracticeCtrl', [
             template: word.eng + ' = ' + word.defn
             buttons: [{
               text: 'Next'
+              type: 'button-balanced'
               onTap: () ->
                 $location.path("/practice/" + nextPageNum.toString())
             }])
