@@ -43,7 +43,7 @@
   });
 
   app.controller('AppCtrl', [
-    "$scope", "$ionicModal", "$rootScope", "$timeout", "$kinvey", "kinveyKey", "kinveySecret", "$http", "askiiKey", "askiiUrl", function($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl) {
+    "$scope", "$ionicModal", "$rootScope", "$timeout", "$kinvey", "kinveyKey", "kinveySecret", "$http", "askiiKey", "askiiUrl", "betaPassphrase", function($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl, betaPassphrase) {
       var promise;
       console.log('in app ctrl');
       $scope.loginData = {};
@@ -71,12 +71,13 @@
           $rootScope.books = [];
           query = new $kinvey.Query();
           query.contains("sharedWith", [$rootScope.activeUser._id]);
-          promise = $kinvey.DataStore.find("Books", query);
+          promise = $kinvey.DataStore.find("Books");
           return promise.then(function(books) {
             return $rootScope.books = books;
           });
         };
         $scope.openLogin = function() {
+          $scope.errorMessage = null;
           $scope.loginmodal.show();
         };
         $scope.closeLogin = function() {
@@ -87,6 +88,7 @@
         };
         $scope.openSignup = function() {
           var getAllLanguages;
+          $scope.errorMessage = null;
           $scope.loginmodal.hide();
           getAllLanguages = function() {
             promise = $kinvey.DataStore.find('Languages');
@@ -121,18 +123,21 @@
               username: $scope.loginData.username.toLowerCase(),
               password: $scope.loginData.password
             });
-            return promise.then(function(activeUser) {
+            return promise.then((function(activeUser) {
               $rootScope.activeUser = activeUser;
-              $rootScope.getUserBooks().then(function() {
+              return $rootScope.getUserBooks().then(function() {
                 return $http.get(askiiUrl + '/users/username/' + $rootScope.activeUser.username + '?key=' + askiiKey).success(function(data, status, headers, config) {
                   var loginEvent;
-                  console.log(data);
                   $rootScope.activeUser.askiiUser = data;
                   loginEvent = 'loginEvent';
                   $scope.$broadcast(loginEvent);
                   $scope.closeLogin();
-                }).error(function(data, status, headers, config) {});
+                }).error(function(data, status, headers, config) {
+                  $scope.errorMessage = "Sorry! Please try again.";
+                });
               });
+            }), function(error) {
+              $scope.errorMessage = "Sorry! Please try again.";
             });
           };
           if ($kinvey.getActiveUser()) {
@@ -145,35 +150,46 @@
         };
         $scope.doSignup = function() {
           var logoutPromise;
-          logoutPromise = $kinvey.User.logout();
-          return logoutPromise.then(function() {
-            var formData, signup_promise;
-            formData = {
-              username: $scope.signupData.username.toLowerCase(),
-              password: $scope.signupData.password,
-              email: $scope.signupData.username.toLowerCase(),
-              language: $scope.signupData.language._id,
-              speed: 1
-            };
-            signup_promise = $kinvey.User.signup(formData);
-            return signup_promise.then(function(activeUser) {
-              $rootScope.activeUser = activeUser;
-              return $rootScope.getUserBooks().then(function() {
-                var data;
-                data = {
-                  "username": $rootScope.activeUser.email
-                };
-                return $http.post(askiiUrl + '/users?key=' + askiiKey, data).success(function(data, status, headers, config) {
-                  var loginEvent;
-                  console.log(data);
-                  $rootScope.activeUser.askiiUser = data;
-                  loginEvent = 'loginEvent';
-                  $scope.$broadcast(loginEvent);
-                  $scope.closeSignup();
-                }).error(function(data, status, headers, config) {});
+          if ($scope.signupData.betaPassphrase === betaPassphrase) {
+            logoutPromise = $kinvey.User.logout();
+            return logoutPromise.then((function() {
+              var formData, signup_promise;
+              formData = {
+                username: $scope.signupData.username.toLowerCase(),
+                password: $scope.signupData.password,
+                email: $scope.signupData.username.toLowerCase(),
+                language: $scope.signupData.language._id,
+                speed: 1
+              };
+              signup_promise = $kinvey.User.signup(formData);
+              return signup_promise.then((function(activeUser) {
+                $rootScope.activeUser = activeUser;
+                return $rootScope.getUserBooks().then(function() {
+                  var data;
+                  data = {
+                    "username": $rootScope.activeUser.email
+                  };
+                  return $http.post(askiiUrl + '/users?key=' + askiiKey, data).success(function(data, status, headers, config) {
+                    var loginEvent;
+                    console.log(data);
+                    $rootScope.activeUser.askiiUser = data;
+                    loginEvent = 'loginEvent';
+                    $scope.$broadcast(loginEvent);
+                    $scope.closeSignup();
+                  }).error(function(data, status, headers, config) {
+                    console.log('wrong login');
+                    $scope.errorMessage = "Sorry! Please try again.";
+                  });
+                });
+              }), function(error) {
+                $scope.errorMessage = "Sorry! Please try again.";
               });
+            }), function(error) {
+              $scope.errorMessage = "Sorry! Please try again.";
             });
-          });
+          } else {
+            $scope.errorMessage = "Sorry! Incorrect passphrase.";
+          }
         };
         if (kinveyUser) {
           if (kinveyUser.username === "user") {

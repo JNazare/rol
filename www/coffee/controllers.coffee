@@ -36,7 +36,8 @@ app.controller('AppCtrl', [
   "$http"
   "askiiKey"
   "askiiUrl"
-  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl) ->
+  "betaPassphrase"
+  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl, betaPassphrase) ->
     
     console.log 'in app ctrl'
 
@@ -67,11 +68,13 @@ app.controller('AppCtrl', [
         $rootScope.books = []
         query = new $kinvey.Query()
         query.contains("sharedWith", [$rootScope.activeUser._id])
-        promise = $kinvey.DataStore.find( "Books", query )
+        # promise = $kinvey.DataStore.find( "Books", query )
+        promise = $kinvey.DataStore.find( "Books" )
         promise.then (books) ->
           $rootScope.books = books
 
       $scope.openLogin = ->
+        $scope.errorMessage = null
         $scope.loginmodal.show()
         return
 
@@ -84,6 +87,7 @@ app.controller('AppCtrl', [
         return
 
       $scope.openSignup = ->
+        $scope.errorMessage = null
         $scope.loginmodal.hide()
 
         getAllLanguages = ->
@@ -117,13 +121,12 @@ app.controller('AppCtrl', [
               username : $scope.loginData.username.toLowerCase()
               password: $scope.loginData.password
             })
-          promise.then (activeUser) ->
+          promise.then ((activeUser) ->
             $rootScope.activeUser = activeUser
             $rootScope.getUserBooks().then () ->
 
               $http.get( askiiUrl+'/users/username/'+$rootScope.activeUser.username+'?key='+askiiKey ).success((data, status, headers, config) ->
                 
-                console.log data
                 $rootScope.activeUser.askiiUser = data
                 # this callback will be called asynchronously
                 # when the response is available
@@ -136,9 +139,10 @@ app.controller('AppCtrl', [
               ).error (data, status, headers, config) ->
                 # called asynchronously if an error occurs
                 # or server returns response with an error status.
+                $scope.errorMessage = "Sorry! Please try again."
                 return
-
-
+          ), (error) ->
+            $scope.errorMessage = "Sorry! Please try again."
             return
 
         if $kinvey.getActiveUser()
@@ -148,38 +152,49 @@ app.controller('AppCtrl', [
           logIntoKinvey()
 
       $scope.doSignup = ->
+        if $scope.signupData.betaPassphrase == betaPassphrase
+          logoutPromise = $kinvey.User.logout()
+          logoutPromise.then (() ->
+            formData = {
+              username: $scope.signupData.username.toLowerCase()
+              password: $scope.signupData.password
+              email: $scope.signupData.username.toLowerCase()
+              language: $scope.signupData.language._id
+              speed: 1
+            }
+            signup_promise = $kinvey.User.signup(formData)
+            signup_promise.then ((activeUser) ->
+              $rootScope.activeUser = activeUser
+              $rootScope.getUserBooks().then () ->
 
-        logoutPromise = $kinvey.User.logout()
-        logoutPromise.then () ->
-          formData = {
-            username: $scope.signupData.username.toLowerCase()
-            password: $scope.signupData.password
-            email: $scope.signupData.username.toLowerCase()
-            language: $scope.signupData.language._id
-            speed: 1
-          }
-          signup_promise = $kinvey.User.signup(formData)
-          signup_promise.then (activeUser) ->
-            $rootScope.activeUser = activeUser
-            $rootScope.getUserBooks().then () ->
+                data = {"username": $rootScope.activeUser.email}
+                $http.post( askiiUrl+'/users?key='+askiiKey, data ).success((data, status, headers, config) ->
+                  
+                  console.log data
+                  $rootScope.activeUser.askiiUser = data
+                  # this callback will be called asynchronously
+                  # when the response is available
 
-              data = {"username": $rootScope.activeUser.email}
-              $http.post( askiiUrl+'/users?key='+askiiKey, data ).success((data, status, headers, config) ->
-                
-                console.log data
-                $rootScope.activeUser.askiiUser = data
-                # this callback will be called asynchronously
-                # when the response is available
+                  loginEvent = 'loginEvent'
+                  $scope.$broadcast(loginEvent)
+                  $scope.closeSignup()
 
-                loginEvent = 'loginEvent'
-                $scope.$broadcast(loginEvent)
-                $scope.closeSignup()
-
-                return
-              ).error (data, status, headers, config) ->
-                # called asynchronously if an error occurs
-                # or server returns response with an error status.
-                return
+                  return
+                ).error (data, status, headers, config) ->
+                  # called asynchronously if an error occurs
+                  # or server returns response with an error status.
+                  console.log 'wrong login'
+                  $scope.errorMessage = "Sorry! Please try again."
+                  return
+            ), (error) ->
+              $scope.errorMessage = "Sorry! Please try again."
+              return
+          ), (error) ->
+            $scope.errorMessage = "Sorry! Please try again."
+            return
+        else
+          $scope.errorMessage = "Sorry! Incorrect passphrase."
+          return
 
       if kinveyUser
         if kinveyUser.username == "user"
