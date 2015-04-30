@@ -129,8 +129,13 @@ div.define-subfooter{
 }
 
 div.translation-text{
-	font-size: 22px;
+	font-size: 16px;
+  	font-weight: bold;
 	padding-top: 10px;
+}
+
+button.save-word-button{
+	font-size: 16px;
 }
 
 span.word{
@@ -170,6 +175,13 @@ div.item.less-padding{
 	white-space: pre-line;
 }
 
+div.book-title{
+	font-size: 20px;
+  	vertical-align: middle;
+  	background-color: #f5f5f5;
+  	border: 1px solid #ddd;
+}
+
 /*Emily's CSS*/
 
 .no-shadow{
@@ -178,7 +190,7 @@ div.item.less-padding{
 
 /* sub-footer in practice.html */
 .practice-button{
-	padding: 0px 10px 60px 10px;
+	padding-top: 5px !important;
 }
 
 /* English font (blue) */
@@ -226,4 +238,10 @@ span.right-answer{
 /*yellow block for current question */
 .this-progress-block{
 	background: #FFCC00;
+}
 
+.filter-button-bar-container {
+  padding-left: 50px;
+  padding-right: 50px;
+  padding-top: 20px;
+}
