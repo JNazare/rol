@@ -502,11 +502,16 @@ app.controller('ReviewCtrl', [
       return
 
     $scope.showPopup = (vocab) ->
-      console.log 'in showPopup function' + vocab
+      length_selected_word = vocab.answer.length
+      fill_in_text = Array(length_selected_word).join("_")
+      splitQuestion = vocab.question.split(fill_in_text)
+      question_string = '<p>' + splitQuestion[0] + '<span class="english">' + vocab.answer + '</span>'+ splitQuestion[1] + '</p>'
+      console.log question_string
       alertPopup = $ionicPopup.alert (
-        title: vocab.english
-        subTitle: vocab.defn
-        template: '(sentence in context)')
+        title: vocab.answer
+        subTitle: vocab.hint
+        template: question_string
+      )
       return
   ]
 )
