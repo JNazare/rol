@@ -15,6 +15,22 @@ dataURItoBlob = (dataURI) ->
     i++
   new Blob([ new Uint8Array(array) ], type: 'image/jpeg')
 
+uniq = (a) ->
+  seen = {}
+  a.filter (item) ->
+    if seen.hasOwnProperty(item) then false else (seen[item] = true)
+
+uniqueObjects = (a) ->
+  arr = {}
+  i = 0
+  while i < a.length
+    arr[a[i]['answer']] = a[i]
+    i++
+  a = new Array
+  for key of arr
+    a.push arr[key]
+  return a
+
 app = angular.module('app')
 
 app.filter 'splitParagraphs', ->
@@ -436,12 +452,16 @@ app.controller('ReviewCtrl', [
   "askiiUrl"
   "askiiKey"
   "$http"
-  ($scope, $ionicPopup, askiiUrl, askiiKey, $http) ->
+  "$rootScope"
+  ($scope, $ionicPopup, askiiUrl, askiiKey, $http, $rootScope) ->
     console.log 'in review ctrl'
+    userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
 
-    $http.get( askiiUrl+'/questions?key='+askiiKey ).success((data, status, headers, config) ->
+    $http.get( askiiUrl+'/questions?key='+askiiKey+'&creator='+userId).success((data, status, headers, config) ->
                 
       $scope.vocablist = data.questions
+      $scope.allUniqueVocab = uniqueObjects($scope.vocablist)
+      # add this to template
 
       organizedBooks = (allQuestions) ->
         organizedByBook = {}
@@ -451,6 +471,8 @@ app.controller('ReviewCtrl', [
               organizedByBook[question.book] = [question]
             else
               organizedByBook[question.book].push(question)
+        for bookTitle, bookObj of organizedByBook
+          organizedByBook[bookTitle] = uniqueObjects(bookObj)
         return organizedByBook
 
       $scope.organizedByBook = organizedBooks( $scope.vocablist )
@@ -551,10 +573,8 @@ app.controller('PracticeCtrl', [
         toRemove = findQuestionIndex($scope.allQuestions, $scope.nextQuestion)
         $scope.allQuestions.splice(toRemove, 1)
         $scope.allQuestions = findAllRepeats($scope.allQuestions, $scope.nextQuestion)
-        # console.log $scope.allQuestions
-
+        $scope.allQuestions = uniqueObjects( $scope.allQuestions )
         $scope.possibleAnswers = joinAnswers($scope.allQuestions, $scope.nextQuestion)
-        # console.log $scope.possibleAnswers
         
         return
         

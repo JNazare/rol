@@ -13,7 +13,7 @@
       <!-- Display ALL words (default view) -->
       <div class="list card no-shadow" ng-if="displayAll">
         <ul>
-          <div class="button button-block" ng-repeat="vocab in vocablist" ng-click="showPopup(vocab)">
+          <div class="button button-block" ng-repeat="vocab in allUniqueVocab" ng-click="showPopup(vocab)">
             <center><span class="english">{{vocab.answer}}</span> - <span class="defn">{{vocab.hint}}</span></center>
           </div>
         </ul>
@@ -43,8 +43,11 @@
   <!-- SUB-FOOTER: go to Practice page -->
   <!-- How to make button flow smoothly into background? "practice-button" class in CSS -->
   <div class="bar bar-subfooter practice-button">
-    <a class="button button-block button-balanced" ng-href="#/practice/0">
+    <a class="button button-block button-balanced" ng-href="#/practice/0" ng-if="allUniqueVocab.length > 3">
       PRACTICE
+    </a>
+    <a class="button button-block button-clear" ng-if="allUniqueVocab.length <= 3">
+      You need to save 3 words to practice.
     </a>
   </div>
 

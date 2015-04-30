@@ -47,7 +47,7 @@
         {{selected_word}} <i ng-if="selected_word" class="icon ion-arrow-swap"></i> {{translated_word}}
       </div>
       <div class="col-10" ng-if="translated_word">
-        <button class="button button-clear button-energized save-word-button" ng-click="createReviewQuestion(selected_word, pageIndex)" ng-class="{'icon ion-ios-star': savedWord, 'icon ion-ios-star-outline': !savedWord}"></button>
+        <button class="button button-clear button-energized save-word-button" ng-click="savedWord || createReviewQuestion(selected_word, pageIndex)" ng-class="{'icon ion-ios-star': savedWord, 'icon ion-ios-star-outline': !savedWord}" ng-disabled='{{savedWord}}'></button>
       </div>
    </div>
   </div>
