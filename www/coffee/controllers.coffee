@@ -53,9 +53,18 @@ app.controller('AppCtrl', [
   "askiiKey"
   "askiiUrl"
   "betaPassphrase"
-  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl, betaPassphrase) ->
+  "$ionicLoading"
+  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl, betaPassphrase, $ionicLoading) ->
     
     console.log 'in app ctrl'
+
+    $rootScope.startLoading = ->
+      $ionicLoading.show template: 'Loading...'
+      return
+
+    $rootScope.doneLoading = ->
+      $ionicLoading.hide()
+      return
 
     $scope.loginData = {}
     $scope.signupData = {}
@@ -87,11 +96,15 @@ app.controller('AppCtrl', [
         # promise = $kinvey.DataStore.find( "Books", query )
         promise = $kinvey.DataStore.find( "Books" )
         promise.then (books) ->
+          for book in books
+            if book._acl.creator == $rootScope.activeUser._id
+              book["editable"]=true
           $rootScope.books = books
 
       $scope.openLogin = ->
         $scope.errorMessage = null
         $scope.loginmodal.show()
+        $rootScope.doneLoading()
         return
 
       $scope.closeLogin = ->
@@ -123,6 +136,7 @@ app.controller('AppCtrl', [
             )
           promise.then (tempUser) ->
             getAllLanguages()
+        $rootScope.doneLoading()
 
       $scope.logout = ->
         $kinvey.User.logout().then () ->
@@ -252,7 +266,7 @@ app.controller('ReadCtrl', [
   "$location"
   ($rootScope, $scope, $kinvey, $stateParams, $location) ->
     console.log 'in read ctrl'
-
+    $rootScope.startLoading()
     $scope.redirectToEdit = (editUrl) ->
       $location.path(editUrl)
 
@@ -264,6 +278,7 @@ app.controller('ReadCtrl', [
       books_to_chunk = $scope.books
       books_to_chunk.unshift(add_book)
       $rootScope.libraryLayout = chunk(books_to_chunk, 3)
+      $rootScope.doneLoading()
       # $rootScope.libraryLayout.unshift(add_book)
       return
     return
@@ -280,6 +295,7 @@ app.controller('PlayerCtrl', [
   "askiiUrl"
   "askiiKey"
   ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey) ->
+    $rootScope.startLoading()
     pageQuery = new $kinvey.Query()    
     pageQuery.equalTo('bookId', $stateParams.bookId)
     bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
@@ -299,6 +315,7 @@ app.controller('PlayerCtrl', [
         promise = $kinvey.DataStore.get('Languages', $rootScope.activeUser.language)
         promise.then ( translationLanguage ) ->
           $scope.translationLanguage = translationLanguage
+          $rootScope.doneLoading()
 
     $scope.currentSlide = 0
     $scope.playing = false
@@ -402,6 +419,7 @@ app.controller('PlayerCtrl', [
       return
 
     $scope.define = (word, index) ->
+      $rootScope.startLoading()
       $scope.savedWord = false # hacky, fix this
 
       $scope.pageIndex = index
@@ -419,6 +437,8 @@ app.controller('PlayerCtrl', [
         defineUtterance2.text = $scope.translated_word
         defineUtterance2.lang = $scope.translationLanguage._id
         defineUtterance2.localService = true
+
+        $rootScope.doneLoading()
 
         speechSynthesis.speak defineUtterance1
 
@@ -470,6 +490,7 @@ app.controller('ReviewCtrl', [
   "$rootScope"
   ($scope, $ionicPopup, askiiUrl, askiiKey, $http, $rootScope) ->
     console.log 'in review ctrl'
+    $rootScope.startLoading()
     userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
     console.log userId
 
@@ -494,7 +515,7 @@ app.controller('ReviewCtrl', [
         return organizedByBook
 
       $scope.organizedByBook = organizedBooks( $scope.vocablist )
-
+      $rootScope.doneLoading()
       return
     ).error (data, status, headers, config) ->
       # called asynchronously if an error occurs
@@ -570,19 +591,21 @@ app.controller('PracticeCtrl', [
       return
 
     # 'for interacting with progress bar (blocks)'
+    $rootScope.startLoading()
     $scope.questionNum = $stateParams.practiceNum
     $scope.blockList = [0,1,2,3,4,5,6,7,8,9]
+    userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
 
-    $http.get( askiiUrl+'/questions?key='+askiiKey ).success((data, status, headers, config) ->
+    $http.get( askiiUrl+'/questions?creator='+userId+'&key='+askiiKey ).success((data, status, headers, config) ->
       
       # console.log data
 
       $scope.allQuestions = data["questions"]
       # console.log $scope.allQuestions
-      userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
+      
       data = {"count": $stateParams.practiceNum.toString() }
 
-      $http.post( askiiUrl+'/next/'+userId+'?key='+askiiKey, data ).success((data, status, headers, config) ->
+      $http.post( askiiUrl+'/next/'+userId+'?creator='+userId+'&key='+askiiKey, data ).success((data, status, headers, config) ->
         
         $scope.nextQuestion = data
         length_selected_word = $scope.nextQuestion.answer.length
@@ -593,7 +616,7 @@ app.controller('PracticeCtrl', [
         $scope.allQuestions = findAllRepeats($scope.allQuestions, $scope.nextQuestion)
         $scope.allQuestions = uniqueObjects( $scope.allQuestions )
         $scope.possibleAnswers = joinAnswers($scope.allQuestions, $scope.nextQuestion)
-        
+        $rootScope.doneLoading()
         return
         
       ).error (data, status, headers, config) ->
@@ -651,6 +674,7 @@ app.controller('PracticeCtrl', [
             template: question.answer + ' = ' + question.hint
             buttons: [{
               text: 'Next'
+              type: 'button-balanced'
               onTap: () ->
                 for word in $scope.possibleAnswers
                   delete word["clicked"]
