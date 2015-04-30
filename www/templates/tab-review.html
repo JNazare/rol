@@ -1,12 +1,14 @@
 <ion-view view-title="My Words" ng-controller="ReviewCtrl">
 
-  <ion-content>
+  <ion-content class="has-footer">
 
     <!-- BUTTON BAR -->
     <!-- Question: change color/style? -->
-    <div class="button-bar">
-      <a class="button" ng-click="displayAll = true">ALL</a>
-      <a class="button" ng-click="displayAll = false">BY BOOK</a>
+    <div class="filter-button-bar-container">
+      <div class="button-bar filter-button-bar">
+        <a class="button button-small button-stable" ng-click="displayAll = true">ALL</a>
+        <a class="button button-small button-stable" ng-click="displayAll = false">BY BOOK</a>
+      </div>
     </div>
 
     <!-- <div class="item item-body" ng-init="displayAll = true">          -->
@@ -42,10 +44,13 @@
 
   <!-- SUB-FOOTER: go to Practice page -->
   <!-- How to make button flow smoothly into background? "practice-button" class in CSS -->
-  <div class="bar bar-subfooter practice-button bar-balanced" ng-if="allUniqueVocab.length > 3">
-    <a class="title" ng-href="#/practice/0" >Practice</a>
+  <div class="bar bar-footer bar-balanced" ng-if="allUniqueVocab.length > 3">
+    <a class="button button-clear practice-button title" ng-href="#/practice/0"><strong>Practice</strong></a>
   </div>
-  <div class="bar bar-subfooter practice-button bar-balanced" ng-if="allUniqueVocab.length <= 3">
+  <!-- <div class="bar bar-footer practice-button bar-balanced" >
+    <a class="title" >Practice</a>
+  </div> -->
+  <div class="bar bar-footer practice-button bar-balanced" ng-if="allUniqueVocab.length <= 3">
     <div class="title">You need to save 3 words to practice.</div>
   </div>
 

@@ -190,7 +190,7 @@ div.book-title{
 
 /* sub-footer in practice.html */
 .practice-button{
-	padding: 0px 10px 60px 10px;
+	padding-top: 5px !important;
 }
 
 /* English font (blue) */
@@ -238,5 +238,10 @@ span.right-answer{
 /*yellow block for current question */
 .this-progress-block{
 	background: #FFCC00;
+}
 
-
+.filter-button-bar-container {
+  padding-left: 50px;
+  padding-right: 50px;
+  padding-top: 20px;
+}
