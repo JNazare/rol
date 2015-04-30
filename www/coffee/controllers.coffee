@@ -389,7 +389,7 @@ app.controller('PlayerCtrl', [
       length_selected_word = $scope.selected_word.length
       fill_in_text = Array(length_selected_word).join("_")
       question_text = $scope.pages[index].text.replace($scope.selected_word, fill_in_text)
-      answer_text = $scope.selected_word
+      answer_text = $scope.selected_word.toLowerCase()
       hint_text = $scope.translated_word
 
       console.log $rootScope.activeUser.askiiUser
