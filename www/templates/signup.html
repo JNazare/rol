@@ -8,13 +8,16 @@
   <ion-content>
 	<form ng-submit="doSignup()">
 	  <div class="list">
+	  	<label class="item" ng-if="errorMessage">
+          {{errorMessage}}
+        </label>
 	    <label class="item item-input">
 	      <span class="input-label">Email</span>
-	      <input type="email" ng-model="signupData.username">
+	      <input type="email" ng-model="signupData.username" required>
 	    </label>
 	    <label class="item item-input">
 	      <span class="input-label">Password</span>
-	      <input type="password" ng-model="signupData.password">
+	      <input type="password" ng-model="signupData.password" required>
 	    </label>
 	    <label class="item item-input item-select">
 		    <div class="input-label">
@@ -22,9 +25,14 @@
 		    </div>
 		    <select 
 				ng-model="signupData.language" 
-				ng-options="language.name for language in listOfLanguages track by language._id">
+				ng-options="language.name for language in listOfLanguages track by language._id"
+				required>
 			</select>
-		  </label>
+		</label>
+		<label class="item item-input">
+	      <span class="input-label">Beta Passphrase</span>
+	      <input type="text" ng-model="signupData.betaPassphrase" required>
+	    </label>
 	    <label class="item">
 	      <button class="button button-block button-positive" type="submit">Sign Up</button>
 	    </label>
