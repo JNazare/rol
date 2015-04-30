@@ -223,10 +223,15 @@
             $scope.openLogin();
           } else {
             $rootScope.activeUser = kinveyUser;
-            return $rootScope.getUserBooks().then(function() {
-              var loginEvent;
-              loginEvent = 'loginEvent';
-              $scope.$broadcast(loginEvent);
+            return $http.get(askiiUrl + '/users/username/' + $rootScope.activeUser.username + '?key=' + askiiKey).success(function(data, status, headers, config) {
+              $rootScope.activeUser.askiiUser = data;
+              $rootScope.getUserBooks().then(function() {
+                var loginEvent;
+                loginEvent = 'loginEvent';
+                $scope.$broadcast(loginEvent);
+              });
+            }).error(function(data, status, headers, config) {
+              $scope.openLogin();
             });
           }
         } else {
@@ -416,8 +421,11 @@
       var userId;
       console.log('in review ctrl');
       userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0];
+      console.log(userId);
       $http.get(askiiUrl + '/questions?key=' + askiiKey + '&creator=' + userId).success(function(data, status, headers, config) {
         var organizedBooks;
+        console.log(data);
+        console.log(data.questions);
         $scope.vocablist = data.questions;
         $scope.allUniqueVocab = uniqueObjects($scope.vocablist);
         organizedBooks = function(allQuestions) {

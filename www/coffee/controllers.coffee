@@ -218,10 +218,25 @@ app.controller('AppCtrl', [
           return
         else 
           $rootScope.activeUser = kinveyUser
-          $rootScope.getUserBooks().then () ->
-            loginEvent = 'loginEvent'
-            $scope.$broadcast(loginEvent)
+
+          $http.get( askiiUrl+'/users/username/'+$rootScope.activeUser.username+'?key='+askiiKey ).success((data, status, headers, config) ->
+                
+            $rootScope.activeUser.askiiUser = data
+            # this callback will be called asynchronously
+            # when the response is available
+
+            $rootScope.getUserBooks().then () ->
+              loginEvent = 'loginEvent'
+              $scope.$broadcast(loginEvent)
+              return
+
             return
+          ).error (data, status, headers, config) ->
+            # called asynchronously if an error occurs
+            # or server returns response with an error status.
+            $scope.openLogin()
+            return
+
       else
         $scope.openLogin()
         return
@@ -456,9 +471,12 @@ app.controller('ReviewCtrl', [
   ($scope, $ionicPopup, askiiUrl, askiiKey, $http, $rootScope) ->
     console.log 'in review ctrl'
     userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
+    console.log userId
 
     $http.get( askiiUrl+'/questions?key='+askiiKey+'&creator='+userId).success((data, status, headers, config) ->
-                
+      
+      console.log data
+      console.log data.questions
       $scope.vocablist = data.questions
       $scope.allUniqueVocab = uniqueObjects($scope.vocablist)
       # add this to template

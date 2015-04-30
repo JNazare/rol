@@ -42,13 +42,11 @@
 
   <!-- SUB-FOOTER: go to Practice page -->
   <!-- How to make button flow smoothly into background? "practice-button" class in CSS -->
-  <div class="bar bar-subfooter practice-button">
-    <a class="button button-block button-balanced" ng-href="#/practice/0" ng-if="allUniqueVocab.length > 3">
-      PRACTICE
-    </a>
-    <a class="button button-block button-clear" ng-if="allUniqueVocab.length <= 3">
-      You need to save 3 words to practice.
-    </a>
+  <div class="bar bar-footer bar-balanced" ng-href="#/practice/0" ng-if="allUniqueVocab.length > 3">
+    <div class="title">Practice</div>
+  </div>
+  <div class="bar bar-footer" ng-if="allUniqueVocab.length <= 3">
+    <div class="title">You need to save 3 words to practice.</div>
   </div>
 
 
