@@ -9,26 +9,29 @@
       </div>
     </div>
 
-      <div class="list card no-shadow" ng-if="displayAll">
-        <ul>
-          <div class="button button-block" ng-repeat="vocab in allUniqueVocab" ng-click="showPopup(vocab)">
+    <div class="spacer">
+      <ion-list ng-if="displayAll" can-swipe="true">
+          <ion-item ng-repeat="vocab in allUniqueVocab" ng-click="showPopup(vocab)">
             <center><span class="english">{{vocab.answer}}</span> - <span class="defn">{{vocab.hint}}</span></center>
-          </div>
-        </ul>
+            <ion-option-button class="button-assertive" ng-click="deleteQuestion(vocab); allUniqueVocab.splice($index, 1);">
+              Delete
+            </ion-option-button>
+          </ion-item>
+      </ion-list>
 
-      </div>
-
-      <div ng-if="!displayAll">
-        <div class="list card" ng-repeat="(bookTitle, book) in organizedByBook">
-          <div class="item item-avatar book-title">
-            <img ng-if="book[0].bookImage" ng-src="{{book[0].bookImage}}">
-            <strong> {{bookTitle}} </strong>
-          </div>
-          <div class="item" ng-repeat="vocab in book" ng-click="showPopup(vocab)">
-            <center><span class="english">{{vocab.answer}}</span> - <span class="defn">{{vocab.hint}}</span></center>
-          </div>
-        </div>
-      </div>
+      <!-- <ion-list ng-repeat="(bookTitle, book) in organizedByBook" ng-if="!displayAll" can-swipe="true">
+        <ion-item class="item item-avatar book-title" can-swipe="false">
+          <img ng-if="book[0].bookImage" ng-src="{{book[0].bookImage}}">
+          <strong> {{bookTitle}} </strong>
+        </ion-item>
+        <ion-item ng-repeat="vocab in book" ng-click="showPopup(vocab)">
+          <center><span class="english">{{vocab.answer}}</span> - <span class="defn">{{vocab.hint}}</span></center>
+          <ion-option-button class="button-assertive" ng-click="">
+            Delete
+          </ion-option-button>
+        </ion-item>
+      </ion-list> -->
+    </div>
 
     <!-- </div>  -->
     <!-- closes item-body -->

@@ -24,6 +24,7 @@ uniqueObjects = (a) ->
   arr = {}
   i = 0
   while i < a.length
+    a[i]['answer'] = a[i]['answer'].toLowerCase()
     arr[a[i]['answer']] = a[i]
     i++
   a = new Array
@@ -106,6 +107,21 @@ app.controller('AppCtrl', [
             if book._acl.creator == $rootScope.activeUser._id
               book["editable"]=true
           $rootScope.books = books
+
+      $rootScope.getReviewQuestions = ->
+        userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
+        $http.get( askiiUrl+'/questions?key='+askiiKey+'&creator='+userId).success((data, status, headers, config) ->
+      
+          console.log data
+          console.log data.questions
+          $scope.vocablist = data.questions
+          $scope.allUniqueVocab = uniqueObjects($scope.vocablist)
+          
+          return $scope.allUniqueVocab
+        ).error (data, status, headers, config) ->
+          # called asynchronously if an error occurs
+          # or server returns response with an error status.
+          return 'error'
 
       $scope.openLogin = ->
         $scope.errorMessage = null
@@ -419,6 +435,7 @@ app.controller('PlayerCtrl', [
       console.log index
       length_selected_word = $scope.selected_word.length
       fill_in_text = Array(length_selected_word).join("_")
+      console.log $scope.selected_word
       question_text = $scope.pages[index].text.replace($scope.selected_word, fill_in_text)
       answer_text = $scope.selected_word
       hint_text = $scope.translated_word
@@ -439,6 +456,7 @@ app.controller('PlayerCtrl', [
       $http.post( askiiUrl+'/questions?key='+askiiKey, new_question ).success((data, status, headers, config) ->
               
         console.log data
+        $rootScope.getReviewQuestions()
         # this callback will be called asynchronously
         # when the response is available
 
@@ -454,7 +472,7 @@ app.controller('PlayerCtrl', [
       $scope.savedWord = false # hacky, fix this
 
       $scope.pageIndex = index
-      selected_word = word.trim().replace(/["\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "").toLowerCase()
+      selected_word = word.trim().replace(/["\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
       link = askiiUrl + "/en/" + $scope.translationLanguage._id + "/" + selected_word
       $http.get(link).success((translated_word, status, headers, config) ->
         
@@ -555,37 +573,38 @@ app.controller('ReviewCtrl', [
   "$rootScope"
   ($scope, $ionicPopup, askiiUrl, askiiKey, $http, $rootScope) ->
     console.log 'in review ctrl'
-    $rootScope.startLoading()
-    userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
-    console.log userId
+    $scope.displayAll = true
+    $rootScope.getReviewQuestions()
+    # userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
+    # console.log userId
 
-    $http.get( askiiUrl+'/questions?key='+askiiKey+'&creator='+userId).success((data, status, headers, config) ->
+    # $http.get( askiiUrl+'/questions?key='+askiiKey+'&creator='+userId).success((data, status, headers, config) ->
       
-      console.log data
-      console.log data.questions
-      $scope.vocablist = data.questions
-      $scope.allUniqueVocab = uniqueObjects($scope.vocablist)
-      # add this to template
+    #   console.log data
+    #   console.log data.questions
+    #   $scope.vocablist = data.questions
+    #   $scope.allUniqueVocab = uniqueObjects($scope.vocablist)
+    #   # add this to template
 
-      organizedBooks = (allQuestions) ->
-        organizedByBook = {}
-        for question in allQuestions
-          if question.book 
-            if question.book not in Object.keys(organizedByBook)
-              organizedByBook[question.book] = [question]
-            else
-              organizedByBook[question.book].push(question)
-        for bookTitle, bookObj of organizedByBook
-          organizedByBook[bookTitle] = uniqueObjects(bookObj)
-        return organizedByBook
+    #   organizedBooks = (allQuestions) ->
+    #     organizedByBook = {}
+    #     for question in allQuestions
+    #       if question.book 
+    #         if question.book not in Object.keys(organizedByBook)
+    #           organizedByBook[question.book] = [question]
+    #         else
+    #           organizedByBook[question.book].push(question)
+    #     for bookTitle, bookObj of organizedByBook
+    #       organizedByBook[bookTitle] = uniqueObjects(bookObj)
+    #     return organizedByBook
 
-      $scope.organizedByBook = organizedBooks( $scope.vocablist )
-      $rootScope.doneLoading()
-      return
-    ).error (data, status, headers, config) ->
-      # called asynchronously if an error occurs
-      # or server returns response with an error status.
-      return
+    #   $scope.organizedByBook = organizedBooks( $scope.vocablist )
+    #   $rootScope.doneLoading()
+    #   return
+    # ).error (data, status, headers, config) ->
+    #   # called asynchronously if an error occurs
+    #   # or server returns response with an error status.
+    #   return
 
     $scope.showPopup = (vocab) ->
       length_selected_word = vocab.answer.length
@@ -597,6 +616,21 @@ app.controller('ReviewCtrl', [
         title: vocab.answer
         subTitle: vocab.hint
         template: splitQuestionString)
+      return
+
+    $scope.deleteQuestion = (vocab) ->
+      userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
+      questionId = vocab.uri.split("/").slice(-1)[0]
+      console.log userId, questionId
+      $http.delete( askiiUrl+'/questions/'+questionId+'?key='+askiiKey+'&creator='+userId).success((data, status, headers, config) ->
+        promise = $rootScope.getReviewQuestions()
+        promise.then (questions) ->
+          $scope.allQuestions = questions.data.questions
+        return
+      ).error (data, status, headers, config) ->
+        # called asynchronously if an error occurs
+        # or server returns response with an error status.
+        return
       return
   ]
 )
@@ -665,19 +699,19 @@ app.controller('PracticeCtrl', [
     $scope.blockList = [0,1,2,3,4,5,6,7,8,9]
     userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
 
-    $http.get( askiiUrl+'/questions?creator='+userId+'&key='+askiiKey ).success((data, status, headers, config) ->
-      
-      # console.log data
-
-      $scope.allQuestions = data["questions"]
-      # console.log $scope.allQuestions
+    promise = $rootScope.getReviewQuestions()
+    promise.then (questions) ->
+      $scope.allQuestions = questions.data.questions
+      # console.log $scope.allQuestions.data.questions
       
       data = {"count": $stateParams.practiceNum.toString() }
 
       $http.post( askiiUrl+'/next/'+userId+'?creator='+userId+'&key='+askiiKey, data ).success((data, status, headers, config) ->
         
         $scope.nextQuestion = data
+        console.log data
         length_selected_word = $scope.nextQuestion.answer.length
+        console.log length_selected_word
         fill_in_text = Array(length_selected_word).join("_")
         $scope.nextQuestion["splitQuestion"] = $scope.nextQuestion.question.split(fill_in_text)
         toRemove = findQuestionIndex($scope.allQuestions, $scope.nextQuestion)
@@ -693,12 +727,18 @@ app.controller('PracticeCtrl', [
         # or server returns response with an error status.
         return
 
-      return
+    # $http.get( askiiUrl+'/questions?creator='+userId+'&key='+askiiKey ).success((data, status, headers, config) ->
+      
+    #   # console.log data
 
-    ).error (data, status, headers, config) ->
-      # called asynchronously if an error occurs
-      # or server returns response with an error status.
-      return
+      
+
+    #   return
+
+    # ).error (data, status, headers, config) ->
+    #   # called asynchronously if an error occurs
+    #   # or server returns response with an error status.
+    #   return
 
     # 'if select incorrect, popup says try again'
     # 'if select correct, popup takes you to next question. Stop after 10 questions'
