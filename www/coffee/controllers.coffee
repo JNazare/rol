@@ -81,6 +81,12 @@ app.controller('AppCtrl', [
       $scope.signupmodal = signupmodal
       return
 
+    $ionicModal.fromTemplateUrl("templates/reset-password.html",
+      scope: $scope
+    ).then (forgotmodal) ->
+      $scope.forgotmodal = forgotmodal
+      return
+
     promise = $kinvey.init(
           appKey: kinveyKey
           appSecret: kinveySecret
@@ -107,12 +113,24 @@ app.controller('AppCtrl', [
         $rootScope.doneLoading()
         return
 
+      $scope.openForgotPassword = ->
+        $scope.errorMessage = null
+        $scope.forgotData = {}
+        $scope.forgotmodal.show()
+        $rootScope.doneLoading()
+        return
+
       $scope.closeLogin = ->
         $scope.loginmodal.hide()
         return
 
       $scope.closeSignup = ->
         $scope.signupmodal.hide()
+        return
+
+      $scope.closeForgotPassword = ->
+        $scope.checkEmailMessage = null
+        $scope.forgotmodal.hide()
         return
 
       $scope.openSignup = ->
@@ -137,6 +155,17 @@ app.controller('AppCtrl', [
           promise.then (tempUser) ->
             getAllLanguages()
         $rootScope.doneLoading()
+
+      $scope.doForgotPassword = ->
+        promise = $kinvey.User.resetPassword( $scope.forgotData.username )
+        promise.then ((response) ->
+          $scope.checkEmailMessage = "Please check your email for the reset link."
+          $scope.closeForgotPassword()
+          $scope.openLogin()
+          return
+        ), (err) ->
+          return
+        return
 
       $scope.logout = ->
         $kinvey.User.logout().then () ->
@@ -389,7 +418,7 @@ app.controller('PlayerCtrl', [
       length_selected_word = $scope.selected_word.length
       fill_in_text = Array(length_selected_word).join("_")
       question_text = $scope.pages[index].text.replace($scope.selected_word, fill_in_text)
-      answer_text = $scope.selected_word.toLowerCase()
+      answer_text = $scope.selected_word
       hint_text = $scope.translated_word
 
       console.log $rootScope.activeUser.askiiUser
@@ -423,8 +452,8 @@ app.controller('PlayerCtrl', [
       $scope.savedWord = false # hacky, fix this
 
       $scope.pageIndex = index
-      selected_word = word.trim().replace(/["\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
-      link = "https://translation-app.herokuapp.com/api/en/" + $scope.translationLanguage._id + "/" + selected_word
+      selected_word = word.trim().replace(/["\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "").toLowerCase()
+      link = askiiUrl + "/en/" + $scope.translationLanguage._id + "/" + selected_word
       $http.get(link).success((translated_word, status, headers, config) ->
         
         $scope.selected_word = selected_word
@@ -464,6 +493,13 @@ app.controller('SettingsCtrl', [
       return
     $scope.goBack = ->
       $ionicHistory.goBack()
+      return
+    $scope.resetPassword = (username) ->
+      promise = $kinvey.User.resetPassword(username)
+      promise.then ((response) ->
+        return
+      ), (err) ->
+        return
       return
     $scope.updateUser = ->
       promise = $kinvey.User.update($rootScope.activeUser)
