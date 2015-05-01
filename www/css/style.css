@@ -69,6 +69,10 @@ a.button.help-button {
 	display: block !important;
 }
 
+button.redefine-button{
+	margin-top: 5px;
+}
+
 
 div.box{
 	padding: 20px;

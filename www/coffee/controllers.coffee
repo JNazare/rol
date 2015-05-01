@@ -348,6 +348,8 @@ app.controller('PlayerCtrl', [
 
     $scope.currentSlide = 0
     $scope.playing = false
+    $scope.selected_word = null
+    $scope.translated_word = null
 
     playUtterance = new SpeechSynthesisUtterance
     defineUtterance1 = new SpeechSynthesisUtterance
@@ -474,6 +476,33 @@ app.controller('PlayerCtrl', [
         return
       ).error (data, status, headers, config) ->
         'error'
+      return
+
+    $scope.replay_definition = (english_word, translated_word) ->
+
+      if $scope.selected_word and $scope.translated_word
+        $rootScope.startLoading()
+
+        defineUtterance1.text = english_word
+        defineUtterance1.lang = "en"
+        defineUtterance1.localService = true
+
+        defineUtterance2.text = translated_word
+        defineUtterance2.lang = $scope.translationLanguage._id
+        defineUtterance2.localService = true
+
+        $rootScope.doneLoading()
+
+        speechSynthesis.speak defineUtterance1
+
+      else
+        notSelectedUtterance = new SpeechSynthesisUtterance
+        notSelectedUtterance.text = 'Click on a word to translate it'
+        notSelectedUtterance.lang = "en"
+        notSelectedUtterance.localService = true
+
+        speechSynthesis.speak notSelectedUtterance
+
       return
 
 
