@@ -2,8 +2,6 @@
 
   <ion-content class="has-footer">
 
-    <!-- BUTTON BAR -->
-    <!-- Question: change color/style? -->
     <div class="filter-button-bar-container">
       <div class="button-bar filter-button-bar">
         <a class="button button-small button-stable" ng-click="displayAll = true">ALL</a>
@@ -11,8 +9,6 @@
       </div>
     </div>
 
-    <!-- <div class="item item-body" ng-init="displayAll = true">          -->
-      <!-- Display ALL words (default view) -->
       <div class="list card no-shadow" ng-if="displayAll">
         <ul>
           <div class="button button-block" ng-repeat="vocab in allUniqueVocab" ng-click="showPopup(vocab)">
@@ -22,9 +18,6 @@
 
       </div>
 
-      <!-- Display BY BOOK: (1) Hansel & Gretel; (2) The Gingerbread Man -->
-      <!-- Have yet to make edits to this div.
-      NEXT: Insert images for books, give more padding -->
       <div ng-if="!displayAll">
         <div class="list card" ng-repeat="(bookTitle, book) in organizedByBook">
           <div class="item item-avatar book-title">
