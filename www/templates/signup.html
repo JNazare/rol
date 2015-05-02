@@ -2,7 +2,7 @@
   <ion-header-bar>
     <h1 class="title">Signup</h1>
     <div class="buttons">
-      <button class="button button-clear" ng-click="closeSignup(); openLogin()">Back to Login</button>
+      <button class="button button-clear" ng-click="closeSignup(); openLogin()" analytics-on analytics-event="Click - Back to Login from Signup" analytics-category="Commands">Back to Login</button>
     </div>
   </ion-header-bar>
   <ion-content>
@@ -13,13 +13,13 @@
         </label>
 	    <label class="item item-input">
 	      <span class="input-label">Email</span>
-	      <input type="email" ng-model="signupData.username" required>
+	      <input type="email" ng-model="signupData.username" required analytics-on analytics-event="Click - Input Username for Signup" analytics-category="Commands">
 	    </label>
 	    <label class="item item-input">
 	      <span class="input-label">Password</span>
-	      <input type="password" ng-model="signupData.password" required>
+	      <input type="password" ng-model="signupData.password" required analytics-on analytics-event="Click - Input Password for Signup" analytics-category="Commands">
 	    </label>
-	    <label class="item item-input item-select">
+	    <label class="item item-input item-select" analytics-on analytics-event="Click - Input Native Langauge for Signup" analytics-category="Commands">
 		    <div class="input-label">
 		      Native Language
 		    </div>
@@ -31,10 +31,10 @@
 		</label>
 		<label class="item item-input">
 	      <span class="input-label">Beta Passphrase</span>
-	      <input type="text" ng-model="signupData.betaPassphrase" required>
+	      <input type="text" ng-model="signupData.betaPassphrase" required analytics-on analytics-event="Click - Input Beta Passphrase for Signup" analytics-category="Commands">
 	    </label>
 	    <label class="item">
-	      <button class="button button-block button-positive" type="submit">Sign Up</button>
+	      <button class="button button-block button-positive" type="submit" analytics-on analytics-event="Click - Submit Signup" analytics-category="Commands">Sign Up</button>
 	    </label>
 	  </div>
 	</form>

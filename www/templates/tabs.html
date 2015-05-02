@@ -6,11 +6,11 @@ navigation history that also transitions its views in and out.
 
 <ion-tabs class="tabs-icon-top tabs-stable tabs-top">
 
-  <ion-tab title="Read" icon-off="ion-ios-book-outline" icon-on="ion-ios-book" href="#/library">
+  <ion-tab title="Read" icon-off="ion-ios-book-outline" icon-on="ion-ios-book" href="#/library" analytics-on analytics-event="Click - Library" analytics-category="Commands">
     <ion-nav-view name="tab-read"></ion-nav-view>
   </ion-tab>
 
-  <ion-tab title="Review" icon-off="ion-ios-glasses-outline" icon-on="ion-ios-glasses" href="#/review">
+  <ion-tab title="Review" icon-off="ion-ios-glasses-outline" icon-on="ion-ios-glasses" href="#/review" analytics-on analytics-event="Click - Review" analytics-category="Commands">
     <ion-nav-view name="tab-review"></ion-nav-view>
   </ion-tab>
 

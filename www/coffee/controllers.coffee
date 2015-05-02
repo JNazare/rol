@@ -55,7 +55,8 @@ app.controller('AppCtrl', [
   "askiiUrl"
   "betaPassphrase"
   "$ionicLoading"
-  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl, betaPassphrase, $ionicLoading) ->
+  "$analytics"
+  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl, betaPassphrase, $ionicLoading, $analytics) ->
     
     console.log 'in app ctrl'
 
@@ -124,12 +125,14 @@ app.controller('AppCtrl', [
           return 'error'
 
       $scope.openLogin = ->
+        $analytics.eventTrack('Open - Login', {  category: 'Page View' })
         $scope.errorMessage = null
         $scope.loginmodal.show()
         $rootScope.doneLoading()
         return
 
       $scope.openForgotPassword = ->
+        $analytics.eventTrack('Open - Forgot Password', {  category: 'Page View' })
         $scope.errorMessage = null
         $scope.forgotData = {}
         $scope.forgotmodal.show()
@@ -150,6 +153,7 @@ app.controller('AppCtrl', [
         return
 
       $scope.openSignup = ->
+        $analytics.eventTrack('Open - Signup', {  category: 'Page View' })
         $scope.errorMessage = null
         $scope.loginmodal.hide()
 
@@ -198,6 +202,8 @@ app.controller('AppCtrl', [
             })
           promise.then ((activeUser) ->
             $rootScope.activeUser = activeUser
+            $analytics.setUsername($rootScope.activeUser._id.toString())
+
             $rootScope.getUserBooks().then () ->
 
               $http.get( askiiUrl+'/users/username/'+$rootScope.activeUser.username+'?key='+askiiKey ).success((data, status, headers, config) ->
@@ -240,6 +246,8 @@ app.controller('AppCtrl', [
             signup_promise = $kinvey.User.signup(formData)
             signup_promise.then ((activeUser) ->
               $rootScope.activeUser = activeUser
+              $analytics.setUsername($rootScope.activeUser._id.toString())
+              $analytics.setUserProperties({"$name": $rootScope.activeUser.username.toString(), "$email": $rootScope.activeUser.username.toString()})
               $rootScope.getUserBooks().then () ->
 
                 data = {"username": $rootScope.activeUser.email}
@@ -278,6 +286,8 @@ app.controller('AppCtrl', [
         else 
           $rootScope.activeUser = kinveyUser
 
+          $analytics.setUsername($rootScope.activeUser._id.toString())
+
           $http.get( askiiUrl+'/users/username/'+$rootScope.activeUser.username+'?key='+askiiKey ).success((data, status, headers, config) ->
                 
             $rootScope.activeUser.askiiUser = data
@@ -309,9 +319,11 @@ app.controller('ReadCtrl', [
   "$kinvey"
   "$stateParams"
   "$location"
-  ($rootScope, $scope, $kinvey, $stateParams, $location) ->
+  "$analytics"
+  ($rootScope, $scope, $kinvey, $stateParams, $location, $analytics) ->
     console.log 'in read ctrl'
     $rootScope.startLoading()
+    $analytics.eventTrack('Open - Library', {  category: 'Page View' })
     $scope.redirectToEdit = (editUrl) ->
       $location.path(editUrl)
 
@@ -339,7 +351,8 @@ app.controller('PlayerCtrl', [
   "$http"
   "askiiUrl"
   "askiiKey"
-  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey) ->
+  "$analytics"
+  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey, $analytics) ->
     $rootScope.startLoading()
     pageQuery = new $kinvey.Query()    
     pageQuery.equalTo('bookId', $stateParams.bookId)
@@ -358,6 +371,7 @@ app.controller('PlayerCtrl', [
         $scope.pages = pages
         $ionicSlideBoxDelegate.update()
         promise = $kinvey.DataStore.get('Languages', $rootScope.activeUser.language)
+        $analytics.eventTrack('Open - Player for ' + book.title, {  category: 'Page View' })
         promise.then ( translationLanguage ) ->
           $scope.translationLanguage = translationLanguage
           $rootScope.doneLoading()
@@ -533,7 +547,9 @@ app.controller('SettingsCtrl', [
   "$kinvey"
   "$rootScope"
   "$ionicPopup"
-  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup) ->
+  "$analytics"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $analytics) ->
+    $analytics.eventTrack('Open - Settings', {  category: 'Page View' })
     promise = $kinvey.DataStore.find('Languages')
     promise.then ( listOfLanguages ) ->
       $scope.listOfLanguages = listOfLanguages
@@ -571,9 +587,11 @@ app.controller('ReviewCtrl', [
   "askiiKey"
   "$http"
   "$rootScope"
-  ($scope, $ionicPopup, askiiUrl, askiiKey, $http, $rootScope) ->
+  "$analytics"
+  ($scope, $ionicPopup, askiiUrl, askiiKey, $http, $rootScope, $analytics) ->
     console.log 'in review ctrl'
     $scope.displayAll = true
+    $analytics.eventTrack('Open - Review', {  category: 'Page View' })
     $rootScope.getReviewQuestions()
     # userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
     # console.log userId
@@ -646,7 +664,8 @@ app.controller('PracticeCtrl', [
   "askiiUrl"
   "askiiKey"
   "$http"
-  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $stateParams, $location, askiiUrl, askiiKey, $http) ->
+  "$analytics"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $stateParams, $location, askiiUrl, askiiKey, $http, $analytics) ->
 
     findQuestionIndex = (allQuestions, nextQuestion) ->
       i = 0
@@ -707,9 +726,9 @@ app.controller('PracticeCtrl', [
       data = {"count": $stateParams.practiceNum.toString() }
 
       $http.post( askiiUrl+'/next/'+userId+'?creator='+userId+'&key='+askiiKey, data ).success((data, status, headers, config) ->
-        
         $scope.nextQuestion = data
         console.log data
+        $analytics.eventTrack('Open - Practice: Word - ' + $scope.nextQuestion.answer + ", Number - " + $stateParams.practiceNum.toString(), {  category: 'Page View' })
         length_selected_word = $scope.nextQuestion.answer.length
         console.log length_selected_word
         fill_in_text = Array(length_selected_word).join("_")
@@ -803,7 +822,10 @@ app.controller('AddCtrl', [
   "uploadContent"
   "$ionicHistory"
   "Library"
-  ($rootScope, $scope, Camera, uploadContent, $ionicHistory, Library) ->
+  "$analytics"
+  ($rootScope, $scope, Camera, uploadContent, $ionicHistory, Library, $analytics) ->
+
+    $analytics.eventTrack('Open - Create New Book', {  category: 'Page View' })
     $scope.book = {}
     imageStr = ""
 
@@ -861,8 +883,10 @@ app.controller('EditBookCtrl', [
   "$location"
   "$state"
   "Library"
-  ($ionicHistory, $scope, $kinvey, $rootScope, $stateParams, Camera, uploadContent, $location, $state, Library) ->
+  "$analytics"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $stateParams, Camera, uploadContent, $location, $state, Library, $analytics) ->
     console.log 'in edit book ctrl'
+    $analytics.eventTrack('Open - Edit Book', {  category: 'Page View' })
     pageQuery = new $kinvey.Query()    
     pageQuery.equalTo('bookId', $stateParams.bookId)
     bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
@@ -949,8 +973,10 @@ app.controller('EditPageCtrl', [
   "$ionicSlideBoxDelegate"
   "uploadContent"
   "Pages"
-  ($ionicHistory, $scope, $kinvey, $rootScope, $stateParams, $ionicSlideBoxDelegate, uploadContent, Pages) ->
+  "$analytics"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $stateParams, $ionicSlideBoxDelegate, uploadContent, Pages, $analytics) ->
 
+    $analytics.eventTrack('Open - Edit Page', {  category: 'Page View' })
     $scope.currentSlide = $stateParams.pageNum
     pageQuery = new $kinvey.Query()    
     pageQuery.equalTo('bookId', $stateParams.bookId)

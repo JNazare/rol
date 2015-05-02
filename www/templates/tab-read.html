@@ -1,21 +1,21 @@
 <ion-view view-title="Read Out Loud">
   
   <ion-nav-buttons side="primary">
-    <a class="button button-clear button-light button-icon icon ion-ios-information-outline help-button" ng-href="">
+    <a class="button button-clear button-light button-icon icon ion-ios-information-outline help-button" ng-href="" analytics-on analytics-event="Click - Info" analytics-category="Commands">
     </a>
-    <a class="button button-clear button-icon icon ion-ios-gear-outline" ng-href="#/settings">
+    <a class="button button-clear button-icon icon ion-ios-gear-outline" ng-href="#/settings" analytics-on analytics-event="Click - Settings" analytics-category="Commands">
     </a>
   </ion-nav-buttons>
 
-  <ion-content>
+  <ion-content ng-init="mixpanel.identify(activeUser._id); console.log(activeUser._id);">
     <div class="row" ng-repeat="libraryRow in libraryLayout">
       <div class="col col-33" ng-repeat="book in libraryRow">
         <span class="booktile" ng-if="!book.add_url">
           <div class="container">
-            <button class="button button-clear edit-button" ng-click='redirectToEdit("/editbook/{{book._id}}")' ng-if="book.editable==true">
+            <button class="button button-clear edit-button" ng-click='redirectToEdit("/editbook/{{book._id}}")' ng-if="book.editable==true" analytics-on analytics-event="Edit - {{book.title}}" analytics-category="Commands">
                 <span class="icon ion-ios-compose edit-icon"></span>
             </button>
-            <a ng-href="#/read/{{book._id}}" analytics-on analytics-event="Opened {{book.title}}" analytics-category="Commands">
+            <a ng-href="#/read/{{book._id}}" analytics-on analytics-event="Open - {{book.title}}" analytics-category="Commands">
               <img ng-show="book.coverImageUrl !== undefined" ng-src="{{book.coverImageUrl}}" width="100%">
               <img ng-show="book.coverImageFile !== undefined" ng-src="{{book.coverImageFile._downloadURL}}" width="100%">
             </a>
@@ -26,7 +26,7 @@
             </span>
           </p>
         </span>
-        <a class="booktile" ng-if="book.add_url" ng-href="#/{{book.add_url}}">
+        <a class="booktile" ng-if="book.add_url" ng-href="#/{{book.add_url}}" analytics-on analytics-event="Create New Book" analytics-category="Commands">
           <img ng-src="{{book.coverImageUrl}}" width="100%">
           <p> 
             <span class="book-name">
