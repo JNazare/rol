@@ -19,8 +19,8 @@
     </div>
   </div>
   <ion-nav-buttons side="primary">
-    <a class="button button-clear button-light button-icon icon ion-ios-information-outline help-button" ng-href="" analytics-on analytics-event="Click - Info" analytics-category="Commands">
-    </a>
+    <!-- <a class="button button-clear button-light button-icon icon ion-ios-information-outline help-button" ng-href="" analytics-on analytics-event="Click - Info" analytics-category="Commands">
+    </a> -->
     <a class="button button-clear button-light button-icon icon ion-ios-close-empty" ng-href="#/tab/read" ng-click="endBook()" analytics-on analytics-event="Click - Close Book" analytics-category="Commands">
     </a>
   </ion-nav-buttons>
@@ -44,7 +44,7 @@
       </div>
       <div class="col-70 col-offset-10 translation-text">
         {{selected_word}} <i ng-if="selected_word" class="icon ion-arrow-swap"></i> {{translated_word}}
-        <span ng-if="selected_word==null">Click on a word to translate it</span>
+        <span class="define-info-text" ng-if="selected_word==null">Click a word to translate</span>
       </div>
       <div class="col-10" ng-if="translated_word">
         <button class="button button-clear button-energized save-word-button" ng-click="savedWord || createReviewQuestion(selected_word, pageIndex)" ng-class="{'icon ion-ios-star': savedWord, 'icon ion-ios-star-outline': !savedWord}" ng-disabled='{{savedWord}}' analytics-on analytics-event="Save - {{selected_word}}" analytics-category="Commands"></button>

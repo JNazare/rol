@@ -31,14 +31,14 @@
 					ng-options="language._id as language.name for language in listOfLanguages">
 				</select>
 			</label>
-			<div class="item item-divider">
+			<!-- <div class="item item-divider">
     			Voice Speed
   			</div>
   			<div class="range">
 			  	<i class="icon ion-ios-speedometer-outline"></i>
 			  	<input type="range" name="volume" ng-model="activeUser.speed" min="0" max="10" step="1" value="activeUser.speed" analytics-on analytics-event="Click - Edit Speed" analytics-category="Commands">
 			  	<i class="icon ion-ios-speedometer"></i>
-			</div>
+			</div> -->
 			<a class="button button-full button-positive" ng-click="updateUser()" analytics-on analytics-event="Click - Save User Updates" analytics-category="Commands">
   				Save
 			</a>

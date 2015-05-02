@@ -253,3 +253,7 @@ span.right-answer{
 div.spacer{
 	margin-top: 20px;
 }
+
+span.define-info-text{
+	font-size: 14px;
+}

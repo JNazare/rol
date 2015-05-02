@@ -333,7 +333,8 @@ app.controller('ReadCtrl', [
         add_url: "add"
       }
       books_to_chunk = $scope.books
-      books_to_chunk.unshift(add_book)
+      if $rootScope.activeUser.admin
+        books_to_chunk.unshift(add_book)
       $rootScope.libraryLayout = chunk(books_to_chunk, 3)
       $rootScope.doneLoading()
       # $rootScope.libraryLayout.unshift(add_book)
