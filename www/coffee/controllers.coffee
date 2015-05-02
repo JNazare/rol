@@ -58,7 +58,7 @@ app.controller('AppCtrl', [
   "$analytics"
   ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl, betaPassphrase, $ionicLoading, $analytics) ->
     
-    console.log 'in app ctrl'
+    # console.log 'in app ctrl'
 
     $rootScope.startLoading = ->
       $ionicLoading.show template: 'Loading...'
@@ -113,8 +113,8 @@ app.controller('AppCtrl', [
         userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
         $http.get( askiiUrl+'/questions?key='+askiiKey+'&creator='+userId).success((data, status, headers, config) ->
       
-          console.log data
-          console.log data.questions
+          # console.log data
+          # console.log data.questions
           $scope.vocablist = data.questions
           $scope.allUniqueVocab = uniqueObjects($scope.vocablist)
           
@@ -253,7 +253,7 @@ app.controller('AppCtrl', [
                 data = {"username": $rootScope.activeUser.email}
                 $http.post( askiiUrl+'/users?key='+askiiKey, data ).success((data, status, headers, config) ->
                   
-                  console.log data
+                  # console.log data
                   $rootScope.activeUser.askiiUser = data
                   # this callback will be called asynchronously
                   # when the response is available
@@ -266,7 +266,7 @@ app.controller('AppCtrl', [
                 ).error (data, status, headers, config) ->
                   # called asynchronously if an error occurs
                   # or server returns response with an error status.
-                  console.log 'wrong login'
+                  # console.log 'wrong login'
                   $scope.errorMessage = "Sorry! Please try again."
                   return
             ), (error) ->
@@ -321,7 +321,7 @@ app.controller('ReadCtrl', [
   "$location"
   "$analytics"
   ($rootScope, $scope, $kinvey, $stateParams, $location, $analytics) ->
-    console.log 'in read ctrl'
+    # console.log 'in read ctrl'
     $rootScope.startLoading()
     $analytics.eventTrack('Open - Library', {  category: 'Page View' })
     $scope.redirectToEdit = (editUrl) ->
@@ -428,8 +428,8 @@ app.controller('PlayerCtrl', [
         playUtterance.text = text
         playUtterance.lang = lang
         playUtterance.localService = true
-        console.log speechSynthesis
-        console.log playUtterance
+        # console.log speechSynthesis
+        # console.log playUtterance
         speechSynthesis.speak playUtterance
       return
 
@@ -446,16 +446,16 @@ app.controller('PlayerCtrl', [
     $scope.createReviewQuestion = (word, index) ->
       $scope.savedWord = true # hacky, fix this
 
-      console.log word
-      console.log index
+      # console.log word
+      # console.log index
       length_selected_word = $scope.selected_word.length
       fill_in_text = Array(length_selected_word).join("_")
-      console.log $scope.selected_word
+      # console.log $scope.selected_word
       question_text = $scope.pages[index].text.replace($scope.selected_word, fill_in_text)
       answer_text = $scope.selected_word
       hint_text = $scope.translated_word
 
-      console.log $rootScope.activeUser.askiiUser
+      # console.log $rootScope.activeUser.askiiUser
 
       new_question = {
         "question": question_text
@@ -470,7 +470,7 @@ app.controller('PlayerCtrl', [
 
       $http.post( askiiUrl+'/questions?key='+askiiKey, new_question ).success((data, status, headers, config) ->
               
-        console.log data
+        # console.log data
         $rootScope.getReviewQuestions()
         # this callback will be called asynchronously
         # when the response is available
@@ -590,7 +590,7 @@ app.controller('ReviewCtrl', [
   "$rootScope"
   "$analytics"
   ($scope, $ionicPopup, askiiUrl, askiiKey, $http, $rootScope, $analytics) ->
-    console.log 'in review ctrl'
+    # console.log 'in review ctrl'
     $scope.displayAll = true
     $analytics.eventTrack('Open - Review', {  category: 'Page View' })
     $rootScope.getReviewQuestions()
@@ -640,7 +640,7 @@ app.controller('ReviewCtrl', [
     $scope.deleteQuestion = (vocab) ->
       userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
       questionId = vocab.uri.split("/").slice(-1)[0]
-      console.log userId, questionId
+      # console.log userId, questionId
       $http.delete( askiiUrl+'/questions/'+questionId+'?key='+askiiKey+'&creator='+userId).success((data, status, headers, config) ->
         promise = $rootScope.getReviewQuestions()
         promise.then (questions) ->
@@ -728,10 +728,10 @@ app.controller('PracticeCtrl', [
 
       $http.post( askiiUrl+'/next/'+userId+'?creator='+userId+'&key='+askiiKey, data ).success((data, status, headers, config) ->
         $scope.nextQuestion = data
-        console.log data
+        # console.log data
         $analytics.eventTrack('Open - Practice: Word - ' + $scope.nextQuestion.answer + ", Number - " + $stateParams.practiceNum.toString(), {  category: 'Page View' })
         length_selected_word = $scope.nextQuestion.answer.length
-        console.log length_selected_word
+        # console.log length_selected_word
         fill_in_text = Array(length_selected_word).join("_")
         $scope.nextQuestion["splitQuestion"] = $scope.nextQuestion.question.split(fill_in_text)
         toRemove = findQuestionIndex($scope.allQuestions, $scope.nextQuestion)
@@ -763,7 +763,7 @@ app.controller('PracticeCtrl', [
     # 'if select incorrect, popup says try again'
     # 'if select correct, popup takes you to next question. Stop after 10 questions'
     $scope.showResult = (question) ->
-      console.log 'in showResult function'
+      # console.log 'in showResult function'
       if question.correct
 
         #save question back to askii here
@@ -771,7 +771,7 @@ app.controller('PracticeCtrl', [
         questionId = $scope.nextQuestion.uri.split("/").slice(-1)[0]
         data = {"answer": "1"}
         $http.post( askiiUrl+'/users/'+userId+'/'+questionId+'?key='+askiiKey, data ).success((data, status, headers, config) ->
-          console.log data
+          # console.log data
           return
         ).error (data, status, headers, config) ->
           return
@@ -886,7 +886,7 @@ app.controller('EditBookCtrl', [
   "Library"
   "$analytics"
   ($ionicHistory, $scope, $kinvey, $rootScope, $stateParams, Camera, uploadContent, $location, $state, Library, $analytics) ->
-    console.log 'in edit book ctrl'
+    # console.log 'in edit book ctrl'
     $analytics.eventTrack('Open - Edit Book', {  category: 'Page View' })
     pageQuery = new $kinvey.Query()    
     pageQuery.equalTo('bookId', $stateParams.bookId)
@@ -1023,7 +1023,7 @@ app.controller('EditPageCtrl', [
 
     $scope.saveChanges = (index) ->
       updatedPage = $scope.pages[index]
-      console.log updatedPage
+      # console.log updatedPage
       if index == $scope.pages.length - 1
         updatedText = updatedPage.text
         newPage = {
