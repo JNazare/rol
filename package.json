@@ -1,7 +1,7 @@
 {
   "name": "rol",
   "version": "1.0.0",
-  "description": "rol: An Ionic project",
+  "description": "An application to help parents learn English while reading with their kids",
   "dependencies": {
     "gulp": "^3.5.6",
     "gulp-sass": "^0.7.1",

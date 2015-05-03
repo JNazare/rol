@@ -364,7 +364,7 @@ app.controller('PlayerCtrl', [
       promise.then (pages) ->
         book_display_data = {
           image : {
-            _downloadURL: book.coverImageUrl
+            _downloadURL: book.coverImageFile._downloadURL
           }
           text : book.title + " by " + book.author
         }
