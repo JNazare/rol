@@ -7,7 +7,7 @@
     </a>
   </ion-nav-buttons>
 
-  <ion-content class="has-footer">
+  <ion-content>
 
     <div class="filter-button-bar-container">
       <div class="button-bar filter-button-bar">
@@ -19,7 +19,7 @@
     <div class="spacer">
       <ion-list ng-if="displayAll" can-swipe="true">
           <ion-item ng-repeat="vocab in allUniqueVocab" ng-click="showPopup(vocab)" analytics-on analytics-event="Define - {{vocab.answer}}" analytics-category="Commands">
-            <center><span class="english">{{vocab.answer}}</span></center>
+            <span class="english">{{vocab.formattedAnswer}} </span>
             <ion-option-button class="button-assertive" ng-click="deleteQuestion(vocab); allUniqueVocab.splice($index, 1);" analytics-on analytics-event="Delete - {{vocab.answer}}" analytics-category="Commands">
               Delete
             </ion-option-button>
@@ -47,15 +47,15 @@
 
   <!-- SUB-FOOTER: go to Practice page -->
   <!-- How to make button flow smoothly into background? "practice-button" class in CSS -->
-  <div class="bar bar-footer bar-balanced" ng-if="allUniqueVocab.length > 3">
+  <!-- <div class="bar bar-footer bar-balanced" ng-if="allUniqueVocab.length > 3">
     <a class="button button-clear practice-button title" ng-href="#/practice/0" analytics-on analytics-event="Click - Practice" analytics-category="Commands"><strong>Practice</strong></a>
-  </div>
+  </div> -->
   <!-- <div class="bar bar-footer practice-button bar-balanced" >
     <a class="title" >Practice</a>
   </div> -->
-  <div class="bar bar-footer practice-button bar-balanced" ng-if="allUniqueVocab.length <= 3">
+  <!-- <div class="bar bar-footer practice-button bar-balanced" ng-if="allUniqueVocab.length <= 3">
     <div class="title">You need to save 4 words to practice.</div>
-  </div>
+  </div> -->
 
 
 </ion-view>

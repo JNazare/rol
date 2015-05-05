@@ -24,6 +24,7 @@ uniqueObjects = (a) ->
   arr = {}
   i = 0
   while i < a.length
+    a[i]['formattedAnswer'] = a[i]['answer']
     a[i]['answer'] = a[i]['answer'].toLowerCase()
     arr[a[i]['answer']] = a[i]
     i++
@@ -31,6 +32,12 @@ uniqueObjects = (a) ->
   for key of arr
     a.push arr[key]
   return a
+
+parseHtmlEnteties = (str) ->
+  str.replace /&#([0-9]{1,3});/gi, (match, numStr) ->
+    num = parseInt(numStr, 10)
+    # read num as normal number
+    String.fromCharCode num
 
 app = angular.module('app')
 
@@ -66,6 +73,10 @@ app.controller('AppCtrl', [
 
     $rootScope.doneLoading = ->
       $ionicLoading.hide()
+      return
+
+    $rootScope.startPlayLoading = ->
+      $ionicLoading.show template: 'Playing'
       return
 
     $scope.loginData = {}
@@ -406,7 +417,8 @@ app.controller('PlayerCtrl', [
       return
 
     defineUtterance1.onend = ->
-      speechSynthesis.speak defineUtterance2
+      # speechSynthesis.speak defineUtterance2
+      $rootScope.doneLoading()
       return
 
     $scope.slideHasChanged = (newSlide) ->
@@ -512,49 +524,46 @@ app.controller('PlayerCtrl', [
         return
       return
 
-    $scope.define = (word, index) ->
-      $rootScope.startLoading()
+    $scope.define = (word, pageIndex, wordIndex, paragraphIndex) ->
+      $rootScope.startPlayLoading()
       $scope.savedWord = false # hacky, fix this
 
-      $scope.pageIndex = index
-      selected_word = word.trim().replace(/["\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
-      link = askiiUrl + "/en/" + $scope.translationLanguage._id + "/" + selected_word
+      $scope.pageIndex = pageIndex
+      $scope.wordIndex = wordIndex
+      $scope.paragraphIndex = paragraphIndex
+      $scope.unformatted_selected_word = word
+      $scope.selected_word = word.trim().replace(/["\.',-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+      link = askiiUrl + "/en/" + $scope.translationLanguage._id + "/" + $scope.selected_word
       $http.get(link).success((translated_word, status, headers, config) ->
         
-        $scope.selected_word = selected_word
-        $scope.translated_word = translated_word
+        $scope.translated_word = parseHtmlEnteties(translated_word)
 
-        defineUtterance1.text = $scope.selected_word
-        defineUtterance1.lang = "en"
-        defineUtterance1.localService = true
-
-        defineUtterance2.text = $scope.translated_word
-        defineUtterance2.lang = $scope.translationLanguage._id
-        defineUtterance2.localService = true
-
-        $rootScope.doneLoading()
-
-        speechSynthesis.speak defineUtterance1
+        # defineUtterance2.text = $scope.translated_word
+        # defineUtterance2.lang = $scope.translationLanguage._id
+        # defineUtterance2.localService = true
 
         return
       ).error (data, status, headers, config) ->
         'error'
+
+      defineUtterance1.text = $scope.selected_word
+      defineUtterance1.lang = "en"
+      defineUtterance1.localService = true
+      speechSynthesis.speak defineUtterance1
       return
 
     $scope.replay_definition = (english_word, translated_word) ->
 
       if $scope.selected_word and $scope.translated_word
-        $rootScope.startLoading()
+        $rootScope.startPlayLoading()
 
         defineUtterance1.text = english_word
         defineUtterance1.lang = "en"
         defineUtterance1.localService = true
 
-        defineUtterance2.text = translated_word
-        defineUtterance2.lang = $scope.translationLanguage._id
-        defineUtterance2.localService = true
-
-        $rootScope.doneLoading()
+        # defineUtterance2.text = translated_word
+        # defineUtterance2.lang = $scope.translationLanguage._id
+        # defineUtterance2.localService = true
 
         speechSynthesis.speak defineUtterance1
 
@@ -670,10 +679,10 @@ app.controller('ReviewCtrl', [
       length_selected_word = vocab.answer.length
       fill_in_text = Array(length_selected_word).join("_")
       splitQuestionArray = vocab.question.split(fill_in_text)
-      splitQuestionString = splitQuestionArray[0] + '<span class="english">' + vocab.answer + '</span>' + splitQuestionArray[1] 
+      splitQuestionString = splitQuestionArray[0] + '<span class="english">' + vocab.formattedAnswer + '</span>' + splitQuestionArray[1] 
 
       alertPopup = $ionicPopup.alert (
-        title: "<strong>" +  vocab.answer + "</strong>"
+        title: "<strong>" +  vocab.formattedAnswer + "</strong>"
         subTitle: "<strong>" + vocab.hint + "</strong>"
         template: splitQuestionString )
       return
