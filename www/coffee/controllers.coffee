@@ -353,10 +353,16 @@ app.controller('PlayerCtrl', [
   "askiiUrl"
   "askiiKey"
   "$analytics"
-  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey, $analytics) ->
+  "$state"
+  "$ionicPopup"
+  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey, $analytics, $state, $ionicPopup) ->
     $rootScope.startLoading()
+    # console.log $kinvey.getActiveUser()
+    # $rootScope.activeUser.language = $kinvey.getActiveUser().language
+    # console.log $rootScope.activeUser.language
     pageQuery = new $kinvey.Query()    
     pageQuery.equalTo('bookId', $stateParams.bookId)
+    pageQuery.ascending('pageNumber')
     bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
     bookPromise.then (book) ->
       $scope.book = book
@@ -406,7 +412,14 @@ app.controller('PlayerCtrl', [
     $scope.slideTo = (slideNum) ->
       speechSynthesis.cancel()
       $scope.playing = false
-      $ionicSlideBoxDelegate.slide(slideNum)
+      if $scope.currentSlide == slideNum
+        imageUrl = $scope.pages[slideNum].image._downloadURL
+        alertPopup = $ionicPopup.alert(
+          title: ''
+          template: '<img src="'+imageUrl+'" width="100%">')
+        return
+      else
+        $ionicSlideBoxDelegate.slide(slideNum)
 
     $scope.slidePrevious = ->
       speechSynthesis.cancel()
@@ -549,7 +562,10 @@ app.controller('SettingsCtrl', [
   "$rootScope"
   "$ionicPopup"
   "$analytics"
-  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $analytics) ->
+  "$state"
+  "$location"
+  "$window"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $analytics, $state, $location, $window) ->
     $analytics.eventTrack('Open - Settings', {  category: 'Page View' })
     promise = $kinvey.DataStore.find('Languages')
     promise.then ( listOfLanguages ) ->
@@ -567,9 +583,17 @@ app.controller('SettingsCtrl', [
       return
     $scope.updateUser = ->
       promise = $kinvey.User.update($rootScope.activeUser)
-      promise.then () ->
-        alertPopup = $ionicPopup.alert(
-          title: 'SAVED')
+      promise.then (updatedUser) ->
+        $rootScope.activeUser.language = updatedUser.language
+        alertPopup = $ionicPopup.alert(title: 'SAVED', buttons: [
+          {
+            text: 'OK'
+            type: 'button-positive'
+            onTap: (e) ->
+              $location.path("/library")
+              $window.location.reload()
+          }
+        ])
         return
     return
 ])
@@ -632,9 +656,9 @@ app.controller('ReviewCtrl', [
       splitQuestionString = splitQuestionArray[0] + '<span class="english">' + vocab.answer + '</span>' + splitQuestionArray[1] 
 
       alertPopup = $ionicPopup.alert (
-        title: vocab.answer
-        subTitle: vocab.hint
-        template: splitQuestionString)
+        title: "<strong>" +  vocab.answer + "</strong>"
+        subTitle: "<strong>" + vocab.hint + "</strong>"
+        template: splitQuestionString )
       return
 
     $scope.deleteQuestion = (vocab) ->

@@ -96,6 +96,18 @@ app.config [
     return
 ]
 
+app.config ($provide) ->
+  $provide.decorator '$state', ($delegate, $stateParams) ->
+
+    $delegate.forceReload = ->
+      $delegate.go $delegate.current, $stateParams,
+        reload: true
+        inherit: false
+        notify: true
+
+    $delegate
+  return
+
 app.config [
   '$httpProvider'
   ($httpProvider) ->

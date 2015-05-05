@@ -257,3 +257,7 @@ div.spacer{
 span.define-info-text{
 	font-size: 14px;
 }
+
+.popup-body{
+	overflow: visible !important;
+}

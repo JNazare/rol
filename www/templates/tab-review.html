@@ -19,7 +19,7 @@
     <div class="spacer">
       <ion-list ng-if="displayAll" can-swipe="true">
           <ion-item ng-repeat="vocab in allUniqueVocab" ng-click="showPopup(vocab)" analytics-on analytics-event="Define - {{vocab.answer}}" analytics-category="Commands">
-            <center><span class="english">{{vocab.answer}}</span> - <span class="defn">{{vocab.hint}}</span></center>
+            <center><span class="english">{{vocab.answer}}</span></center>
             <ion-option-button class="button-assertive" ng-click="deleteQuestion(vocab); allUniqueVocab.splice($index, 1);" analytics-on analytics-event="Delete - {{vocab.answer}}" analytics-category="Commands">
               Delete
             </ion-option-button>
