@@ -611,15 +611,7 @@ app.controller('SettingsCtrl', [
       promise = $kinvey.User.update($rootScope.activeUser)
       promise.then (updatedUser) ->
         $rootScope.activeUser.language = updatedUser.language
-        alertPopup = $ionicPopup.alert(title: 'SAVED', buttons: [
-          {
-            text: 'OK'
-            type: 'button-positive'
-            onTap: (e) ->
-              $location.path("/library")
-              $window.location.reload()
-          }
-        ])
+        alertPopup = $ionicPopup.alert(title: 'SAVED')
         return
     return
 ])
