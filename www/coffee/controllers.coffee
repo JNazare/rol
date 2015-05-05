@@ -24,6 +24,7 @@ uniqueObjects = (a) ->
   arr = {}
   i = 0
   while i < a.length
+    a[i]['formattedAnswer'] = a[i]['answer']
     a[i]['answer'] = a[i]['answer'].toLowerCase()
     arr[a[i]['answer']] = a[i]
     i++
@@ -31,6 +32,12 @@ uniqueObjects = (a) ->
   for key of arr
     a.push arr[key]
   return a
+
+parseHtmlEnteties = (str) ->
+  str.replace /&#([0-9]{1,3});/gi, (match, numStr) ->
+    num = parseInt(numStr, 10)
+    # read num as normal number
+    String.fromCharCode num
 
 app = angular.module('app')
 
@@ -66,6 +73,10 @@ app.controller('AppCtrl', [
 
     $rootScope.doneLoading = ->
       $ionicLoading.hide()
+      return
+
+    $rootScope.startPlayLoading = ->
+      $ionicLoading.show template: 'Playing'
       return
 
     $scope.loginData = {}
@@ -353,10 +364,20 @@ app.controller('PlayerCtrl', [
   "askiiUrl"
   "askiiKey"
   "$analytics"
-  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey, $analytics) ->
+  "$state"
+  "$ionicPopup"
+  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey, $analytics, $state, $ionicPopup) ->
     $rootScope.startLoading()
+    # console.log $kinvey.getActiveUser()
+    # $rootScope.activeUser.language = $kinvey.getActiveUser().language
+    # console.log $rootScope.activeUser.language
+    $scope.numPagesShown = 5
+    $scope.beginningIndex = 0
+    $scope.endIndex = $scope.beginningIndex + $scope.numPagesShown
+
     pageQuery = new $kinvey.Query()    
     pageQuery.equalTo('bookId', $stateParams.bookId)
+    pageQuery.ascending('pageNumber')
     bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
     bookPromise.then (book) ->
       $scope.book = book
@@ -396,17 +417,38 @@ app.controller('PlayerCtrl', [
       return
 
     defineUtterance1.onend = ->
-      speechSynthesis.speak defineUtterance2
+      # speechSynthesis.speak defineUtterance2
+      $rootScope.doneLoading()
       return
 
     $scope.slideHasChanged = (newSlide) ->
+      console.log newSlide
       $scope.currentSlide = newSlide
+      if newSlide <= $scope.beginningIndex
+        $scope.beginningIndex = $scope.beginningIndex  - $scope.numPagesShown
+        $scope.endIndex = $scope.endIndex - $scope.numPagesShown
+        # console.log $scope.beginningIndex, $scope.endIndex
+      if newSlide >= $scope.endIndex
+        $scope.beginningIndex = $scope.beginningIndex + $scope.numPagesShown
+        $scope.endIndex = $scope.endIndex + $scope.numPagesShown
+      console.log $scope.beginningIndex, $scope.endIndex
       return
 
     $scope.slideTo = (slideNum) ->
       speechSynthesis.cancel()
       $scope.playing = false
-      $ionicSlideBoxDelegate.slide(slideNum)
+      if $scope.currentSlide == slideNum
+        imageUrl = $scope.pages[slideNum].image._downloadURL
+        alertPopup = $ionicPopup.alert(
+          title: ''
+          template: '<img src="'+imageUrl+'" width="100%">')
+        return
+      else
+        $ionicSlideBoxDelegate.slide(slideNum)
+        console.log slideNum
+        $scope.beginningIndex = slideNum - (slideNum % $scope.numPagesShown)
+        $scope.endIndex = $scope.beginningIndex + $scope.numPagesShown
+        console.log $scope.beginningIndex, $scope.endIndex
 
     $scope.slidePrevious = ->
       speechSynthesis.cancel()
@@ -482,49 +524,46 @@ app.controller('PlayerCtrl', [
         return
       return
 
-    $scope.define = (word, index) ->
-      $rootScope.startLoading()
+    $scope.define = (word, pageIndex, wordIndex, paragraphIndex) ->
+      $rootScope.startPlayLoading()
       $scope.savedWord = false # hacky, fix this
 
-      $scope.pageIndex = index
-      selected_word = word.trim().replace(/["\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
-      link = askiiUrl + "/en/" + $scope.translationLanguage._id + "/" + selected_word
+      $scope.pageIndex = pageIndex
+      $scope.wordIndex = wordIndex
+      $scope.paragraphIndex = paragraphIndex
+      $scope.unformatted_selected_word = word
+      $scope.selected_word = word.trim().replace(/["\.',-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+      link = askiiUrl + "/en/" + $scope.translationLanguage._id + "/" + $scope.selected_word
       $http.get(link).success((translated_word, status, headers, config) ->
         
-        $scope.selected_word = selected_word
-        $scope.translated_word = translated_word
+        $scope.translated_word = parseHtmlEnteties(translated_word)
 
-        defineUtterance1.text = $scope.selected_word
-        defineUtterance1.lang = "en"
-        defineUtterance1.localService = true
-
-        defineUtterance2.text = $scope.translated_word
-        defineUtterance2.lang = $scope.translationLanguage._id
-        defineUtterance2.localService = true
-
-        $rootScope.doneLoading()
-
-        speechSynthesis.speak defineUtterance1
+        # defineUtterance2.text = $scope.translated_word
+        # defineUtterance2.lang = $scope.translationLanguage._id
+        # defineUtterance2.localService = true
 
         return
       ).error (data, status, headers, config) ->
         'error'
+
+      defineUtterance1.text = $scope.selected_word
+      defineUtterance1.lang = "en"
+      defineUtterance1.localService = true
+      speechSynthesis.speak defineUtterance1
       return
 
     $scope.replay_definition = (english_word, translated_word) ->
 
       if $scope.selected_word and $scope.translated_word
-        $rootScope.startLoading()
+        $rootScope.startPlayLoading()
 
         defineUtterance1.text = english_word
         defineUtterance1.lang = "en"
         defineUtterance1.localService = true
 
-        defineUtterance2.text = translated_word
-        defineUtterance2.lang = $scope.translationLanguage._id
-        defineUtterance2.localService = true
-
-        $rootScope.doneLoading()
+        # defineUtterance2.text = translated_word
+        # defineUtterance2.lang = $scope.translationLanguage._id
+        # defineUtterance2.localService = true
 
         speechSynthesis.speak defineUtterance1
 
@@ -549,7 +588,10 @@ app.controller('SettingsCtrl', [
   "$rootScope"
   "$ionicPopup"
   "$analytics"
-  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $analytics) ->
+  "$state"
+  "$location"
+  "$window"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $analytics, $state, $location, $window) ->
     $analytics.eventTrack('Open - Settings', {  category: 'Page View' })
     promise = $kinvey.DataStore.find('Languages')
     promise.then ( listOfLanguages ) ->
@@ -567,9 +609,17 @@ app.controller('SettingsCtrl', [
       return
     $scope.updateUser = ->
       promise = $kinvey.User.update($rootScope.activeUser)
-      promise.then () ->
-        alertPopup = $ionicPopup.alert(
-          title: 'SAVED')
+      promise.then (updatedUser) ->
+        $rootScope.activeUser.language = updatedUser.language
+        alertPopup = $ionicPopup.alert(title: 'SAVED', buttons: [
+          {
+            text: 'OK'
+            type: 'button-positive'
+            onTap: (e) ->
+              $location.path("/library")
+              $window.location.reload()
+          }
+        ])
         return
     return
 ])
@@ -629,12 +679,12 @@ app.controller('ReviewCtrl', [
       length_selected_word = vocab.answer.length
       fill_in_text = Array(length_selected_word).join("_")
       splitQuestionArray = vocab.question.split(fill_in_text)
-      splitQuestionString = splitQuestionArray[0] + '<span class="english">' + vocab.answer + '</span>' + splitQuestionArray[1] 
+      splitQuestionString = splitQuestionArray[0] + '<span class="english">' + vocab.formattedAnswer + '</span>' + splitQuestionArray[1] 
 
       alertPopup = $ionicPopup.alert (
-        title: vocab.answer
-        subTitle: vocab.hint
-        template: splitQuestionString)
+        title: "<strong>" +  vocab.formattedAnswer + "</strong>"
+        subTitle: "<strong>" + vocab.hint + "</strong>"
+        template: splitQuestionString )
       return
 
     $scope.deleteQuestion = (vocab) ->

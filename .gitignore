@@ -10,3 +10,5 @@ www/js/privateFactories.js
 www/js/publicFactories.js
 .DS_Store
 privateFactories.coffee
+*.keystore
+*.apk
