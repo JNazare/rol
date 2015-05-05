@@ -360,6 +360,10 @@ app.controller('PlayerCtrl', [
     # console.log $kinvey.getActiveUser()
     # $rootScope.activeUser.language = $kinvey.getActiveUser().language
     # console.log $rootScope.activeUser.language
+    $scope.numPagesShown = 5
+    $scope.beginningIndex = 0
+    $scope.endIndex = $scope.beginningIndex + $scope.numPagesShown
+
     pageQuery = new $kinvey.Query()    
     pageQuery.equalTo('bookId', $stateParams.bookId)
     pageQuery.ascending('pageNumber')
@@ -406,7 +410,16 @@ app.controller('PlayerCtrl', [
       return
 
     $scope.slideHasChanged = (newSlide) ->
+      console.log newSlide
       $scope.currentSlide = newSlide
+      if newSlide <= $scope.beginningIndex
+        $scope.beginningIndex = $scope.beginningIndex  - $scope.numPagesShown
+        $scope.endIndex = $scope.endIndex - $scope.numPagesShown
+        # console.log $scope.beginningIndex, $scope.endIndex
+      if newSlide >= $scope.endIndex
+        $scope.beginningIndex = $scope.beginningIndex + $scope.numPagesShown
+        $scope.endIndex = $scope.endIndex + $scope.numPagesShown
+      console.log $scope.beginningIndex, $scope.endIndex
       return
 
     $scope.slideTo = (slideNum) ->
@@ -420,6 +433,10 @@ app.controller('PlayerCtrl', [
         return
       else
         $ionicSlideBoxDelegate.slide(slideNum)
+        console.log slideNum
+        $scope.beginningIndex = slideNum - (slideNum % $scope.numPagesShown)
+        $scope.endIndex = $scope.beginningIndex + $scope.numPagesShown
+        console.log $scope.beginningIndex, $scope.endIndex
 
     $scope.slidePrevious = ->
       speechSynthesis.cancel()
