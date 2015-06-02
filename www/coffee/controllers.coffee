@@ -15,29 +15,16 @@ dataURItoBlob = (dataURI) ->
     i++
   new Blob([ new Uint8Array(array) ], type: 'image/jpeg')
 
-uniq = (a) ->
-  seen = {}
-  a.filter (item) ->
-    if seen.hasOwnProperty(item) then false else (seen[item] = true)
-
-uniqueObjects = (a) ->
-  arr = {}
-  i = 0
-  while i < a.length
-    a[i]['formattedAnswer'] = a[i]['answer']
-    a[i]['answer'] = a[i]['answer'].toLowerCase()
-    arr[a[i]['answer']] = a[i]
-    i++
-  a = new Array
-  for key of arr
-    a.push arr[key]
-  return a
-
 parseHtmlEnteties = (str) ->
   str.replace /&#([0-9]{1,3});/gi, (match, numStr) ->
     num = parseInt(numStr, 10)
-    # read num as normal number
     String.fromCharCode num
+
+guid = ->
+  s4 = ->
+    Math.floor((1 + Math.random()) * 0x10000).toString(16).substring 1
+  s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4()
+
 
 app = angular.module('app')
 
@@ -64,8 +51,6 @@ app.controller('AppCtrl', [
   "$ionicLoading"
   "$analytics"
   ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl, betaPassphrase, $ionicLoading, $analytics) ->
-    
-    # console.log 'in app ctrl'
 
     $rootScope.startLoading = ->
       $ionicLoading.show template: 'Loading...'
@@ -123,27 +108,11 @@ app.controller('AppCtrl', [
         first_query.contains("sharedWith", [$rootScope.activeUser._id])
         second_query.equalTo("public", true)
         promise = $kinvey.DataStore.find( "Books", first_query.or(second_query) )
-        # promise = $kinvey.DataStore.find( "Books" )
         promise.then (books) ->
           for book in books
-            if book._acl.creator == $rootScope.activeUser._id
+            if book._acl.creator == $rootScope.activeUser._id or $rootScope.activeUser.admin == true
               book["editable"]=true
           $rootScope.books = books
-
-      $rootScope.getReviewQuestions = ->
-        userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
-        $http.get( askiiUrl+'/questions?key='+askiiKey+'&creator='+userId).success((data, status, headers, config) ->
-      
-          # console.log data
-          # console.log data.questions
-          $scope.vocablist = data.questions
-          $scope.allUniqueVocab = uniqueObjects($scope.vocablist)
-          
-          return $scope.allUniqueVocab
-        ).error (data, status, headers, config) ->
-          # called asynchronously if an error occurs
-          # or server returns response with an error status.
-          return 'error'
 
       $scope.openLogin = ->
         $analytics.eventTrack('Open - Login', {  category: 'Page View' })
@@ -227,22 +196,11 @@ app.controller('AppCtrl', [
 
             $rootScope.getUserBooks().then () ->
 
-              $http.get( askiiUrl+'/users/username/'+$rootScope.activeUser.username+'?key='+askiiKey ).success((data, status, headers, config) ->
-                
-                $rootScope.activeUser.askiiUser = data
-                # this callback will be called asynchronously
-                # when the response is available
+              loginEvent = 'loginEvent'
+              $scope.$broadcast(loginEvent)
+              $scope.closeLogin()
+              return
 
-                loginEvent = 'loginEvent'
-                $scope.$broadcast(loginEvent)
-                $scope.closeLogin()
-
-                return
-              ).error (data, status, headers, config) ->
-                # called asynchronously if an error occurs
-                # or server returns response with an error status.
-                $scope.errorMessage = "Sorry! Please try again."
-                return
           ), (error) ->
             $scope.errorMessage = "Sorry! Please try again."
             return
@@ -254,7 +212,6 @@ app.controller('AppCtrl', [
           logIntoKinvey()
 
       $scope.doSignup = ->
-        # if $scope.signupData.betaPassphrase == betaPassphrase
         logoutPromise = $kinvey.User.logout()
         logoutPromise.then (() ->
           formData = {
@@ -270,35 +227,18 @@ app.controller('AppCtrl', [
             $analytics.setUsername($rootScope.activeUser._id.toString())
             $analytics.setUserProperties({"$name": $rootScope.activeUser.username.toString(), "$email": $rootScope.activeUser.username.toString()})
             $rootScope.getUserBooks().then () ->
+              
+              loginEvent = 'loginEvent'
+              $scope.$broadcast(loginEvent)
+              $scope.closeSignup()
+              return
 
-              data = {"username": $rootScope.activeUser.email}
-              $http.post( askiiUrl+'/users?key='+askiiKey, data ).success((data, status, headers, config) ->
-                
-                # console.log data
-                $rootScope.activeUser.askiiUser = data
-                # this callback will be called asynchronously
-                # when the response is available
-
-                loginEvent = 'loginEvent'
-                $scope.$broadcast(loginEvent)
-                $scope.closeSignup()
-
-                return
-              ).error (data, status, headers, config) ->
-                # called asynchronously if an error occurs
-                # or server returns response with an error status.
-                # console.log 'wrong login'
-                $scope.errorMessage = "Sorry! Please try again."
-                return
           ), (error) ->
             $scope.errorMessage = "Sorry! Please try again."
             return
         ), (error) ->
           $scope.errorMessage = "Sorry! Please try again."
           return
-        # else
-        #   $scope.errorMessage = "Sorry! Incorrect passphrase."
-        #   return
 
       if kinveyUser
         if kinveyUser.username == "user"
@@ -309,23 +249,10 @@ app.controller('AppCtrl', [
 
           $analytics.setUsername($rootScope.activeUser._id.toString())
 
-          $http.get( askiiUrl+'/users/username/'+$rootScope.activeUser.username+'?key='+askiiKey ).success((data, status, headers, config) ->
-                
-            $rootScope.activeUser.askiiUser = data
-            # this callback will be called asynchronously
-            # when the response is available
-
-            $rootScope.getUserBooks().then () ->
+          $rootScope.getUserBooks().then () ->
               loginEvent = 'loginEvent'
               $scope.$broadcast(loginEvent)
               return
-
-            return
-          ).error (data, status, headers, config) ->
-            # called asynchronously if an error occurs
-            # or server returns response with an error status.
-            $scope.openLogin()
-            return
 
       else
         $scope.openLogin()
@@ -342,23 +269,20 @@ app.controller('ReadCtrl', [
   "$location"
   "$analytics"
   ($rootScope, $scope, $kinvey, $stateParams, $location, $analytics) ->
-    # console.log 'in read ctrl'
     $rootScope.startLoading()
     $analytics.eventTrack('Open - Library', {  category: 'Page View' })
     $scope.redirectToEdit = (editUrl) ->
       $location.path(editUrl)
-
     $scope.$on 'loginEvent', () ->
       add_book = {
         coverImageUrl: "img/add_book_icon.jpg"
         add_url: "add"
       }
       books_to_chunk = $scope.books
-      if $rootScope.activeUser.admin
+      if $rootScope.activeUser.admin == true
         books_to_chunk.unshift(add_book)
       $rootScope.libraryLayout = chunk(books_to_chunk, 3)
       $rootScope.doneLoading()
-      # $rootScope.libraryLayout.unshift(add_book)
       return
     return
 ])
@@ -378,9 +302,7 @@ app.controller('PlayerCtrl', [
   "$ionicPopup"
   ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey, $analytics, $state, $ionicPopup) ->
     $rootScope.startLoading()
-    # console.log $kinvey.getActiveUser()
     # $rootScope.activeUser.language = $kinvey.getActiveUser().language
-    # console.log $rootScope.activeUser.language
     $scope.numPagesShown = 5
     $scope.beginningIndex = 0
     $scope.endIndex = $scope.beginningIndex + $scope.numPagesShown
@@ -391,7 +313,6 @@ app.controller('PlayerCtrl', [
     bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
     bookPromise.then (book) ->
       $scope.book = book
-      # console.log book
       promise = $kinvey.DataStore.find( "Pages", pageQuery )
       promise.then (pages) ->
         book_display_data = {
@@ -433,16 +354,13 @@ app.controller('PlayerCtrl', [
       return
 
     $scope.slideHasChanged = (newSlide) ->
-      # console.log newSlide
       $scope.currentSlide = newSlide
       if newSlide <= $scope.beginningIndex
         $scope.beginningIndex = $scope.beginningIndex  - $scope.numPagesShown
         $scope.endIndex = $scope.endIndex - $scope.numPagesShown
-        # console.log $scope.beginningIndex, $scope.endIndex
       if newSlide >= $scope.endIndex
         $scope.beginningIndex = $scope.beginningIndex + $scope.numPagesShown
         $scope.endIndex = $scope.endIndex + $scope.numPagesShown
-      # console.log $scope.beginningIndex, $scope.endIndex
       return
 
     $scope.slideTo = (slideNum) ->
@@ -456,10 +374,8 @@ app.controller('PlayerCtrl', [
         return
       else
         $ionicSlideBoxDelegate.slide(slideNum)
-        # console.log slideNum
         $scope.beginningIndex = slideNum - (slideNum % $scope.numPagesShown)
         $scope.endIndex = $scope.beginningIndex + $scope.numPagesShown
-        # console.log $scope.beginningIndex, $scope.endIndex
 
     $scope.slidePrevious = ->
       speechSynthesis.cancel()
@@ -481,8 +397,6 @@ app.controller('PlayerCtrl', [
         playUtterance.text = text
         playUtterance.lang = lang
         playUtterance.localService = true
-        # console.log speechSynthesis
-        # console.log playUtterance
         speechSynthesis.speak playUtterance
       return
 
@@ -496,43 +410,36 @@ app.controller('PlayerCtrl', [
       $scope.playing = false
       return
 
-    $scope.createReviewQuestion = (word, index) ->
+    $scope.createReviewQuestion = (index) ->
       $scope.savedWord = true # hacky, fix this
 
-      # console.log word
-      # console.log index
       length_selected_word = $scope.selected_word.length
       fill_in_text = Array(length_selected_word).join("_")
-      # console.log $scope.selected_word
       question_text = $scope.pages[index].text.replace($scope.selected_word, fill_in_text)
       answer_text = $scope.selected_word
       hint_text = $scope.translated_word
 
-      # console.log $rootScope.activeUser.askiiUser
-
-      new_question = {
+      new_vocab_entry = {
         "question": question_text
         "hint": hint_text
         "answer": answer_text
         "book": $scope.book.title
-        "bookImage": $scope.book.coverImageUrl
-        "difficulty": 0
-        "personalized": true
-        "creator": $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
+        "bookImage": $scope.book.coverImageFile._downloadURL
+        "_id": guid()
       }
 
-      $http.post( askiiUrl+'/questions?key='+askiiKey, new_question ).success((data, status, headers, config) ->
-              
-        # console.log data
-        $rootScope.getReviewQuestions()
-        # this callback will be called asynchronously
-        # when the response is available
+      if $rootScope.activeUser.vocabulary
+        $rootScope.activeUser.vocabulary.push(new_vocab_entry)
+      else
+        $rootScope.activeUser.vocabulary = [new_vocab_entry]
+      
+      promise = $kinvey.User.update($rootScope.activeUser)
+      promise.then ((user) ->
+        return
+      ), (err) ->
+        console.log err
+        return
 
-        return
-      ).error (data, status, headers, config) ->
-        # called asynchronously if an error occurs
-        # or server returns response with an error status.
-        return
       return
 
     $scope.define = (word, pageIndex, wordIndex, paragraphIndex) ->
@@ -548,10 +455,6 @@ app.controller('PlayerCtrl', [
       $http.get(link).success((translated_word, status, headers, config) ->
         
         $scope.translated_word = parseHtmlEnteties(translated_word)
-
-        # defineUtterance2.text = $scope.translated_word
-        # defineUtterance2.lang = $scope.translationLanguage._id
-        # defineUtterance2.localService = true
 
         return
       ).error (data, status, headers, config) ->
@@ -571,10 +474,6 @@ app.controller('PlayerCtrl', [
         defineUtterance1.text = english_word
         defineUtterance1.lang = "en"
         defineUtterance1.localService = true
-
-        # defineUtterance2.text = translated_word
-        # defineUtterance2.lang = $scope.translationLanguage._id
-        # defineUtterance2.localService = true
 
         speechSynthesis.speak defineUtterance1
 
@@ -632,8 +531,6 @@ app.controller 'EditCtrl', ($scope) ->
   return
 
 
-# ReviewCtrl & PracticeCtrl - edits by Emily
-
 app.controller('ReviewCtrl', [
   "$scope"
   "$ionicPopup"
@@ -641,234 +538,39 @@ app.controller('ReviewCtrl', [
   "askiiKey"
   "$http"
   "$rootScope"
+  "$kinvey"
   "$analytics"
-  ($scope, $ionicPopup, askiiUrl, askiiKey, $http, $rootScope, $analytics) ->
-    # console.log 'in review ctrl'
+  ($scope, $ionicPopup, askiiUrl, askiiKey, $http, $rootScope, $kinvey, $analytics) ->
     $scope.displayAll = true
     $analytics.eventTrack('Open - Review', {  category: 'Page View' })
-    $rootScope.getReviewQuestions()
-    # userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
-    # console.log userId
-
-    # $http.get( askiiUrl+'/questions?key='+askiiKey+'&creator='+userId).success((data, status, headers, config) ->
-      
-    #   console.log data
-    #   console.log data.questions
-    #   $scope.vocablist = data.questions
-    #   $scope.allUniqueVocab = uniqueObjects($scope.vocablist)
-    #   # add this to template
-
-    #   organizedBooks = (allQuestions) ->
-    #     organizedByBook = {}
-    #     for question in allQuestions
-    #       if question.book 
-    #         if question.book not in Object.keys(organizedByBook)
-    #           organizedByBook[question.book] = [question]
-    #         else
-    #           organizedByBook[question.book].push(question)
-    #     for bookTitle, bookObj of organizedByBook
-    #       organizedByBook[bookTitle] = uniqueObjects(bookObj)
-    #     return organizedByBook
-
-    #   $scope.organizedByBook = organizedBooks( $scope.vocablist )
-    #   $rootScope.doneLoading()
-    #   return
-    # ).error (data, status, headers, config) ->
-    #   # called asynchronously if an error occurs
-    #   # or server returns response with an error status.
-    #   return
 
     $scope.showPopup = (vocab) ->
       length_selected_word = vocab.answer.length
       fill_in_text = Array(length_selected_word).join("_")
       splitQuestionArray = vocab.question.split(fill_in_text)
-      splitQuestionString = splitQuestionArray[0] + '<span class="english">' + vocab.formattedAnswer + '</span>' + splitQuestionArray[1] 
+      splitQuestionString = splitQuestionArray[0] + '<span class="english">' + vocab.answer + '</span>' + splitQuestionArray[1] 
 
       alertPopup = $ionicPopup.alert (
-        title: "<strong>" +  vocab.formattedAnswer + "</strong>"
+        title: "<strong>" +  vocab.answer + "</strong>"
         subTitle: "<strong>" + vocab.hint + "</strong>"
         template: splitQuestionString )
       return
 
     $scope.deleteQuestion = (vocab) ->
-      userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
-      questionId = vocab.uri.split("/").slice(-1)[0]
-      # console.log userId, questionId
-      $http.delete( askiiUrl+'/questions/'+questionId+'?key='+askiiKey+'&creator='+userId).success((data, status, headers, config) ->
-        promise = $rootScope.getReviewQuestions()
-        promise.then (questions) ->
-          $scope.allQuestions = questions.data.questions
+      index = $rootScope.activeUser.vocabulary.indexOf(vocab._id)
+      $rootScope.activeUser.vocabulary.splice index, 1
+
+      promise = $kinvey.User.update($rootScope.activeUser)
+      promise.then ((user) ->
         return
-      ).error (data, status, headers, config) ->
-        # called asynchronously if an error occurs
-        # or server returns response with an error status.
+      ), (err) ->
+        console.log err
         return
+
       return
   ]
 )
 
-app.controller('PracticeCtrl', [
-  "$ionicHistory"
-  "$scope"
-  "$kinvey"
-  "$rootScope"
-  "$ionicPopup"
-  "$stateParams"
-  "$location"
-  "askiiUrl"
-  "askiiKey"
-  "$http"
-  "$analytics"
-  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $stateParams, $location, askiiUrl, askiiKey, $http, $analytics) ->
-
-    findQuestionIndex = (allQuestions, nextQuestion) ->
-      i = 0
-      len = allQuestions.length
-      while i < len
-        if allQuestions[i].uri == nextQuestion.uri
-          return i
-        # Return as soon as the object is found
-        i++
-      null
-
-    findAllRepeats = (allQuestions, nextQuestion) ->
-      ct = 0
-      toRemove = []
-      for question in allQuestions
-        if question.answer == nextQuestion.answer
-          toRemove.unshift(ct)
-        ct += 1
-      for index in toRemove
-        allQuestions.splice(index, 1)
-      return allQuestions
-
-    # 'shuffle alogithm taken from CoffeeScript Cookbook'
-    shuffle = (a) ->
-      i = a.length
-      while --i > 0
-        j = ~~(Math.random() * (i + 1)) # ~~ is a common optimization for Math.floor
-        t = a[j]
-        a[j] = a[i]
-        a[i] = t
-      return a
-    
-    joinAnswers = (wrongList, rightAnswer) ->
-      if wrongList.length > 4
-        wrongList = shuffle(wrongList).splice(0,4)
-      for question in wrongList
-        question["correct"] = false
-      rightAnswer["correct"] = true
-      wrongList.push rightAnswer
-      shuffle(wrongList)
-      return wrongList
-
-    $scope.goBack = ->
-      $ionicHistory.goBack()
-      return
-
-    # 'for interacting with progress bar (blocks)'
-    $rootScope.startLoading()
-    $scope.questionNum = $stateParams.practiceNum
-    $scope.blockList = [0,1,2,3,4,5,6,7,8,9]
-    userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
-
-    promise = $rootScope.getReviewQuestions()
-    promise.then (questions) ->
-      $scope.allQuestions = questions.data.questions
-      # console.log $scope.allQuestions.data.questions
-      
-      data = {"count": $stateParams.practiceNum.toString() }
-
-      $http.post( askiiUrl+'/next/'+userId+'?creator='+userId+'&key='+askiiKey, data ).success((data, status, headers, config) ->
-        $scope.nextQuestion = data
-        # console.log data
-        $analytics.eventTrack('Open - Practice: Word - ' + $scope.nextQuestion.answer + ", Number - " + $stateParams.practiceNum.toString(), {  category: 'Page View' })
-        length_selected_word = $scope.nextQuestion.answer.length
-        # console.log length_selected_word
-        fill_in_text = Array(length_selected_word).join("_")
-        $scope.nextQuestion["splitQuestion"] = $scope.nextQuestion.question.split(fill_in_text)
-        toRemove = findQuestionIndex($scope.allQuestions, $scope.nextQuestion)
-        $scope.allQuestions.splice(toRemove, 1)
-        $scope.allQuestions = findAllRepeats($scope.allQuestions, $scope.nextQuestion)
-        $scope.allQuestions = uniqueObjects( $scope.allQuestions )
-        $scope.possibleAnswers = joinAnswers($scope.allQuestions, $scope.nextQuestion)
-        $rootScope.doneLoading()
-        return
-        
-      ).error (data, status, headers, config) ->
-        # called asynchronously if an error occurs
-        # or server returns response with an error status.
-        return
-
-    # $http.get( askiiUrl+'/questions?creator='+userId+'&key='+askiiKey ).success((data, status, headers, config) ->
-      
-    #   # console.log data
-
-      
-
-    #   return
-
-    # ).error (data, status, headers, config) ->
-    #   # called asynchronously if an error occurs
-    #   # or server returns response with an error status.
-    #   return
-
-    # 'if select incorrect, popup says try again'
-    # 'if select correct, popup takes you to next question. Stop after 10 questions'
-    $scope.showResult = (question) ->
-      # console.log 'in showResult function'
-      if question.correct
-
-        #save question back to askii here
-        userId = $rootScope.activeUser.askiiUser.user.uri.split("/").slice(-1)[0]
-        questionId = $scope.nextQuestion.uri.split("/").slice(-1)[0]
-        data = {"answer": "1"}
-        $http.post( askiiUrl+'/users/'+userId+'/'+questionId+'?key='+askiiKey, data ).success((data, status, headers, config) ->
-          # console.log data
-          return
-        ).error (data, status, headers, config) ->
-          return
-
-
-        nextPageNum = parseInt($stateParams.practiceNum)
-        nextPageNum += 1
-
-        if nextPageNum > 9
-          alertPopup = $ionicPopup.alert (
-            title: "PRACTICE DONE!"
-            template: "Congratulations!"
-            buttons: [
-              {
-                text: 'Continue'
-                onTap: () ->
-                  $location.path("/practice/0")
-              },
-              {
-                text: 'End'
-                onTap: () ->
-                  $location.path("/library")
-              }
-            ])
-
-        else
-          correctPopup = $ionicPopup.show (
-            title: "Good Job!"
-            template: question.answer + ' = ' + question.hint
-            buttons: [{
-              text: 'Next'
-              type: 'button-balanced'
-              onTap: () ->
-                for word in $scope.possibleAnswers
-                  delete word["clicked"]
-                $location.path("/practice/" + nextPageNum.toString())
-            }])
-      else
-        # need a listener here?
-        alertPopup = $ionicPopup.alert (
-          title: "Try again!"
-          template: question.answer + ' = ' + question.hint)
-  ]
-)
 app.controller('AddCtrl', [
   "$rootScope"
   "$scope"
@@ -939,7 +641,6 @@ app.controller('EditBookCtrl', [
   "Library"
   "$analytics"
   ($ionicHistory, $scope, $kinvey, $rootScope, $stateParams, Camera, uploadContent, $location, $state, Library, $analytics) ->
-    # console.log 'in edit book ctrl'
     $analytics.eventTrack('Open - Edit Book', {  category: 'Page View' })
     pageQuery = new $kinvey.Query()    
     pageQuery.equalTo('bookId', $stateParams.bookId)
@@ -1076,7 +777,6 @@ app.controller('EditPageCtrl', [
 
     $scope.saveChanges = (index) ->
       updatedPage = $scope.pages[index]
-      # console.log updatedPage
       if index == $scope.pages.length - 1
         updatedText = updatedPage.text
         newPage = {
