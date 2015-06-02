@@ -25,6 +25,7 @@
     "org.apache.cordova.speech.speechsynthesis"
   ],
   "cordovaPlatforms": [
-    "android"
+    "android",
+    "ios"
   ]
 }

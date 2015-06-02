@@ -11,7 +11,7 @@
         <span class="ion-ios-arrow-left"></span>
       </a>
       <a class="button button-clear" ng-repeat="page in pages.slice(beginningIndex, endIndex) track by $index" ng-click="slideTo($index+beginningIndex)" analytics-on analytics-event="Click - Slide To #{{$index+beginningIndex}}" analytics-category="Commands">
-        <img ng-src="{{page.image._downloadURL}}" height="30px" ng-class="{selected: $index+beginningIndex==currentSlide}">
+        <img ng-src="{{page.image._downloadURL}}" height="30px" ng-class="{unselected: $index+beginningIndex!=currentSlide, selected: $index+beginningIndex==currentSlide}">
       </a>
       <a class="button button-clear" ng-click="slideNext()" ng-class="{'button-dark': currentSlide<pages.length-1}" analytics-on analytics-event="Click - Slide To Next" analytics-category="Commands">
         <span class="ion-ios-arrow-right"></span>

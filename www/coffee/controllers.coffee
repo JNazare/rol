@@ -69,6 +69,10 @@ app.controller('AppCtrl', [
 
     $rootScope.startLoading = ->
       $ionicLoading.show template: 'Loading...'
+      $timeout (->
+        $ionicLoading.hide()
+        return
+      ), 5000
       return
 
     $rootScope.doneLoading = ->
@@ -77,6 +81,10 @@ app.controller('AppCtrl', [
 
     $rootScope.startPlayLoading = ->
       $ionicLoading.show template: 'Playing'
+      $timeout (->
+        $ionicLoading.hide()
+        return
+      ), 5000
       return
 
     $scope.loginData = {}
@@ -112,8 +120,8 @@ app.controller('AppCtrl', [
         $rootScope.books = []
         query = new $kinvey.Query()
         query.contains("sharedWith", [$rootScope.activeUser._id])
-        # promise = $kinvey.DataStore.find( "Books", query )
-        promise = $kinvey.DataStore.find( "Books" )
+        promise = $kinvey.DataStore.find( "Books", query )
+        # promise = $kinvey.DataStore.find( "Books" )
         promise.then (books) ->
           for book in books
             if book._acl.creator == $rootScope.activeUser._id

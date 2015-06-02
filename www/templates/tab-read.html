@@ -16,8 +16,8 @@
                 <span class="icon ion-ios-compose edit-icon"></span>
             </button>
             <a ng-href="#/read/{{book._id}}" analytics-on analytics-event="Open - {{book.title}}" analytics-category="Commands">
-              <img ng-show="book.coverImageUrl !== undefined" ng-src="{{book.coverImageUrl}}" width="100%">
-              <img ng-show="book.coverImageFile !== undefined" ng-src="{{book.coverImageFile._downloadURL}}" width="100%">
+              <img ng-show="book.coverImageUrl !== undefined" ng-src="{{book.coverImageUrl}}" width="100%" class="cover-image">
+              <img ng-show="book.coverImageFile !== undefined" ng-src="{{book.coverImageFile._downloadURL}}" width="100%" class="cover-image">
             </a>
           </div>
           <p> 
@@ -27,7 +27,7 @@
           </p>
         </span>
         <a class="booktile" ng-if="book.add_url" ng-href="#/{{book.add_url}}" analytics-on analytics-event="Create New Book" analytics-category="Commands">
-          <img ng-src="{{book.coverImageUrl}}" width="100%">
+          <img ng-src="{{book.coverImageUrl}}" width="100%" class="cover-image">
           <p> 
             <span class="book-name">
               {{book.title}} 

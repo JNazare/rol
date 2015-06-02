@@ -93,7 +93,15 @@ div.slider-pager{
 }*/
 
 img.selected{
-	border: 2px solid #111;
+	border: 1.5px solid #111;
+}
+
+img.unselected{
+	border: 1px solid #D8D8D8;
+}
+
+img.cover-image{
+	border: 1px solid #D8D8D8;
 }
 
 select.settings-select{
