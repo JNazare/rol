@@ -118,9 +118,11 @@ app.controller('AppCtrl', [
 
       $rootScope.getUserBooks = ->
         $rootScope.books = []
-        query = new $kinvey.Query()
-        query.contains("sharedWith", [$rootScope.activeUser._id])
-        promise = $kinvey.DataStore.find( "Books", query )
+        first_query = new $kinvey.Query()
+        second_query = new $kinvey.Query()
+        first_query.contains("sharedWith", [$rootScope.activeUser._id])
+        second_query.equalTo("public", true)
+        promise = $kinvey.DataStore.find( "Books", first_query.or(second_query) )
         # promise = $kinvey.DataStore.find( "Books" )
         promise.then (books) ->
           for book in books
@@ -252,51 +254,51 @@ app.controller('AppCtrl', [
           logIntoKinvey()
 
       $scope.doSignup = ->
-        if $scope.signupData.betaPassphrase == betaPassphrase
-          logoutPromise = $kinvey.User.logout()
-          logoutPromise.then (() ->
-            formData = {
-              username: $scope.signupData.username.toLowerCase()
-              password: $scope.signupData.password
-              email: $scope.signupData.username.toLowerCase()
-              language: $scope.signupData.language._id
-              speed: 1
-            }
-            signup_promise = $kinvey.User.signup(formData)
-            signup_promise.then ((activeUser) ->
-              $rootScope.activeUser = activeUser
-              $analytics.setUsername($rootScope.activeUser._id.toString())
-              $analytics.setUserProperties({"$name": $rootScope.activeUser.username.toString(), "$email": $rootScope.activeUser.username.toString()})
-              $rootScope.getUserBooks().then () ->
+        # if $scope.signupData.betaPassphrase == betaPassphrase
+        logoutPromise = $kinvey.User.logout()
+        logoutPromise.then (() ->
+          formData = {
+            username: $scope.signupData.username.toLowerCase()
+            password: $scope.signupData.password
+            email: $scope.signupData.username.toLowerCase()
+            language: $scope.signupData.language._id
+            speed: 1
+          }
+          signup_promise = $kinvey.User.signup(formData)
+          signup_promise.then ((activeUser) ->
+            $rootScope.activeUser = activeUser
+            $analytics.setUsername($rootScope.activeUser._id.toString())
+            $analytics.setUserProperties({"$name": $rootScope.activeUser.username.toString(), "$email": $rootScope.activeUser.username.toString()})
+            $rootScope.getUserBooks().then () ->
 
-                data = {"username": $rootScope.activeUser.email}
-                $http.post( askiiUrl+'/users?key='+askiiKey, data ).success((data, status, headers, config) ->
-                  
-                  # console.log data
-                  $rootScope.activeUser.askiiUser = data
-                  # this callback will be called asynchronously
-                  # when the response is available
+              data = {"username": $rootScope.activeUser.email}
+              $http.post( askiiUrl+'/users?key='+askiiKey, data ).success((data, status, headers, config) ->
+                
+                # console.log data
+                $rootScope.activeUser.askiiUser = data
+                # this callback will be called asynchronously
+                # when the response is available
 
-                  loginEvent = 'loginEvent'
-                  $scope.$broadcast(loginEvent)
-                  $scope.closeSignup()
+                loginEvent = 'loginEvent'
+                $scope.$broadcast(loginEvent)
+                $scope.closeSignup()
 
-                  return
-                ).error (data, status, headers, config) ->
-                  # called asynchronously if an error occurs
-                  # or server returns response with an error status.
-                  # console.log 'wrong login'
-                  $scope.errorMessage = "Sorry! Please try again."
-                  return
-            ), (error) ->
-              $scope.errorMessage = "Sorry! Please try again."
-              return
+                return
+              ).error (data, status, headers, config) ->
+                # called asynchronously if an error occurs
+                # or server returns response with an error status.
+                # console.log 'wrong login'
+                $scope.errorMessage = "Sorry! Please try again."
+                return
           ), (error) ->
             $scope.errorMessage = "Sorry! Please try again."
             return
-        else
-          $scope.errorMessage = "Sorry! Incorrect passphrase."
+        ), (error) ->
+          $scope.errorMessage = "Sorry! Please try again."
           return
+        # else
+        #   $scope.errorMessage = "Sorry! Incorrect passphrase."
+        #   return
 
       if kinveyUser
         if kinveyUser.username == "user"
@@ -389,6 +391,7 @@ app.controller('PlayerCtrl', [
     bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
     bookPromise.then (book) ->
       $scope.book = book
+      # console.log book
       promise = $kinvey.DataStore.find( "Pages", pageQuery )
       promise.then (pages) ->
         book_display_data = {
@@ -430,7 +433,7 @@ app.controller('PlayerCtrl', [
       return
 
     $scope.slideHasChanged = (newSlide) ->
-      console.log newSlide
+      # console.log newSlide
       $scope.currentSlide = newSlide
       if newSlide <= $scope.beginningIndex
         $scope.beginningIndex = $scope.beginningIndex  - $scope.numPagesShown
@@ -439,7 +442,7 @@ app.controller('PlayerCtrl', [
       if newSlide >= $scope.endIndex
         $scope.beginningIndex = $scope.beginningIndex + $scope.numPagesShown
         $scope.endIndex = $scope.endIndex + $scope.numPagesShown
-      console.log $scope.beginningIndex, $scope.endIndex
+      # console.log $scope.beginningIndex, $scope.endIndex
       return
 
     $scope.slideTo = (slideNum) ->
@@ -453,10 +456,10 @@ app.controller('PlayerCtrl', [
         return
       else
         $ionicSlideBoxDelegate.slide(slideNum)
-        console.log slideNum
+        # console.log slideNum
         $scope.beginningIndex = slideNum - (slideNum % $scope.numPagesShown)
         $scope.endIndex = $scope.beginningIndex + $scope.numPagesShown
-        console.log $scope.beginningIndex, $scope.endIndex
+        # console.log $scope.beginningIndex, $scope.endIndex
 
     $scope.slidePrevious = ->
       speechSynthesis.cancel()
