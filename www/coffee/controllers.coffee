@@ -794,3 +794,21 @@ app.controller('EditPageCtrl', [
       return
 
 ])
+
+app.controller('TipsCtrl', [
+  "$ionicHistory"
+  "$scope"
+  "$kinvey"
+  "$rootScope"
+  "$ionicPopup"
+  "$analytics"
+  "$state"
+  "$location"
+  "$window"
+  ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $analytics, $state, $location, $window) ->
+    $analytics.eventTrack('Open - Tips', {  category: 'Page View' })
+    $scope.goBack = ->
+      $ionicHistory.goBack()
+      return
+    return
+])

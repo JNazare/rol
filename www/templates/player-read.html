@@ -54,5 +54,7 @@
     <button class="button button-large button-clear play-button" ng-click='speak(pages[currentSlide].text, "en-US")' ng-class="{'show-button': playing==false, 'hide-button': playing==true}" analytics-on analytics-event="Click - Play, Title: {{book.title}}, Page: {{currentSlide}}" analytics-category="Commands">
       <span class="ion-ios-play"></span>
     </button>
+    <a class="button button-clear button-icon icon ion-help-circled tips-button" ng-href="#/tips" analytics-on analytics-event="Click - Tips" analytics-category="Commands">
+    </a>
   </div>
 </ion-view>

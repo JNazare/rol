@@ -46,6 +46,10 @@ button.button.button-large.button-clear.play-button{
 	margin-left: 47%;
 }
 
+a.tips-button{
+	padding-top: 4vh !important;
+}
+
 button.button.button-large.button-clear.pause-button{
 	position: relative;
 	font-size: 50px;
