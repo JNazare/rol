@@ -1,6 +1,5 @@
-
-<ion-view view-title="{{book.title}}">
-  <div class="bar bar-subheader thumbnail-bar">
+<ion-view view-title="{{book.title}}" cache-view="false">
+  <div class="bar bar-subheader thumbnail-bar" ng-if="!errorMsg">
     <div class="button-bar">
       <a class="button button-clear" ng-click="slidePrevious()" ng-class="{'button-dark': currentSlide>0}" analytics-on analytics-event="Click - Slide To Previous" analytics-category="Commands">
         <span class="ion-ios-arrow-left"></span>
@@ -16,11 +15,11 @@
   <ion-nav-buttons side="primary">
     <!-- <a class="button button-clear button-light button-icon icon ion-ios-information-outline help-button" ng-href="" analytics-on analytics-event="Click - Info" analytics-category="Commands">
     </a> -->
-    <a class="button button-clear button-light button-icon icon ion-ios-close-empty" ng-href="#/tab/read" ng-click="endBook()" analytics-on analytics-event="Click - Close Book" analytics-category="Commands">
+    <a class="button button-clear button-light button-icon icon ion-ios-close-empty" ng-click="endBook()" analytics-on analytics-event="Click - Close Book" analytics-category="Commands">
     </a>
   </ion-nav-buttons>
   <ion-content class="padding has-header has-subheader has-footer has-subfooter">
-    <ion-slide-box on-slide-changed="slideHasChanged($index)" active-slide="currentSlide">
+    <ion-slide-box on-slide-changed="slideHasChanged($index)" active-slide="currentSlide" ng-if="!errorMsg">
       <ion-slide ng-repeat="page in pages">
         <div class="box">
           <p ng-repeat="paragraph in page.text|splitParagraphs track by $index">
@@ -32,8 +31,18 @@
         </div>
       </ion-slide>
     </ion-slide-box>
+    <div class="row" ng-if="errorMsg">
+      <div class="col col-100">
+        <center>
+          <br>
+          <h3> {{errorMsg}} </h3>
+          <br>
+          <button class="button button-positive" ng-click="refreshPlay()">Reload</button>
+        </center>
+      </div>
+    </div>
   </ion-content>
-  <div class="bar bar-subfooter bar-stable define-subfooter">
+  <div class="bar bar-subfooter bar-stable define-subfooter" ng-if="!errorMsg">
     <div class="row">
       <div class="col-10 define-icon-row">
         <button class="button icon-left ion-android-globe button-stable redefine-button" ng-click="replay_definition(selected_word, translated_word)" analytics-on analytics-event="Replay - {{selected_word}}" analytics-category="Commands"></button>
@@ -47,7 +56,7 @@
       </div>
    </div>
   </div>
-  <div class="bar bar-footer bar-dark player-footer">
+  <div class="bar bar-footer bar-dark player-footer" ng-if="!errorMsg">
     <button class="button button-large button-clear pause-button" ng-click='pause()' ng-class="{'show-button': playing==true, 'hide-button': playing==false}" analytics-on analytics-event="Click - Stop, Title: {{book.title}}, Page: {{currentSlide}}" analytics-category="Commands">
       <span class="ion-stop"></span>
     </button>

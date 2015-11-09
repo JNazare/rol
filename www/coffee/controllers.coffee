@@ -50,17 +50,47 @@ app.controller('AppCtrl', [
   "betaPassphrase"
   "$ionicLoading"
   "$analytics"
-  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl, betaPassphrase, $ionicLoading, $analytics) ->
+  "$ionicPopup"
+  "$location"
+  "$window"
+  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl, betaPassphrase, $ionicLoading, $analytics, $ionicPopup, $location, $window) ->
+
+    $rootScope.kinveyStart = ->
+      promise = $kinvey.init(
+        appKey: kinveyKey
+        appSecret: kinveySecret
+        sync:
+            enable: true
+      )
+      promise.then (kinveyUser) ->
+        return kinveyUser
 
     $rootScope.startLoading = ->
       $ionicLoading.show template: 'Loading...'
       $timeout (->
         $ionicLoading.hide()
-        return
+        $http.get("http://google.com").success(() ->        
+          return
+        ).error () ->
+          $rootScope.showError()
+        # console.log $scope.books
+        # if (!$rootScope.activeUser)
+        # if !$scope.books
+        #   $rootScope.showError()
       ), 5000
       return
 
+    $rootScope.showError = ->
+      $rootScope.errorMsg = "Oops! Please connect to Wifi."
+      return
+
+    $rootScope.reload = ->
+      $location.path '/'
+      $window.location.reload()
+      return
+
     $rootScope.doneLoading = ->
+      delete $rootScope.errorMsg
       $ionicLoading.hide()
       return
 
@@ -195,7 +225,6 @@ app.controller('AppCtrl', [
             $analytics.setUsername($rootScope.activeUser._id.toString())
 
             $rootScope.getUserBooks().then () ->
-
               loginEvent = 'loginEvent'
               $scope.$broadcast(loginEvent)
               $scope.closeLogin()
@@ -269,6 +298,7 @@ app.controller('ReadCtrl', [
   "$location"
   "$analytics"
   ($rootScope, $scope, $kinvey, $stateParams, $location, $analytics) ->
+    console.log 'loading...'
     $rootScope.startLoading()
     $analytics.eventTrack('Open - Library', {  category: 'Page View' })
     $scope.redirectToEdit = (editUrl) ->
@@ -300,8 +330,15 @@ app.controller('PlayerCtrl', [
   "$analytics"
   "$state"
   "$ionicPopup"
-  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey, $analytics, $state, $ionicPopup) ->
+  "$window"
+  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey, $analytics, $state, $ionicPopup, $window) ->
+
     $rootScope.startLoading()
+
+    # console.log $rootScope.logError
+    # if $rootScope.logError == true
+    #   showConnectError()
+
     # $rootScope.activeUser.language = $kinvey.getActiveUser().language
     $scope.numPagesShown = 5
     $scope.beginningIndex = 0
@@ -311,7 +348,7 @@ app.controller('PlayerCtrl', [
     pageQuery.equalTo('bookId', $stateParams.bookId)
     pageQuery.ascending('pageNumber')
     bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
-    bookPromise.then (book) ->
+    bookPromise.then ((book) ->
       $scope.book = book
       promise = $kinvey.DataStore.find( "Pages", pageQuery )
       promise.then (pages) ->
@@ -329,6 +366,16 @@ app.controller('PlayerCtrl', [
         promise.then ( translationLanguage ) ->
           $scope.translationLanguage = translationLanguage
           $rootScope.doneLoading()
+    ), (err) ->
+      showConnectError()
+
+    showConnectError = ->
+      $rootScope.doneLoading()
+      $rootScope.showError()
+
+    $scope.refreshPlay = ->
+      delete $rootScope.errorMsg
+      $location.path '/'
 
     $scope.currentSlide = 0
     $scope.playing = false
@@ -408,6 +455,8 @@ app.controller('PlayerCtrl', [
     $scope.endBook = ->
       speechSynthesis.cancel()
       $scope.playing = false
+      $rootScope.errorFlag = false
+      $location.path '/'
       return
 
     $scope.createReviewQuestion = (index) ->
@@ -452,13 +501,14 @@ app.controller('PlayerCtrl', [
       $scope.unformatted_selected_word = word
       $scope.selected_word = word.trim().replace(/["\.',-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
       link = askiiUrl + "/en/" + $scope.translationLanguage._id + "/" + $scope.selected_word
-      $http.get(link).success((translated_word, status, headers, config) ->
-        
+      $http.get(link).success((translated_word, status, headers, config) ->        
         $scope.translated_word = parseHtmlEnteties(translated_word)
-
         return
       ).error (data, status, headers, config) ->
-        'error'
+        $scope.translated_word = ""
+        alertPopup = $ionicPopup.alert(
+          title: 'Oops!'
+          template: 'Please connect to the Wifi.')
 
       defineUtterance1.text = $scope.selected_word
       defineUtterance1.lang = "en"
