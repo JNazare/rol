@@ -69,7 +69,7 @@ app.controller('AppCtrl', [
       $ionicLoading.show template: 'Loading...'
       $timeout (->
         $ionicLoading.hide()
-        $http.get("http://askii.media.mit.edu/askii/api/v1.0/en/es/hello").success(() ->        
+        $http.get( askiiUrl+"/en/es/hello" ).success(() ->        
           return
         ).error () ->
           $rootScope.showError()
@@ -299,6 +299,8 @@ app.controller('ReadCtrl', [
   "$analytics"
   ($rootScope, $scope, $kinvey, $stateParams, $location, $analytics) ->
     $rootScope.startLoading()
+    angular.element(".tab-nav").hide()
+    angular.element("ion-content.library-content").css('top', 44)
     $analytics.eventTrack('Open - Library', {  category: 'Page View' })
     $scope.redirectToEdit = (editUrl) ->
       $location.path(editUrl)

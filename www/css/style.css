@@ -157,6 +157,8 @@ div.translation-text{
 
 button.save-word-button{
 	font-size: 16px;
+	margin-top: 5px;
+	color: #ffc900;
 }
 
 span.word{

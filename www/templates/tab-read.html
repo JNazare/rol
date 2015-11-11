@@ -7,7 +7,7 @@
     </a>
   </ion-nav-buttons>
 
-  <ion-content ng-init="mixpanel.identify(activeUser._id); console.log(activeUser._id);">
+  <ion-content class="library-content" ng-init="mixpanel.identify(activeUser._id); console.log(activeUser._id);">
     <div class="row" ng-repeat="libraryRow in libraryLayout" ng-if="!errorMsg">
       <div class="col col-33" ng-repeat="book in libraryRow">
         <span class="booktile" ng-if="!book.add_url">
