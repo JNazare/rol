@@ -21,7 +21,7 @@
   <ion-content class="padding has-header has-subheader has-footer has-subfooter">
     <ion-slide-box on-slide-changed="slideHasChanged($index)" active-slide="currentSlide" ng-if="!errorMsg">
       <ion-slide ng-repeat="page in pages">
-        <div class="box">
+        <div class="box" ng-class="getSlideClass($index)">
           <p ng-repeat="paragraph in page.text|splitParagraphs track by $index">
             <span class="word" ng-repeat="word in paragraph|splitWords track by $index" ng-click="define(word, $parent.$parent.$index, $index, $parent.$index)" analytics-on analytics-event="Define and Play - {{word}}" analytics-category="Commands" ng-class="{selected_word: unformatted_selected_word==word && pageIndex==$parent.$parent.$index && paragraphIndex==$parent.$index && wordIndex==$index}">
               {{word}}
@@ -63,7 +63,7 @@
     <button class="button button-large button-clear play-button" ng-click='speak(pages[currentSlide].text, "en-US")' ng-class="{'show-button': playing==false, 'hide-button': playing==true}" analytics-on analytics-event="Click - Play, Title: {{book.title}}, Page: {{currentSlide}}" analytics-category="Commands">
       <span class="ion-ios-play"></span>
     </button>
-    <a class="button button-clear button-icon icon ion-help-circled tips-button" ng-href="#/tips" analytics-on analytics-event="Click - Tips" analytics-category="Commands">
+<!--     <a class="button button-clear button-icon icon ion-help-circled tips-button" ng-href="#/tips" analytics-on analytics-event="Click - Tips" analytics-category="Commands"> -->
     </a>
   </div>
 </ion-view>

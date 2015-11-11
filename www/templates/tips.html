@@ -6,18 +6,14 @@
 	</ion-nav-buttons>
 	<ion-content class="has-header">
 		<div class="list">
-		  	<div class="item item-divider">
-    			Tip 1
-  			</div>
-  			<label class="item">
-    			<iframe width="100%" height="63%" src="https://www.youtube.com/embed/_C4eLoqXzxg" frameborder="0" allowfullscreen></iframe>
-  			</label>
-  			<div class="item item-divider">
-    			Tip 2
-  			</div>
-  			<label class="item">
-    			<iframe width="100%" height="63%" src="https://www.youtube.com/embed/_C4eLoqXzxg" frameborder="0" allowfullscreen></iframe>
-  			</label>
+        <span ng-repeat="tip in tips">
+  		  	<div class="item item-divider">
+      			{{tip.name}}
+    			</div>
+    			<label class="item">
+      			<iframe type="text/html" width="100%" height="63%" ng-src="{{trustSrc(tip.src)}}" frameborder="0" allowfullscreen></iframe>
+    			</label>
+  			</span>
 		</div>
 	</ion-content>
 </ion-view>

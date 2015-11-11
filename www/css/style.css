@@ -81,7 +81,7 @@ button.redefine-button{
 
 div.box{
 	padding: 20px;
-	padding-bottom: 100px;
+	padding-bottom: 70px;
 }
 
 div.player-footer{
@@ -97,11 +97,13 @@ div.slider-pager{
 }*/
 
 img.selected{
-	border: 1.5px solid #111;
+	border: 2px solid #111;
+	opacity: 1;
 }
 
 img.unselected{
-	border: 1px solid #D8D8D8;
+	border: 2px solid #D8D8D8;
+	opacity: 0.7;
 }
 
 img.cover-image{
@@ -280,3 +282,19 @@ span.define-info-text{
 .selected_word{
 	color: #003399;
 }
+
+
+/*.slider-slides{
+  display: flex;
+  flex-direction: row;
+}*/
+
+/*.slider {
+height: 200px;  slider height you want 
+}*/
+/*.slider-slide {
+ color: #000;
+ background-color: #fff;
+ height: 100%;
+} */
+

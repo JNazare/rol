@@ -77,12 +77,13 @@ app.config ($stateProvider, $urlRouterProvider, $analyticsProvider) ->
   views: 'wrapper':
     templateUrl: 'templates/editpage.html'
     controller: 'EditPageCtrl'
-  ).state('app.tips',
-    url: '/tips'
-    views: 'wrapper':
-      templateUrl: 'templates/tips.html'
-      controller: 'TipsCtrl'
   )
+  # .state('app.tips',
+  #   url: '/tips'
+  #   views: 'wrapper':
+  #     templateUrl: 'templates/tips.html'
+  #     controller: 'TipsCtrl'
+  # )
   
   # if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise '/library'
