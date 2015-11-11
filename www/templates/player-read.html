@@ -47,13 +47,13 @@
       <div class="col-10 define-icon-row">
         <button class="button icon-left ion-android-globe button-stable redefine-button" ng-click="replay_definition(selected_word, translated_word)" analytics-on analytics-event="Replay - {{selected_word}}" analytics-category="Commands"></button>
       </div>
-      <div class="col-70 col-offset-10 translation-text">
+      <div class="col-80 col-offset-10 translation-text">
         {{selected_word}} <i ng-if="translated_word" class="icon ion-arrow-swap"></i> {{translated_word}}
         <span class="define-info-text" ng-if="selected_word==null">Click a word to translate</span>
       </div>
-      <div class="col-10" ng-if="translated_word">
+      <!-- <div class="col-10" ng-if="translated_word">
         <button class="button button-clear button-energized save-word-button" ng-click="savedWord || createReviewQuestion(pageIndex)" ng-class="{'icon ion-ios-star': savedWord, 'icon ion-ios-star-outline': !savedWord}" ng-disabled='{{savedWord}}' analytics-on analytics-event="Save - {{selected_word}}" analytics-category="Commands"></button>
-      </div>
+      </div> -->
    </div>
   </div>
   <div class="bar bar-footer bar-dark player-footer" ng-if="!errorMsg">

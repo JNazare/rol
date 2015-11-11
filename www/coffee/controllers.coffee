@@ -298,7 +298,6 @@ app.controller('ReadCtrl', [
   "$location"
   "$analytics"
   ($rootScope, $scope, $kinvey, $stateParams, $location, $analytics) ->
-    console.log 'loading...'
     $rootScope.startLoading()
     $analytics.eventTrack('Open - Library', {  category: 'Page View' })
     $scope.redirectToEdit = (editUrl) ->
@@ -524,13 +523,15 @@ app.controller('PlayerCtrl', [
       $scope.paragraphIndex = paragraphIndex
       $scope.unformatted_selected_word = word
       $scope.selected_word = word.trim().replace(/["\.',-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+
+      defineUtterance1.text = $scope.selected_word #$scope.translated_word
+      defineUtterance1.lang = "en-US" #$scope.translationLanguage.voice
+      defineUtterance1.localService = true
+      speechSynthesis.speak defineUtterance1
+
       link = askiiUrl + "/en/" + $scope.translationLanguage._id + "/" + $scope.selected_word
       $http.get(link).success((translated_word, status, headers, config) ->        
         $scope.translated_word = parseHtmlEnteties(translated_word)
-        defineUtterance1.text = $scope.selected_word #$scope.translated_word
-        defineUtterance1.lang = "en-US" #$scope.translationLanguage.voice
-        defineUtterance1.localService = true
-        speechSynthesis.speak defineUtterance1
         return
       ).error (data, status, headers, config) ->
         $scope.translated_word = ""
