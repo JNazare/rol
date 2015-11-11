@@ -1,6 +1,5 @@
-
-<ion-view view-title="{{book.title}}">
-  <div class="bar bar-subheader thumbnail-bar">
+<ion-view view-title="{{book.title}}" cache-view="false">
+  <div class="bar bar-subheader thumbnail-bar" ng-if="!errorMsg">
     <div class="button-bar">
       <a class="button button-clear" ng-click="slidePrevious()" ng-class="{'button-dark': currentSlide>0}" analytics-on analytics-event="Click - Slide To Previous" analytics-category="Commands">
         <span class="ion-ios-arrow-left"></span>
@@ -16,13 +15,13 @@
   <ion-nav-buttons side="primary">
     <!-- <a class="button button-clear button-light button-icon icon ion-ios-information-outline help-button" ng-href="" analytics-on analytics-event="Click - Info" analytics-category="Commands">
     </a> -->
-    <a class="button button-clear button-light button-icon icon ion-ios-close-empty" ng-href="#/tab/read" ng-click="endBook()" analytics-on analytics-event="Click - Close Book" analytics-category="Commands">
+    <a class="button button-clear button-light button-icon icon ion-ios-close-empty" ng-click="endBook()" analytics-on analytics-event="Click - Close Book" analytics-category="Commands">
     </a>
   </ion-nav-buttons>
   <ion-content class="padding has-header has-subheader has-footer has-subfooter">
-    <ion-slide-box on-slide-changed="slideHasChanged($index)" active-slide="currentSlide">
+    <ion-slide-box on-slide-changed="slideHasChanged($index)" active-slide="currentSlide" ng-if="!errorMsg">
       <ion-slide ng-repeat="page in pages">
-        <div class="box">
+        <div class="box" ng-class="getSlideClass($index)">
           <p ng-repeat="paragraph in page.text|splitParagraphs track by $index">
             <span class="word" ng-repeat="word in paragraph|splitWords track by $index" ng-click="define(word, $parent.$parent.$index, $index, $parent.$index)" analytics-on analytics-event="Define and Play - {{word}}" analytics-category="Commands" ng-class="{selected_word: unformatted_selected_word==word && pageIndex==$parent.$parent.$index && paragraphIndex==$parent.$index && wordIndex==$index}">
               {{word}}
@@ -32,27 +31,39 @@
         </div>
       </ion-slide>
     </ion-slide-box>
+    <div class="row" ng-if="errorMsg">
+      <div class="col col-100">
+        <center>
+          <br>
+          <h3> {{errorMsg}} </h3>
+          <br>
+          <button class="button button-positive" ng-click="refreshPlay()">Reload</button>
+        </center>
+      </div>
+    </div>
   </ion-content>
-  <div class="bar bar-subfooter bar-stable define-subfooter">
+  <div class="bar bar-subfooter bar-stable define-subfooter" ng-if="!errorMsg">
     <div class="row">
       <div class="col-10 define-icon-row">
         <button class="button icon-left ion-android-globe button-stable redefine-button" ng-click="replay_definition(selected_word, translated_word)" analytics-on analytics-event="Replay - {{selected_word}}" analytics-category="Commands"></button>
       </div>
-      <div class="col-70 col-offset-10 translation-text">
+      <div class="col-80 col-offset-10 translation-text">
         {{selected_word}} <i ng-if="translated_word" class="icon ion-arrow-swap"></i> {{translated_word}}
         <span class="define-info-text" ng-if="selected_word==null">Click a word to translate</span>
       </div>
-      <div class="col-10" ng-if="translated_word">
+      <!-- <div class="col-10" ng-if="translated_word">
         <button class="button button-clear button-energized save-word-button" ng-click="savedWord || createReviewQuestion(pageIndex)" ng-class="{'icon ion-ios-star': savedWord, 'icon ion-ios-star-outline': !savedWord}" ng-disabled='{{savedWord}}' analytics-on analytics-event="Save - {{selected_word}}" analytics-category="Commands"></button>
-      </div>
+      </div> -->
    </div>
   </div>
-  <div class="bar bar-footer bar-dark player-footer">
+  <div class="bar bar-footer bar-dark player-footer" ng-if="!errorMsg">
     <button class="button button-large button-clear pause-button" ng-click='pause()' ng-class="{'show-button': playing==true, 'hide-button': playing==false}" analytics-on analytics-event="Click - Stop, Title: {{book.title}}, Page: {{currentSlide}}" analytics-category="Commands">
       <span class="ion-stop"></span>
     </button>
     <button class="button button-large button-clear play-button" ng-click='speak(pages[currentSlide].text, "en-US")' ng-class="{'show-button': playing==false, 'hide-button': playing==true}" analytics-on analytics-event="Click - Play, Title: {{book.title}}, Page: {{currentSlide}}" analytics-category="Commands">
       <span class="ion-ios-play"></span>
     </button>
+<!--     <a class="button button-clear button-icon icon ion-help-circled tips-button" ng-href="#/tips" analytics-on analytics-event="Click - Tips" analytics-category="Commands"> -->
+    </a>
   </div>
 </ion-view>

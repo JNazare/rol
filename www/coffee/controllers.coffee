@@ -50,17 +50,47 @@ app.controller('AppCtrl', [
   "betaPassphrase"
   "$ionicLoading"
   "$analytics"
-  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl, betaPassphrase, $ionicLoading, $analytics) ->
+  "$ionicPopup"
+  "$location"
+  "$window"
+  ($scope, $ionicModal, $rootScope, $timeout, $kinvey, kinveyKey, kinveySecret, $http, askiiKey, askiiUrl, betaPassphrase, $ionicLoading, $analytics, $ionicPopup, $location, $window) ->
+
+    $rootScope.kinveyStart = ->
+      promise = $kinvey.init(
+        appKey: kinveyKey
+        appSecret: kinveySecret
+        sync:
+            enable: true
+      )
+      promise.then (kinveyUser) ->
+        return kinveyUser
 
     $rootScope.startLoading = ->
       $ionicLoading.show template: 'Loading...'
       $timeout (->
         $ionicLoading.hide()
-        return
+        $http.get( askiiUrl+"/en/es/hello" ).success(() ->        
+          return
+        ).error () ->
+          $rootScope.showError()
+        # console.log $scope.books
+        # if (!$rootScope.activeUser)
+        # if !$scope.books
+        #   $rootScope.showError()
       ), 5000
       return
 
+    $rootScope.showError = ->
+      $rootScope.errorMsg = "Oops! Please connect to Wifi."
+      return
+
+    $rootScope.reload = ->
+      $location.path '/'
+      $window.location.reload()
+      return
+
     $rootScope.doneLoading = ->
+      delete $rootScope.errorMsg
       $ionicLoading.hide()
       return
 
@@ -69,7 +99,7 @@ app.controller('AppCtrl', [
       $timeout (->
         $ionicLoading.hide()
         return
-      ), 5000
+      ), 7000
       return
 
     $scope.loginData = {}
@@ -195,7 +225,6 @@ app.controller('AppCtrl', [
             $analytics.setUsername($rootScope.activeUser._id.toString())
 
             $rootScope.getUserBooks().then () ->
-
               loginEvent = 'loginEvent'
               $scope.$broadcast(loginEvent)
               $scope.closeLogin()
@@ -270,6 +299,8 @@ app.controller('ReadCtrl', [
   "$analytics"
   ($rootScope, $scope, $kinvey, $stateParams, $location, $analytics) ->
     $rootScope.startLoading()
+    angular.element(".tab-nav").hide()
+    angular.element("ion-content.library-content").css('top', 44)
     $analytics.eventTrack('Open - Library', {  category: 'Page View' })
     $scope.redirectToEdit = (editUrl) ->
       $location.path(editUrl)
@@ -300,8 +331,17 @@ app.controller('PlayerCtrl', [
   "$analytics"
   "$state"
   "$ionicPopup"
-  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey, $analytics, $state, $ionicPopup) ->
+  "$window",
+  "$ionicScrollDelegate"
+  "$timeout"
+  ($kinvey, $location, $scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $http, askiiUrl, askiiKey, $analytics, $state, $ionicPopup, $window, $ionicScrollDelegate, $timeout) ->
+
     $rootScope.startLoading()
+
+    # console.log $rootScope.logError
+    # if $rootScope.logError == true
+    #   showConnectError()
+
     # $rootScope.activeUser.language = $kinvey.getActiveUser().language
     $scope.numPagesShown = 5
     $scope.beginningIndex = 0
@@ -311,7 +351,7 @@ app.controller('PlayerCtrl', [
     pageQuery.equalTo('bookId', $stateParams.bookId)
     pageQuery.ascending('pageNumber')
     bookPromise = $kinvey.DataStore.get("Books", $stateParams.bookId)
-    bookPromise.then (book) ->
+    bookPromise.then ((book) ->
       $scope.book = book
       promise = $kinvey.DataStore.find( "Pages", pageQuery )
       promise.then (pages) ->
@@ -328,7 +368,18 @@ app.controller('PlayerCtrl', [
         $analytics.eventTrack('Open - Player for ' + book.title, {  category: 'Page View' })
         promise.then ( translationLanguage ) ->
           $scope.translationLanguage = translationLanguage
+          adjustScrollHeight( $ionicSlideBoxDelegate.currentIndex() )
           $rootScope.doneLoading()
+    ), (err) ->
+      showConnectError()
+
+    showConnectError = ->
+      $rootScope.doneLoading()
+      $rootScope.showError()
+
+    $scope.refreshPlay = ->
+      delete $rootScope.errorMsg
+      $location.path '/'
 
     $scope.currentSlide = 0
     $scope.playing = false
@@ -353,6 +404,14 @@ app.controller('PlayerCtrl', [
       $rootScope.doneLoading()
       return
 
+    $scope.getSlideClass = (ct) ->
+      return "slide" + ct
+
+    adjustScrollHeight = (newSlide) ->
+      height = angular.element(".slide"+newSlide).css("height")
+      angular.element(".scroll").css("height", height)
+      angular.element(".slider").css("height", height)
+
     $scope.slideHasChanged = (newSlide) ->
       $scope.currentSlide = newSlide
       if newSlide <= $scope.beginningIndex
@@ -361,6 +420,12 @@ app.controller('PlayerCtrl', [
       if newSlide >= $scope.endIndex
         $scope.beginningIndex = $scope.beginningIndex + $scope.numPagesShown
         $scope.endIndex = $scope.endIndex + $scope.numPagesShown
+      $ionicScrollDelegate.scrollTop()
+      $ionicSlideBoxDelegate.update()
+      adjustScrollHeight(newSlide)
+      # height = angular.element(".slide"+newSlide).css("height")
+      # angular.element(".scroll").css("height", height)
+      # angular.element(".slider").css("height", height)
       return
 
     $scope.slideTo = (slideNum) ->
@@ -376,17 +441,24 @@ app.controller('PlayerCtrl', [
         $ionicSlideBoxDelegate.slide(slideNum)
         $scope.beginningIndex = slideNum - (slideNum % $scope.numPagesShown)
         $scope.endIndex = $scope.beginningIndex + $scope.numPagesShown
+        $ionicScrollDelegate.scrollTop()
+        adjustScrollHeight(slideNum)
+        return
 
     $scope.slidePrevious = ->
       speechSynthesis.cancel()
       $scope.playing = false
       $ionicSlideBoxDelegate.previous()
+      $ionicScrollDelegate.scrollTop()
+      adjustScrollHeight( $ionicSlideBoxDelegate.currentIndex() )
       return
 
     $scope.slideNext = ->
       speechSynthesis.cancel()
       $scope.playing = false
       $ionicSlideBoxDelegate.next()
+      $ionicScrollDelegate.scrollTop()
+      adjustScrollHeight( $ionicSlideBoxDelegate.currentIndex() )
       return
 
     $scope.speak = (text, lang) ->
@@ -408,6 +480,8 @@ app.controller('PlayerCtrl', [
     $scope.endBook = ->
       speechSynthesis.cancel()
       $scope.playing = false
+      $rootScope.errorFlag = false
+      $location.path '/'
       return
 
     $scope.createReviewQuestion = (index) ->
@@ -451,19 +525,21 @@ app.controller('PlayerCtrl', [
       $scope.paragraphIndex = paragraphIndex
       $scope.unformatted_selected_word = word
       $scope.selected_word = word.trim().replace(/["\.',-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
-      link = askiiUrl + "/en/" + $scope.translationLanguage._id + "/" + $scope.selected_word
-      $http.get(link).success((translated_word, status, headers, config) ->
-        
-        $scope.translated_word = parseHtmlEnteties(translated_word)
 
-        return
-      ).error (data, status, headers, config) ->
-        'error'
-
-      defineUtterance1.text = $scope.selected_word
-      defineUtterance1.lang = "en"
+      defineUtterance1.text = $scope.selected_word #$scope.translated_word
+      defineUtterance1.lang = "en-US" #$scope.translationLanguage.voice
       defineUtterance1.localService = true
       speechSynthesis.speak defineUtterance1
+
+      link = askiiUrl + "/en/" + $scope.translationLanguage._id + "/" + $scope.selected_word
+      $http.get(link).success((translated_word, status, headers, config) ->        
+        $scope.translated_word = parseHtmlEnteties(translated_word)
+        return
+      ).error (data, status, headers, config) ->
+        $scope.translated_word = ""
+        alertPopup = $ionicPopup.alert(
+          title: 'Oops!'
+          template: 'Please connect to the Wifi.')
       return
 
     $scope.replay_definition = (english_word, translated_word) ->
@@ -471,16 +547,16 @@ app.controller('PlayerCtrl', [
       if $scope.selected_word and $scope.translated_word
         $rootScope.startPlayLoading()
 
-        defineUtterance1.text = english_word
-        defineUtterance1.lang = "en"
+        defineUtterance1.text = $scope.selected_word #translated_word
+        defineUtterance1.lang = "en-US" #$scope.translationLanguage.voice
         defineUtterance1.localService = true
 
         speechSynthesis.speak defineUtterance1
 
       else
         notSelectedUtterance = new SpeechSynthesisUtterance
-        notSelectedUtterance.text = 'Click on a word to translate it'
-        notSelectedUtterance.lang = "en"
+        notSelectedUtterance.text = 'Click on a word to translate'
+        notSelectedUtterance.lang = "en-US"
         notSelectedUtterance.localService = true
 
         speechSynthesis.speak notSelectedUtterance
@@ -757,6 +833,7 @@ app.controller('EditPageCtrl', [
       return
 
     $scope.slideHasChanged = (newSlide) ->
+      $ionicScrollDelegate.scrollTop()
       $scope.currentSlide = newSlide
       return
 
@@ -794,3 +871,30 @@ app.controller('EditPageCtrl', [
       return
 
 ])
+
+# app.controller('TipsCtrl', [
+#   "$ionicHistory"
+#   "$scope"
+#   "$kinvey"
+#   "$rootScope"
+#   "$ionicPopup"
+#   "$analytics"
+#   "$state"
+#   "$location"
+#   "$window"
+#   "$sce"
+#   ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $analytics, $state, $location, $window, $sce) ->
+#     $analytics.eventTrack('Open - Tips', {  category: 'Page View' })
+#     tipsQuery = new $kinvey.Query()    
+#     tipsQuery.equalTo('show', true)
+#     tipsQuery.ascending('order')
+#     tipsPromise = $kinvey.DataStore.find( "Tips", tipsQuery )
+#     tipsPromise.then (tips) ->
+#       $scope.tips = tips
+#     $scope.goBack = ->
+#       $ionicHistory.goBack()
+#       return
+#     $scope.trustSrc = (src) ->
+#       $sce.trustAsResourceUrl src
+#     return
+# ])
