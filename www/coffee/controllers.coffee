@@ -298,6 +298,9 @@ app.controller('ReadCtrl', [
     $analytics.eventTrack('Open - Library', {  category: 'Page View' })
     $scope.redirectToEdit = (editUrl) ->
       $location.path(editUrl)
+    $scope.init = (m, callback) ->
+      $scope.$on 'loginEvent', () ->
+        console.log 'here'
     $scope.$on 'loginEvent', () ->
       add_book = {
         coverImageUrl: "img/add_book_icon.jpg"
@@ -307,7 +310,8 @@ app.controller('ReadCtrl', [
       if $rootScope.activeUser.admin == true
         books_to_chunk.unshift(add_book)
       $rootScope.libraryLayout = chunk(books_to_chunk, 3)
-      $analytics.setUsername($rootScope.activeUser._id)
+      $analytics.setUsername($rootScope.activeUser._id.toString())
+      $analytics.setUserProperties({"$name": $rootScope.activeUser.username.toString(), "$email": $rootScope.activeUser.username.toString()})
       $rootScope.doneLoading()
       return
     return

@@ -24,6 +24,7 @@ angular.module('angulartics.mixpanel', ['angulartics'])
   angulartics.waitForVendorApi('mixpanel', 500, '__loaded', function (mixpanel) {
     $analyticsProvider.registerSetAlias(function (userId) {
       mixpanel.alias(userId);
+      console.log(userId);
     });
   });
 
