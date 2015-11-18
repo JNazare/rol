@@ -73,10 +73,6 @@ app.controller('AppCtrl', [
           return
         ).error () ->
           $rootScope.showError()
-        # console.log $scope.books
-        # if (!$rootScope.activeUser)
-        # if !$scope.books
-        #   $rootScope.showError()
       ), 5000
       return
 
@@ -299,8 +295,6 @@ app.controller('ReadCtrl', [
   "$analytics"
   ($rootScope, $scope, $kinvey, $stateParams, $location, $analytics) ->
     $rootScope.startLoading()
-    angular.element(".tab-nav").hide()
-    angular.element("ion-content.library-content").css('top', 44)
     $analytics.eventTrack('Open - Library', {  category: 'Page View' })
     $scope.redirectToEdit = (editUrl) ->
       $location.path(editUrl)
@@ -313,6 +307,7 @@ app.controller('ReadCtrl', [
       if $rootScope.activeUser.admin == true
         books_to_chunk.unshift(add_book)
       $rootScope.libraryLayout = chunk(books_to_chunk, 3)
+      $analytics.setUsername($rootScope.activeUser._id)
       $rootScope.doneLoading()
       return
     return
@@ -338,11 +333,6 @@ app.controller('PlayerCtrl', [
 
     $rootScope.startLoading()
 
-    # console.log $rootScope.logError
-    # if $rootScope.logError == true
-    #   showConnectError()
-
-    # $rootScope.activeUser.language = $kinvey.getActiveUser().language
     $scope.numPagesShown = 5
     $scope.beginningIndex = 0
     $scope.endIndex = $scope.beginningIndex + $scope.numPagesShown
@@ -387,6 +377,7 @@ app.controller('PlayerCtrl', [
     $scope.translated_word = null
 
     playUtterance = new SpeechSynthesisUtterance
+    playUtterance.rate = 0.5
     defineUtterance1 = new SpeechSynthesisUtterance
     defineUtterance2 = new SpeechSynthesisUtterance
     
@@ -400,7 +391,6 @@ app.controller('PlayerCtrl', [
       return
 
     defineUtterance1.onend = ->
-      # speechSynthesis.speak defineUtterance2
       $rootScope.doneLoading()
       return
 
@@ -423,9 +413,6 @@ app.controller('PlayerCtrl', [
       $ionicScrollDelegate.scrollTop()
       $ionicSlideBoxDelegate.update()
       adjustScrollHeight(newSlide)
-      # height = angular.element(".slide"+newSlide).css("height")
-      # angular.element(".scroll").css("height", height)
-      # angular.element(".slider").css("height", height)
       return
 
     $scope.slideTo = (slideNum) ->
@@ -526,8 +513,8 @@ app.controller('PlayerCtrl', [
       $scope.unformatted_selected_word = word
       $scope.selected_word = word.trim().replace(/["\.',-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
 
-      defineUtterance1.text = $scope.selected_word #$scope.translated_word
-      defineUtterance1.lang = "en-US" #$scope.translationLanguage.voice
+      defineUtterance1.text = $scope.selected_word 
+      defineUtterance1.lang = "en-US"
       defineUtterance1.localService = true
       speechSynthesis.speak defineUtterance1
 
@@ -547,8 +534,8 @@ app.controller('PlayerCtrl', [
       if $scope.selected_word and $scope.translated_word
         $rootScope.startPlayLoading()
 
-        defineUtterance1.text = $scope.selected_word #translated_word
-        defineUtterance1.lang = "en-US" #$scope.translationLanguage.voice
+        defineUtterance1.text = $scope.selected_word
+        defineUtterance1.lang = "en-US"
         defineUtterance1.localService = true
 
         speechSynthesis.speak defineUtterance1
@@ -872,29 +859,3 @@ app.controller('EditPageCtrl', [
 
 ])
 
-# app.controller('TipsCtrl', [
-#   "$ionicHistory"
-#   "$scope"
-#   "$kinvey"
-#   "$rootScope"
-#   "$ionicPopup"
-#   "$analytics"
-#   "$state"
-#   "$location"
-#   "$window"
-#   "$sce"
-#   ($ionicHistory, $scope, $kinvey, $rootScope, $ionicPopup, $analytics, $state, $location, $window, $sce) ->
-#     $analytics.eventTrack('Open - Tips', {  category: 'Page View' })
-#     tipsQuery = new $kinvey.Query()    
-#     tipsQuery.equalTo('show', true)
-#     tipsQuery.ascending('order')
-#     tipsPromise = $kinvey.DataStore.find( "Tips", tipsQuery )
-#     tipsPromise.then (tips) ->
-#       $scope.tips = tips
-#     $scope.goBack = ->
-#       $ionicHistory.goBack()
-#       return
-#     $scope.trustSrc = (src) ->
-#       $sce.trustAsResourceUrl src
-#     return
-# ])

@@ -13,8 +13,6 @@
     </div>
   </div>
   <ion-nav-buttons side="primary">
-    <!-- <a class="button button-clear button-light button-icon icon ion-ios-information-outline help-button" ng-href="" analytics-on analytics-event="Click - Info" analytics-category="Commands">
-    </a> -->
     <a class="button button-clear button-light button-icon icon ion-ios-close-empty" ng-click="endBook()" analytics-on analytics-event="Click - Close Book" analytics-category="Commands">
     </a>
   </ion-nav-buttons>
@@ -47,13 +45,13 @@
       <div class="col-10 define-icon-row">
         <button class="button icon-left ion-android-globe button-stable redefine-button" ng-click="replay_definition(selected_word, translated_word)" analytics-on analytics-event="Replay - {{selected_word}}" analytics-category="Commands"></button>
       </div>
-      <div class="col-80 col-offset-10 translation-text">
+      <div class="col-67 col-offset-10 translation-text">
         {{selected_word}} <i ng-if="translated_word" class="icon ion-arrow-swap"></i> {{translated_word}}
         <span class="define-info-text" ng-if="selected_word==null">Click a word to translate</span>
       </div>
-      <!-- <div class="col-10" ng-if="translated_word">
+      <div class="col-10" ng-if="translated_word">
         <button class="button button-clear button-energized save-word-button" ng-click="savedWord || createReviewQuestion(pageIndex)" ng-class="{'icon ion-ios-star': savedWord, 'icon ion-ios-star-outline': !savedWord}" ng-disabled='{{savedWord}}' analytics-on analytics-event="Save - {{selected_word}}" analytics-category="Commands"></button>
-      </div> -->
+      </div>
    </div>
   </div>
   <div class="bar bar-footer bar-dark player-footer" ng-if="!errorMsg">
@@ -63,7 +61,6 @@
     <button class="button button-large button-clear play-button" ng-click='speak(pages[currentSlide].text, "en-US")' ng-class="{'show-button': playing==false, 'hide-button': playing==true}" analytics-on analytics-event="Click - Play, Title: {{book.title}}, Page: {{currentSlide}}" analytics-category="Commands">
       <span class="ion-ios-play"></span>
     </button>
-<!--     <a class="button button-clear button-icon icon ion-help-circled tips-button" ng-href="#/tips" analytics-on analytics-event="Click - Tips" analytics-category="Commands"> -->
     </a>
   </div>
 </ion-view>

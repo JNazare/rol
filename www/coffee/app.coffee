@@ -78,13 +78,7 @@ app.config ($stateProvider, $urlRouterProvider, $analyticsProvider) ->
     templateUrl: 'templates/editpage.html'
     controller: 'EditPageCtrl'
   )
-  # .state('app.tips',
-  #   url: '/tips'
-  #   views: 'wrapper':
-  #     templateUrl: 'templates/tips.html'
-  #     controller: 'TipsCtrl'
-  # )
-  
+
   # if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise '/library'
   return
@@ -113,7 +107,6 @@ app.config [
   '$httpProvider'
   ($httpProvider) ->
     $httpProvider.defaults.useXDomain = true 
-    # $httpProvider.defaults.withCredentials = true
     delete $httpProvider.defaults.headers.common["X-Requested-With"]
     $httpProvider.defaults.headers.common["Accept"] = "application/json"
     $httpProvider.defaults.headers.common["Content-Type"] = "application/json"
