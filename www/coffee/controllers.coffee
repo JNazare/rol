@@ -554,7 +554,6 @@ app.controller('PlayerCtrl', [
 
       return
 
-
     return
 ])
 

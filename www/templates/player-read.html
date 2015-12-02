@@ -20,7 +20,8 @@
     <ion-slide-box on-slide-changed="slideHasChanged($index)" active-slide="currentSlide" ng-if="!errorMsg">
       <ion-slide ng-repeat="page in pages">
         <div class="box" ng-class="getSlideClass($index)">
-          <p ng-repeat="paragraph in page.text|splitParagraphs track by $index">
+          <img class="prompt-img" src="img/prompt.png" ng-if="page.image._id=='0043f24f-e548-43fb-9592-e4903ae19e94'" width="50px">
+          <p ng-repeat="paragraph in page.text|splitParagraphs track by $index" ng-class="{prompt_text: page.image._id=='0043f24f-e548-43fb-9592-e4903ae19e94' && $index==0}">
             <span class="word" ng-repeat="word in paragraph|splitWords track by $index" ng-click="define(word, $parent.$parent.$index, $index, $parent.$index)" analytics-on analytics-event="Define and Play - {{word}}" analytics-category="Commands" ng-class="{selected_word: unformatted_selected_word==word && pageIndex==$parent.$parent.$index && paragraphIndex==$parent.$index && wordIndex==$index}">
               {{word}}
             </span>
